@@ -34,6 +34,32 @@ function Core_mod:GetNormalFrames()
     }
 end
 
+function Core_mod:GetChatFrames()
+    local chatFrames = {}
+    local chatTabs = {}
+    local chatEditBoxes = {}
+
+    for i = 1, NUM_CHAT_WINDOWS do
+        --CHAT FRAME
+        local chatFrame = _G["ChatFrame" .. i]
+        if chatFrame and chatFrame:IsShown() then
+            table.insert(chatFrames, chatFrame)
+        end
+        --CHAT TAB FRAME
+        local chatTab = _G["ChatFrame" .. i .. "Tab"]
+        if chatTab and chatTab:IsShown() then
+            table.insert(chatTabs, chatTab)
+        end
+        --CHAT EDITBOX FRAME
+        local chatEditBox = _G["ChatFrame" .. i .. "EditBox"]
+        if chatEditBox and chatEditBox:IsShown() then
+            table.insert(chatEditBoxes, chatEditBox)
+        end
+    end
+
+    return {{QuickJoinToastButton}, chatFrames, chatTabs, chatEditBoxes}
+end
+
 function Core_mod:UpdateFramesOpacity(frames, amount)
     for _, frame in pairs(frames) do
         if frame then
@@ -42,26 +68,25 @@ function Core_mod:UpdateFramesOpacity(frames, amount)
     end
 end
 
-function Core_mod:ToggleAllBehaviour()
-    --Función exclusiva desde OnActiveToggle()
-    --Si en ON recupera todo, si en OFF desactiva todo
-    if self.db.profile.isEnabled then
-        Core_mod:UpdateFramesOpacity(
-            Core_mod:GetNormalFrames(),
-            self.db.profile.globalOpacity
-        )
-    else
-        Core_mod:UpdateFramesOpacity(
-            Core_mod:GetNormalFrames(),
-            100
-        )
+function Core_mod:UpdateAllFramesOpacity(opacity)
+    --To NormalFrames
+    Core_mod:UpdateFramesOpacity( Core_mod:GetNormalFrames(),  opacity)
+    --To ChatFrames
+    for _, frames in pairs( Core_mod:GetChatFrames() ) do
+        Core_mod:UpdateFramesOpacity(frames, opacity)
     end
+end
+
+function Core_mod:IsActive()
+    return self.db.profile.isEnabled
 end
 
 -- KEYBINDING EVENT
 ----------------------------------------------------------------------------
 function ToggleMinimalUI() 
     Core_mod:OnActiveToggle()
+    --DEBUG PURPOSES
+    Core_mod:GetChatFrames()
 end
 
 -- UI BEHAVIOUR
@@ -73,17 +98,17 @@ function Core_mod:OnActiveToggle(checked)
         self.db.profile.isEnabled = not self.db.profile.isEnabled
     end
     UI_mod:UpdateUI()
-    Core_mod:ToggleAllBehaviour() --Tras toggle, activa/desactiva todo
+    --Yes
+    if Core_mod:IsActive() then
+        Core_mod:UpdateAllFramesOpacity(self.db.profile.globalOpacity)
+    else
+        Core_mod:UpdateAllFramesOpacity(100)
+    end
 end
 
 function Core_mod:UpdateGlobalTransparency(amount)
     self.db.profile.globalOpacity = amount
-    if self.db.profile.isEnabled then 
-        --Segun isEnabled, permite/evita el alpha tras mover el slider
-        --Sin embargo, aun estando OFF guarda su valor en la DB
-        Core_mod:UpdateFramesOpacity(
-            Core_mod:GetNormalFrames(), 
-            amount
-        )
+    if Core_mod:IsActive() then 
+        Core_mod:UpdateAllFramesOpacity(amount)
     end
 end

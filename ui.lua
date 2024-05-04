@@ -4,7 +4,7 @@ local Core_mod
 function UI_mod:OnInitialize()
     Core_mod = HideUI:GetModule("Core_mod")
     self:RestoreUI()
-    self.lastElement = nil
+    self.lastElement = nil --For AmigableUI
 end
 
 function UI_mod:OnEnable()
@@ -16,11 +16,8 @@ end
 function UI_mod:RestoreUI()
     --Este método únicamente recupera los cambios que afectan a los frames del juego
     --Desde los parámetros almacenanos en la BD al iniciar sesión
-    if self.db.profile.isEnabled then
-        Core_mod:UpdateFramesOpacity(
-            Core_mod:GetNormalFrames(),
-            self.db.profile.globalOpacity
-        )
+    if Core_mod:IsActive() then
+        Core_mod:UpdateAllFramesOpacity(self.db.profile.globalOpacity)
     end
 end
 
@@ -34,7 +31,7 @@ end
 ----------------------------------------------------------------------------
 local function OptionsMenuPanel_Build(panel)
     panel.header           = UI_mod:CreateHeader("Options", panel)
-    
+    --General Settings
     panel.titleGeneral     = UI_mod:CreateTitle("General Settings")
     panel.isEnabled        = UI_mod:CreateCheckbox("Activate", true, function(checked)
         Core_mod:OnActiveToggle(checked)
@@ -42,7 +39,7 @@ local function OptionsMenuPanel_Build(panel)
     panel.globalOpacity    = UI_mod:CreateSlider("Overall Transparency", 0, 100, 50, function(amount)
         Core_mod:UpdateGlobalTransparency(amount)
     end)
-
+    --Mouseover Settings
     panel.titleMouseover   = UI_mod:CreateTitle("Mouseover Settings")
     panel.isMouseover      = UI_mod:CreateCheckbox("Show on Mouseover", true)
     panel.mouseoverIsFade  = UI_mod:CreateCheckbox("Enable Fade Effect", true)
@@ -56,17 +53,7 @@ local function OptionsMenuPanel_Build(panel)
     panel.combatFadeOut    = UI_mod:CreateSlider("Combat Fade Out Duration")
 end
 
-local function GetPanel(frame)
-    local panel = nil
-    if frame.type == "Panel" then
-        panel = frame
-    else
-        panel = frame.panel
-    end
-    return panel
-end
-
--- ADDON Menus and Submenus
+-- ADDON UI Menus and Submenus
 ----------------------------------------------------------------------------
 function UI_mod:CreateMenu(name)
     local parent = InterfaceOptionsFramePanelContainer
@@ -93,6 +80,17 @@ end
 
 -- AmigableUI
 ----------------------------------------------------------------------------
+-- AUX
+local function GetPanel(frame)
+    local panel = nil
+    if frame.type == "Panel" then
+        panel = frame
+    else
+        panel = frame.panel
+    end
+    return panel
+end
+
 -- TITLE Frame
 function UI_mod:CreateTitle(text)
     local to = self.lastElement
