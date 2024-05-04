@@ -18,6 +18,7 @@ function UI_mod:RestoreUI()
     --Desde los parámetros almacenanos en la BD al iniciar sesión
     if Core_mod:IsActive() then
         Core_mod:UpdateAllFramesOpacity(self.db.profile.globalOpacity)
+        Core_mod:HandleMouseoverBehaviour() --Activa el mouseover
     end
 end
 
@@ -25,6 +26,9 @@ function UI_mod:UpdateUI()
     -- Global Settings
     self.OptionsPanel.isEnabled:SetChecked(self.db.profile.isEnabled)
     self.OptionsPanel.globalOpacity:SetValue(self.db.profile.globalOpacity)
+    self.OptionsPanel.isMouseover:SetChecked(self.db.profile.isMouseOver)
+    self.OptionsPanel.mouseoverFadeIn:SetValue(self.db.profile.mouseoverFadeIn)
+    self.OptionsPanel.mouseoverFadeOut:SetValue(self.db.profile.mouseoverFadeOut)
 end
 
 -- BUILDER
@@ -36,19 +40,23 @@ local function OptionsMenuPanel_Build(panel)
     panel.isEnabled        = UI_mod:CreateCheckbox("Activate", true, function(checked)
         Core_mod:OnActiveToggle(checked)
     end)
-    panel.globalOpacity    = UI_mod:CreateSlider("Overall Transparency", 0, 100, 50, function(amount)
+    panel.globalOpacity    = UI_mod:CreateSlider("Overall Transparency", 0, 100, 50, 1, function(amount)
         Core_mod:UpdateGlobalTransparency(amount)
     end)
     --Mouseover Settings
     panel.titleMouseover   = UI_mod:CreateTitle("Mouseover Settings")
-    panel.isMouseover      = UI_mod:CreateCheckbox("Show on Mouseover", true)
-    panel.mouseoverIsFade  = UI_mod:CreateCheckbox("Enable Fade Effect", true)
-    panel.mouseoverFadeIn  = UI_mod:CreateSlider("Fade In Duration")
-    panel.mouseoverFadeOut = UI_mod:CreateSlider("Fade Out Duration")
-
+    panel.isMouseover      = UI_mod:CreateCheckbox("Show on Mouseover", true, function(checked)
+        Core_mod:OnMouseoverToggle(checked)
+    end)
+    panel.mouseoverFadeIn  = UI_mod:CreateSlider("Fade In Duration", 0, 5, 0.5, 0.1, function(amount)
+        Core_mod:UpdateMouseoverFadeInAmount(amount)
+    end)
+    panel.mouseoverFadeOut = UI_mod:CreateSlider("Fade Out Duration", 0, 5, 0.5, 0.1, function(amount)
+        Core_mod:UpdateMouseoverFadeOutAmount(amount)
+    end)
+    --Combat Settings
     panel.titleCombat      = UI_mod:CreateTitle("Combat Settings")
     panel.isCombat         = UI_mod:CreateCheckbox("Show During Combat", false)
-    panel.combatIsFade     = UI_mod:CreateCheckbox("Enable Combat Fade", false)
     panel.combatFadeIn     = UI_mod:CreateSlider("Combat Fade In Duration")
     panel.combatFadeOut    = UI_mod:CreateSlider("Combat Fade Out Duration")
 end
@@ -170,7 +178,7 @@ function UI_mod:CreateCheckbox(text, state, func)
 end
 
 -- SLIDER Frame
-function UI_mod:CreateSlider(text, min, max, default, func)
+function UI_mod:CreateSlider(text, min, max, default, step, func)
     local to = self.lastElement
     local panel = GetPanel(to)
     max = max or 100
@@ -184,7 +192,7 @@ function UI_mod:CreateSlider(text, min, max, default, func)
     slider:SetPoint("LEFT", panel, "LEFT", 23, 0)
     slider:SetPoint("TOP", to, "BOTTOM", 0, -26)
     slider:SetMinMaxValues(min, max)
-    slider:SetValueStep(1)
+    slider:SetValueStep(step or 1)
     slider:SetValue(default) --Invocar para restoreUI
 
     slider.Low:Hide() --Esconde low/high
@@ -206,7 +214,11 @@ function UI_mod:CreateSlider(text, min, max, default, func)
 
     --Attach event
     slider:SetScript("OnValueChanged", function(self, amount)
-        self.valueText:SetText(format("%.0f", amount)) --Live update of slider value
+        if step % 1 == 0 then
+            self.valueText:SetText(format("%.0f", amount))
+        else
+            self.valueText:SetText(format("%.2f", amount))
+        end
         if func then
             func(amount)
         end
