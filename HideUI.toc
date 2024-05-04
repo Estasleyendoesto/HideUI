@@ -15,4 +15,6 @@ libs\AceDB-3.0\AceDB-3.0.lua
 ## ...
 init.lua
 core.lua
+mouseover.lua
+chat.lua
 ui.lua

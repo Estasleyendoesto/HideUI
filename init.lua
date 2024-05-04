@@ -6,8 +6,8 @@ local defaults = {
         isEnabled = true,
         globalOpacity = 50,
         isMouseover = true,
-        mouseoverFadeIn = 0.5,
-        mouseoverFadeOut = 0.5,
+        mouseoverFadeIn = 0.4,
+        mouseoverFadeOut = 0.6,
     },
 }
 

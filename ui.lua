@@ -18,7 +18,6 @@ function UI_mod:RestoreUI()
     --Desde los parámetros almacenanos en la BD al iniciar sesión
     if Core_mod:IsActive() then
         Core_mod:UpdateAllFramesOpacity(self.db.profile.globalOpacity)
-        Core_mod:HandleMouseoverBehaviour() --Activa el mouseover
     end
 end
 
