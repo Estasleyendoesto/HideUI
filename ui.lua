@@ -3,22 +3,13 @@ local Core_mod
 
 function UI_mod:OnInitialize()
     Core_mod = HideUI:GetModule("Core_mod")
-    self:RestoreUI()
-    self.lastElement = nil --For AmigableUI
+    self.lastElement = nil --Para AmigableUI
 end
 
 function UI_mod:OnEnable()
     self.menuPanel = UI_mod:CreateMenu("HideUI")
     self.OptionsPanel = UI_mod:CreateOptionsMenu("Options")
     self:UpdateUI() --Actualiza los parámetros desde la BD
-end
-
-function UI_mod:RestoreUI()
-    --Este método únicamente recupera los cambios que afectan a los frames del juego
-    --Desde los parámetros almacenanos en la BD al iniciar sesión
-    if Core_mod:IsActive() then
-        Core_mod:UpdateAllFramesOpacity(self.db.profile.globalOpacity)
-    end
 end
 
 function UI_mod:UpdateUI()

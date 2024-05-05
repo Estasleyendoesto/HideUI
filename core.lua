@@ -1,20 +1,53 @@
-local Core_mod = HideUI:NewModule("Core_mod", "AceHook-3.0")
+local Core_mod = HideUI:NewModule("Core_mod", "AceHook-3.0", "AceEvent-3.0")
+local Mouseover_mod
+local Chat_mod
 local UI_mod
 
 function Core_mod:OnInitialize()
-    HideUI:GetModule("Mouseover_mod").db = self.db
-    HideUI:GetModule("Chad_mod").db = self.db
+    --Load Modules
+    Mouseover_mod = HideUI:GetModule("Mouseover_mod")
+    Mouseover_mod.db = self.db
+    Chat_mod = HideUI:GetModule("Chat_mod")
+    Chat_mod.db = self.db
     UI_mod = HideUI:GetModule("UI_mod")
+    UI_mod.db = self.db
 end
 
 function Core_mod:OnEnable()
     self:HookAnimatedFrames()
+    --Limpiar todo al iniciar sesión
+    self:RegisterEvent("PLAYER_ENTERING_WORLD", "RestoreUI")
+end
+
+function Core_mod:OnDisable()
+    self:UnhookAnimatedFrames()
 end
 
 -- SCRIPTS
 ----------------------------------------------------------------------------
 function Core_mod:IsActive()
     return self.db.profile.isEnabled
+end
+
+function Core_mod:RestoreUI()
+    self:UnhookAnimatedFrames()
+    Mouseover_mod:Disable()
+    ---
+    self:UpdateAllFramesOpacity(self.db.profile.globalOpacity)
+    self:HookAnimatedFrames()
+    Mouseover_mod:Enable()
+end
+
+function Core_mod:ToggleAll()
+    if self:IsActive() then
+        self:UpdateAllFramesOpacity(self.db.profile.globalOpacity)
+        self:HookAnimatedFrames()
+        Mouseover_mod:Enable()
+    else
+        self:UpdateAllFramesOpacity(100)
+        self:UnhookAnimatedFrames()
+        Mouseover_mod:Disable()
+    end
 end
 
 function Core_mod:GetStaticFrames()
@@ -47,7 +80,9 @@ function Core_mod:GetAnimatedFrames()
     return {
         PlayerCastingBarFrame,
         MainStatusTrackingBarContainer,
-        -- GameTooltip, --Tiene un problema, no solo necesita OnUpdate sino que también OnShow
+        -- Requiere Hook (No hookscript), omitido,
+        -- Este cambio puede interferir con otros addons
+        -- GameTooltip, 
     }
 end
 
@@ -73,7 +108,18 @@ end
 function Core_mod:HookAnimatedFrames()
     local frames = self:GetAnimatedFrames()
     for _, frame in pairs(frames) do
-        self:HookScript(frame, "OnUpdate", "OnAnimatedFrameUpdate")
+        if not self:IsHooked(frame, "OnUpdate") then
+            self:HookScript(frame, "OnUpdate", "OnAnimatedFrameUpdate")
+        end
+    end
+end
+
+function Core_mod:UnhookAnimatedFrames()
+    local frames = self:GetAnimatedFrames()
+    for _, frame in pairs(frames) do
+        if self:IsHooked(frame, "OnUpdate") then
+            self:Unhook(frame, "OnUpdate")
+        end
     end
 end
 
@@ -104,12 +150,8 @@ function Core_mod:OnActiveToggle(checked)
     else
         self.db.profile.isEnabled = not self.db.profile.isEnabled
     end
-    --Toggle Alpha
-    if self:IsActive() then
-        self:UpdateAllFramesOpacity(self.db.profile.globalOpacity)
-    else
-        self:UpdateAllFramesOpacity(100)
-    end
+    --Toggle Addon
+    self:ToggleAll()
     --Update UI
     UI_mod:UpdateUI()
 end

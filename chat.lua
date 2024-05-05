@@ -1,6 +1,9 @@
-local Chat_mod = HideUI:NewModule("Chad_mod")
+local Chat_mod = HideUI:NewModule("Chat_mod")
+local Core_mod
 
 function Chat_mod:OnInitialize()
+    --Load Modules
+    Core_mod = HideUI:GetModule("Core_mod")
 end
 
 function Chat_mod:OnEnable()
