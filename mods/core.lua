@@ -1,4 +1,4 @@
-local Core_mod = HideUI:NewModule("Core_mod", "AceEvent-3.0")
+local Core_mod = HideUI:NewModule("Core_mod", "AceHook-3.0", "AceEvent-3.0")
 local Alpha_mod
 local Mouseover_mod
 local Combat_mod

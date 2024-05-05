@@ -14,10 +14,10 @@ libs\AceDB-3.0\AceDB-3.0.lua
 
 ## ...
 init.lua
-core.lua
-alpha.lua
-mouseover.lua
-combat.lua
-afk.lua
-chat.lua
-ui.lua
+mods\core.lua
+mods\alpha.lua
+mods\mouseover.lua
+mods\combat.lua
+mods\afk.lua
+mods\chat.lua
+mods\ui.lua
