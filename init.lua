@@ -8,6 +8,8 @@ local defaults = {
         isMouseover = true,
         mouseoverFadeIn = 0.3,
         mouseoverFadeOut = 0.4,
+        isCombat = true,
+        isAFK = true,
     },
 }
 

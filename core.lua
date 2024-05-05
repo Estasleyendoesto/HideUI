@@ -32,6 +32,10 @@ function Core_mod:RestoreUI()
     --off all
     Core_mod:UnhookAnimatedFrames()
     Mouseover_mod:Disable()
+    --Events
+    self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+    self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+    self:UnregisterEvent("PLAYER_FLAGS_CHANGED", "OnAFKBehaviour")
     ---
     self:ToggleAll()
 end
@@ -41,10 +45,18 @@ function Core_mod:ToggleAll()
         self:UpdateAllFramesOpacity(self.db.profile.globalOpacity)
         self:HookAnimatedFrames()
         Mouseover_mod:Enable()
+        --Events
+        self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnEnterCombat")
+        self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnLeaveCombat")
+        self:RegisterEvent("PLAYER_FLAGS_CHANGED", "OnAFKBehaviour")
     else
         self:UpdateAllFramesOpacity(100)
         self:UnhookAnimatedFrames()
         Mouseover_mod:Disable()
+        --Events
+        self:UnregisterEvent("PLAYER_REGEN_DISABLED")
+        self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+        self:UnregisterEvent("PLAYER_FLAGS_CHANGED", "OnAFKBehaviour")
     end
 end
 
@@ -139,6 +151,22 @@ function Core_mod:OnAnimatedFrameOff(frame)
     self:UpdateFrameOpacity(frame, 100)
 end
 
+function Core_mod:OnEnterCombat()
+    print("Has entrado en combate")
+end
+
+function Core_mod:OnLeaveCombat()
+    print("Has salido de combate")
+end
+
+function Core_mod:OnAFKBehaviour(event, unit)
+    if UnitIsAFK("player") then
+        print("El jugador está AFK.")
+    else
+        print("El jugador ya no está AFK.")
+    end
+end
+
 -- KEYBINDING EVENT
 ----------------------------------------------------------------------------
 function ToggleMinimalUI() 
@@ -177,3 +205,11 @@ end
 function Core_mod:UpdateMouseoverFadeOutAmount(amount)
     self.db.profile.mouseoverFadeOut = amount
 end
+
+function Core_mod:OnCombatToggle(checked)
+    self.db.profile.isCombat = checked
+end 
+
+function Core_mod:OnAFKToggle(checked)
+    self.db.profile.isAFK = checked
+end 
