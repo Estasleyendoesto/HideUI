@@ -4,10 +4,10 @@ local defaults = {
     profile = {
         accountWide = true,
         isEnabled = true,
-        globalOpacity = 50,
+        globalOpacity = 42,
         isMouseover = true,
-        mouseoverFadeIn = 0.4,
-        mouseoverFadeOut = 0.6,
+        mouseoverFadeIn = 0.3,
+        mouseoverFadeOut = 0.4,
     },
 }
 

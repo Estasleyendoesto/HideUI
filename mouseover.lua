@@ -4,35 +4,106 @@ local Core_mod
 function Mouseover_mod:OnInitialize()
     --Load Modules
     Core_mod = HideUI:GetModule("Core_mod")
-    --Ajustar intervalo de tiempo para OnUpdate (Razon:Rendimiento)
-    self.updateInterval = 0.25
+    --Init core variables
+    self.updateInterval = 0.12 --Para OnUpdate, lectura de frames (Razon:Rendimiento)
+    self.ticInterval = 2.5 --Para FrameIsRunning, check if frame exists
+    self.mouseOutDelay = 0.25 --Delay para la variable frame.isMouseOut, (otro uso, tiempo visible hasta empezar el fadeout)
+    self.activeFrames = {}
 end
 
 function Mouseover_mod:OnEnable()
-    self:HookFrames()
+    self:StartTimer()
 end
 
 function Mouseover_mod:OnDisable()
-    self:UnhookFrames()
+    self:EndTimer()
 end
 
 ----------------------------------------------------------------------------
-function Mouseover_mod:HookFrames()
-    local frames = Core_mod:GetStaticFrames()
-    for _, frame in ipairs(frames) do
-        if not self:IsHooked(frame, "OnUpdate") then
-            self:HookScript(frame, "OnUpdate", "OnFrameUpdate")
-        end
+function Mouseover_mod:GetTargetFrames()
+    --Inserta nombres a la lista si que tengan mouseover
+    return {
+        "PlayerFrame",
+        "TargetFrame",
+        "FocusFrame",
+        "PetFrame",
+        "MinimapCluster",
+        "BuffFrame",
+        "ObjectiveTrackerFrame",    --quests
+        "MicroMenuContainer",       --minimenu
+        "BagsBar",                  --bags
+        "MainStatusTrackingBarContainer",
+        --Spell bars
+        "MainMenuBar",
+        "MultiBarBottomLeft",
+        "MultiBarBottomRight",
+        "MultiBarRight",
+        "MultiBarLeft",
+        "Multibar5",
+        "Multibar6",
+        "Multibar7",
+        --Dragonflight
+        "EncounterBar",
+        -- "UIWidgetPowerBarContainerFrame",
+    }
+end
+
+function Mouseover_mod:StartTimer()
+    self:FrameIsRunning()
+    self.frameCheckTimer = C_Timer.NewTicker(self.ticInterval, function()
+        self:FrameIsRunning()
+    end)
+end
+
+function Mouseover_mod:EndTimer()
+    self:UnhookFrames()
+    self.frameCheckTimer:Cancel()
+end
+
+function Mouseover_mod:HookFrame(frame)
+    if not self:IsHooked(frame, "OnUpdate") then
+        self:HookScript(frame, "OnUpdate", "OnFrameUpdate")
     end
 end
 
 function Mouseover_mod:UnhookFrames()
-    local frames = Core_mod:GetStaticFrames()
+    local frames = self.activeFrames
     for _, frame in ipairs(frames) do
         if self:IsHooked(frame, "OnUpdate") then
             self:Unhook(frame, "OnUpdate")
         end
     end
+end
+
+function Mouseover_mod:InsertToActiveFrames(active_frames, target_frame)
+    local isInside = false
+    for _, frame in ipairs(active_frames) do
+        if frame:GetName() == target_frame:GetName() then
+            isInside = true
+            break
+        else
+            isInside = false
+        end
+    end
+    if not isInside then
+        table.insert(active_frames, target_frame)
+    end
+end
+
+function Mouseover_mod:FrameIsRunning()
+    local targetFrames = self:GetTargetFrames()
+    local new_activeFrames = {} --Para la limpieza
+    self.activeFrames = self.activeFrames or {}
+    for _, frameName in ipairs(targetFrames) do
+        local frame = _G[frameName] --Get frame obj by name
+        if frame then
+            if frame:IsVisible() then
+                self:HookFrame(frame)
+                self:InsertToActiveFrames(new_activeFrames, frame)
+            end
+        end
+    end
+    self.active_frames = new_activeFrames
 end
 
 function Mouseover_mod:OnFrameUpdate(frame, elapsed)
@@ -46,113 +117,46 @@ function Mouseover_mod:OnFrameUpdate(frame, elapsed)
 end
 
 function Mouseover_mod:OnFrameMouseover(frame)
-    --Introducir una funcion que compruebe si hay algun frame isVisible() de staticframes y que no tiene hook,
-    --entonces añadirle su hook (en teoría, si isVsible es off podríamos quitarle el hook dinámicamente, tu verás)
+    self:IsMouseEnter(frame)
+    self:IsMouseOut(frame)
 
-    if frame:IsMouseOver() then
-        print("Mouseover detected on", frame:GetName())
+    if self.db.profile.isMouseover then
+        if frame.isMouseEnter then
+            UIFrameFadeIn(frame, self.db.profile.mouseoverFadeIn, frame:GetAlpha(), 1)
+        end
+        if frame.isMouseOut then
+            UIFrameFadeOut(frame, self.db.profile.mouseoverFadeOut, frame:GetAlpha(), self.db.profile.globalOpacity / 100)
+        end
     end
 end
 
-----------------------------------------------------------------------------
--- function Mouseover_mod:OnInitialize()
-    -- self.updateInterval = 12
--- end
+function Mouseover_mod:IsMouseEnter(frame)
+    if frame:IsMouseOver() then
+        if not frame.isMouseEnter then
+            frame.isMouseEnter = true
+        end
+    else
+        if frame.isMouseEnter then
+            frame.isMouseEnter = false
+        end
+    end
 
--- function Core_mod:HookNormalFrames()
---     self:SetFramesInteractive()
+    return frame.isMouseEnter
+end
 
---     local frames = self:GetNormalFrames()
---     for _, frame in pairs(frames) do
---         self:HookScript(frame, "OnUpdate", "OnFrameUpdate")
---     end
--- end
+function Mouseover_mod:IsMouseOut(frame)
+    if frame.isMouseEnter then
+        frame.isMouseOut = false    --Reset
+        frame.mouseOutTime = nil
+    else --Si está fuera
+        frame.mouseOutTime = frame.mouseOutTime or GetTime()
+        local elapsedTime = GetTime() - frame.mouseOutTime
+        if elapsedTime >= self.mouseOutDelay then --Diferencia de tiempo
+            frame.isMouseOut = false
+        else
+            frame.isMouseOut = true
+        end
+    end
 
--- function Core_mod:OnFrameUpdate(frame, elapsed)
---     if not frame.lastUpdate then frame.lastUpdate = 0 end
---     frame.lastUpdate = frame.lastUpdate + elapsed
-    
---     if frame.lastUpdate >= self.updateInterval then
---         frame.lastUpdate = 0
---         -- Ejecuta tus operaciones aquí, por ejemplo:
---         self:CheckFrameMouseover(frame)
---     end
--- end
-
--- function Core_mod:CheckFrameMouseover(frame)
---     print("Mouseover detected on", frame:GetName())
---     -- if frame:IsMouseOver() then
---         -- print("Mouseover detected on", frame:GetName())
---         -- Más lógica puede ir aquí
---     -- end
--- end
-
--- function Core_mod:SetFramesInteractive()
---     local frames = self:GetNormalFrames()
---     for _, frame in ipairs(frames) do
---         if frame and not frame:IsMouseEnabled() then
---             frame:EnableMouse(true) -- Asegura que el frame es interactivo y puede recibir eventos de mouseover
---         end
---     end
--- end
-
--- function Core_mod:HandleMouseoverBehaviour()
---     -- Si existe un timer. Cancela el Timer
---     if self.mouseOverTimer then
---         self.mouseOverTimer:Cancel()
---         self.mouseOverTimer = nil
---     end
---     if not self:IsActive() or not self.db.profile.isMouseOver then
---         return
---     end
-
---     local function DetectMouseover()
---         local frames = self:GetNormalFrames()        
---         for _, frame in ipairs(frames) do
---             if frame:IsMouseOver() then --frame:IsVisible()
---                 --Trato especial para target, focus
---                 if frame:GetName() == "TargetFrame" and not UnitExists("target") then
---                     return
---                 end
---                 if frame:GetName() == "FocusFrame" and not UnitExists("focus") then
---                     return
---                 end
-
---                 return frame
---             end
---         end
---         return nil
---     end
-
---     local function ChangeFrameOpacity(frame, targetOpacity)
---         if targetOpacity == 1 then
---             UIFrameFadeIn(frame, self.db.profile.mouseoverFadeIn, frame:GetAlpha(), targetOpacity)
---         else
---             UIFrameFadeOut(frame, self.db.profile.mouseoverFadeOut, frame:GetAlpha(), self.db.profile.globalOpacity / 100)
---         end
---     end
-
---     --Aux
---     local target_frame = nil
---     local wasMouseOver = false
---     --Tics
---     self.mouseOverTimer = C_Timer.NewTicker(0.25, function()
---         local current_frame = DetectMouseover()
---         if current_frame then
---             if not wasMouseOver or target_frame ~= current_frame then
---                 if target_frame and target_frame ~= current_frame then -- FadeOut del frame anterior al actual
---                     ChangeFrameOpacity(target_frame, self.db.profile.globalOpacity)
---                 end
---                 ChangeFrameOpacity(current_frame, 1)
---                 target_frame = current_frame
---                 wasMouseOver = true
---             end
---         else
---             if wasMouseOver then
---                 ChangeFrameOpacity(target_frame, self.db.profile.globalOpacity)
---                 target_frame = nil
---                 wasMouseOver = false
---             end
---         end
---     end)
--- end
+    return frame.isMouseOut
+end

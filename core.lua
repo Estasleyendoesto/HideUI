@@ -14,8 +14,7 @@ function Core_mod:OnInitialize()
 end
 
 function Core_mod:OnEnable()
-    self:HookAnimatedFrames()
-    --Limpiar todo al iniciar sesión
+    --Limpiar todo al entrar al juego (cuando todo ha cargado)
     self:RegisterEvent("PLAYER_ENTERING_WORLD", "RestoreUI")
 end
 
@@ -30,12 +29,11 @@ function Core_mod:IsActive()
 end
 
 function Core_mod:RestoreUI()
-    self:UnhookAnimatedFrames()
+    --off all
+    Core_mod:UnhookAnimatedFrames()
     Mouseover_mod:Disable()
     ---
-    self:UpdateAllFramesOpacity(self.db.profile.globalOpacity)
-    self:HookAnimatedFrames()
-    Mouseover_mod:Enable()
+    self:ToggleAll()
 end
 
 function Core_mod:ToggleAll()
@@ -70,8 +68,8 @@ function Core_mod:GetStaticFrames()
         Multibar5,
         Multibar6,
         Multibar7,
-        EncounterBar,
-        UIWidgetPowerBarContainerFrame --Dragonflight
+        EncounterBar,--Dragonflight
+        -- UIWidgetPowerBarContainerFrame --Dragonflight
     }
 end
 
@@ -119,21 +117,26 @@ function Core_mod:UnhookAnimatedFrames()
     for _, frame in pairs(frames) do
         if self:IsHooked(frame, "OnUpdate") then
             self:Unhook(frame, "OnUpdate")
+            self:OnAnimatedFrameOff(frame)
         end
     end
 end
 
 function Core_mod:OnAnimatedFrameUpdate(frame)
-    --Reduce impacto de rendimiento de OnUpdate
-    if frame:GetAlpha() == (self.db.profile.globalOpacity / 100) then
+    if not frame:IsVisible() then
         return
     end
-    --
-    if self:IsActive() then
-        self:UpdateFrameOpacity(frame, self.db.profile.globalOpacity)
+    if frame:GetAlpha() == (self.db.profile.globalOpacity / 100) then
+        return --Reduce impacto de rendimiento de OnUpdate
     else
-        self:UpdateFrameOpacity(frame, 100)
+        if not frame.isMouseEnter and not frame.isMouseOut then
+            self:UpdateFrameOpacity(frame, self.db.profile.globalOpacity)
+        end
     end
+end
+
+function Core_mod:OnAnimatedFrameOff(frame)
+    self:UpdateFrameOpacity(frame, 100)
 end
 
 -- KEYBINDING EVENT
@@ -164,7 +167,7 @@ function Core_mod:UpdateGlobalTransparency(amount)
 end
 
 function Core_mod:OnMouseoverToggle(checked)
-    self.db.profile.isMouseOver = checked
+    self.db.profile.isMouseover = checked
 end
 
 function Core_mod:UpdateMouseoverFadeInAmount(amount)
