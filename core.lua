@@ -1,14 +1,23 @@
 local Core_mod = HideUI:NewModule("Core_mod", "AceHook-3.0", "AceEvent-3.0")
+local Alpha_mod
 local Mouseover_mod
+local Combat_mod
+local AFK_mod
 local Chat_mod
 local UI_mod
 
 function Core_mod:OnInitialize()
     --Load Modules
+    Alpha_mod = HideUI:GetModule("Alpha_mod")
+    Alpha_mod.db = self.db
     Mouseover_mod = HideUI:GetModule("Mouseover_mod")
     Mouseover_mod.db = self.db
     Chat_mod = HideUI:GetModule("Chat_mod")
     Chat_mod.db = self.db
+    Combat_mod = HideUI:GetModule("Combat_mod")
+    Combat_mod.db = self.db
+    AFK_mod = HideUI:GetModule("AFK_mod")
+    AFK_mod.db = self.db
     UI_mod = HideUI:GetModule("UI_mod")
     UI_mod.db = self.db
 end
@@ -19,7 +28,6 @@ function Core_mod:OnEnable()
 end
 
 function Core_mod:OnDisable()
-    self:UnhookAnimatedFrames()
 end
 
 -- SCRIPTS
@@ -30,140 +38,25 @@ end
 
 function Core_mod:RestoreUI()
     --off all
-    Core_mod:UnhookAnimatedFrames()
     Mouseover_mod:Disable()
-    --Events
-    self:UnregisterEvent("PLAYER_REGEN_DISABLED")
-    self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-    self:UnregisterEvent("PLAYER_FLAGS_CHANGED", "OnAFKBehaviour")
-    ---
+    Combat_mod:Disable()
+    AFK_mod:Disable()
+    Alpha_mod:Disable()
+
     self:ToggleAll()
 end
 
 function Core_mod:ToggleAll()
     if self:IsActive() then
-        self:UpdateAllFramesOpacity(self.db.profile.globalOpacity)
-        self:HookAnimatedFrames()
+        Alpha_mod:Enable()
         Mouseover_mod:Enable()
-        --Events
-        self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnEnterCombat")
-        self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnLeaveCombat")
-        self:RegisterEvent("PLAYER_FLAGS_CHANGED", "OnAFKBehaviour")
+        Combat_mod:Enable()
+        AFK_mod:Enable()
     else
-        self:UpdateAllFramesOpacity(100)
-        self:UnhookAnimatedFrames()
+        Alpha_mod:Disable()
         Mouseover_mod:Disable()
-        --Events
-        self:UnregisterEvent("PLAYER_REGEN_DISABLED")
-        self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-        self:UnregisterEvent("PLAYER_FLAGS_CHANGED", "OnAFKBehaviour")
-    end
-end
-
-function Core_mod:GetStaticFrames()
-    --Interpretado como Static al no ser alterado su opacidad desde el WoW
-    return {
-        PlayerFrame,
-        TargetFrame,
-        FocusFrame,
-        PetFrame,
-        MinimapCluster,
-        ObjectiveTrackerFrame,
-        BuffFrame,
-        MicroMenuContainer,
-        BagsBar,
-        MainMenuBar,
-        MultiBarBottomLeft,
-        MultiBarBottomRight,
-        MultiBarRight,
-        MultiBarLeft,
-        Multibar5,
-        Multibar6,
-        Multibar7,
-        EncounterBar,--Dragonflight
-        -- UIWidgetPowerBarContainerFrame --Dragonflight
-    }
-end
-
-function Core_mod:GetAnimatedFrames()
-    --Interpretado como Animated al ser alterado su opacidad desde el WoW
-    return {
-        PlayerCastingBarFrame,
-        MainStatusTrackingBarContainer,
-        -- Requiere Hook (No hookscript), omitido,
-        -- Este cambio puede interferir con otros addons
-        -- GameTooltip, 
-    }
-end
-
-function Core_mod:UpdateFrameOpacity(frame, amount)
-    --Opacidad a un unico frame
-    if frame then
-        frame:SetAlpha(amount / 100)
-    end
-end
-
-function Core_mod:UpdateFramesOpacity(frames, amount)
-    for _, frame in pairs(frames) do
-        if frame then
-            self:UpdateFrameOpacity(frame, amount)
-        end
-    end
-end
-
-function Core_mod:UpdateAllFramesOpacity(opacity)
-    self:UpdateFramesOpacity(self:GetStaticFrames(), opacity)
-end
-
-function Core_mod:HookAnimatedFrames()
-    local frames = self:GetAnimatedFrames()
-    for _, frame in pairs(frames) do
-        if not self:IsHooked(frame, "OnUpdate") then
-            self:HookScript(frame, "OnUpdate", "OnAnimatedFrameUpdate")
-        end
-    end
-end
-
-function Core_mod:UnhookAnimatedFrames()
-    local frames = self:GetAnimatedFrames()
-    for _, frame in pairs(frames) do
-        if self:IsHooked(frame, "OnUpdate") then
-            self:Unhook(frame, "OnUpdate")
-            self:OnAnimatedFrameOff(frame)
-        end
-    end
-end
-
-function Core_mod:OnAnimatedFrameUpdate(frame)
-    if not frame:IsVisible() then
-        return
-    end
-    if frame:GetAlpha() == (self.db.profile.globalOpacity / 100) then
-        return --Reduce impacto de rendimiento de OnUpdate
-    else
-        if not frame.isMouseEnter and not frame.isMouseOut then
-            self:UpdateFrameOpacity(frame, self.db.profile.globalOpacity)
-        end
-    end
-end
-
-function Core_mod:OnAnimatedFrameOff(frame)
-    self:UpdateFrameOpacity(frame, 100)
-end
-
-function Core_mod:OnEnterCombat()
-    print("Has entrado en combate")
-end
-
-function Core_mod:OnLeaveCombat()
-    print("Has salido de combate")
-end
-
-function Core_mod:OnAFKBehaviour(event, unit)
-    if UnitIsAFK("player") then
-        print("El jugador está AFK.")
-    else
-        print("El jugador ya no está AFK.")
+        Combat_mod:Disable()
+        AFK_mod:Disable()
     end
 end
 
@@ -189,9 +82,7 @@ end
 
 function Core_mod:UpdateGlobalTransparency(amount)
     self.db.profile.globalOpacity = amount
-    if self:IsActive() then 
-        self:UpdateAllFramesOpacity(amount)
-    end
+    Alpha_mod:UpdateAllFramesOpacity(amount)
 end
 
 function Core_mod:OnMouseoverToggle(checked)

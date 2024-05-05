@@ -15,6 +15,9 @@ libs\AceDB-3.0\AceDB-3.0.lua
 ## ...
 init.lua
 core.lua
+alpha.lua
 mouseover.lua
+combat.lua
+afk.lua
 chat.lua
 ui.lua

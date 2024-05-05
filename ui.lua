@@ -15,13 +15,13 @@ end
 
 function UI_mod:UpdateUI()
     -- Global Settings
-    -- self.OptionsPanel.isEnabled:SetChecked(self.db.profile.isEnabled)
-    -- self.OptionsPanel.globalOpacity:SetValue(self.db.profile.globalOpacity)
-    -- self.OptionsPanel.isMouseover:SetChecked(self.db.profile.isMouseOver)
-    -- self.OptionsPanel.mouseoverFadeIn:SetValue(self.db.profile.mouseoverFadeIn)
-    -- self.OptionsPanel.mouseoverFadeOut:SetValue(self.db.profile.mouseoverFadeOut)
-    -- self.OptionsPanel.isCombat:SetChecked(self.db.profile.isCombat)
-    -- self.OptionsPanel.isAFK:SetChecked(self.db.profile.isAFK)
+    self.OptionsPanel.isEnabled:SetChecked(self.db.profile.isEnabled)
+    self.OptionsPanel.globalOpacity:SetValue(self.db.profile.globalOpacity)
+    self.OptionsPanel.isMouseover:SetChecked(self.db.profile.isMouseOver)
+    self.OptionsPanel.mouseoverFadeIn:SetValue(self.db.profile.mouseoverFadeIn)
+    self.OptionsPanel.mouseoverFadeOut:SetValue(self.db.profile.mouseoverFadeOut)
+    self.OptionsPanel.isCombat:SetChecked(self.db.profile.isCombat)
+    self.OptionsPanel.isAFK:SetChecked(self.db.profile.isAFK)
 end
 
 -- ADDON UI Menus and Submenus
@@ -83,10 +83,10 @@ function OptionsMenuPanel_Build(panel)
     end)
     UI_mod:CreateSlider("combatFadeIn", "Combat Fade In Duration")
     UI_mod:CreateSlider("combatFadeOut", "Combat Fade Out Duration")
-    
+
     --AFK Settings
     UI_mod:CreateTitle("titleAFK", "AFK Settings")
-    UI_mod:CreateCheckbox("isAFK", "Show During AFK", false, function() 
+    UI_mod:CreateCheckbox("isAFK", "Show After AFK", false, function() 
         Core_mod:OnAFKToggle(checked)
     end)
 end
