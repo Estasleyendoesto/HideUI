@@ -120,13 +120,11 @@ function Mouseover_mod:OnFrameMouseover(frame)
     self:IsMouseEnter(frame)
     self:IsMouseOut(frame)
 
-    if self.db.profile.isMouseover then
-        if frame.isMouseEnter then
-            UIFrameFadeIn(frame, self.db.profile.mouseoverFadeIn, frame:GetAlpha(), 1)
-        end
-        if frame.isMouseOut then
-            UIFrameFadeOut(frame, self.db.profile.mouseoverFadeOut, frame:GetAlpha(), self.db.profile.globalOpacity / 100)
-        end
+    if frame.isMouseEnter then
+        UIFrameFadeIn(frame, self.db.profile.mouseoverFadeIn, frame:GetAlpha(), 1)
+    end
+    if frame.isMouseOut then
+        UIFrameFadeOut(frame, self.db.profile.mouseoverFadeOut, frame:GetAlpha(), self.db.profile.globalOpacity / 100)
     end
 end
 

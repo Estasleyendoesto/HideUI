@@ -19,5 +19,6 @@ mods\alpha.lua
 mods\mouseover.lua
 mods\combat.lua
 mods\afk.lua
+mods\nameplates.lua
 mods\chat.lua
 mods\ui.lua
