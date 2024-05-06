@@ -1,4 +1,4 @@
-local Core_mod = HideUI:NewModule("Core_mod", "AceHook-3.0", "AceEvent-3.0")
+local Core_mod = HideUI:NewModule("Core_mod", "AceEvent-3.0")
 local Alpha_mod
 local Mouseover_mod
 local Combat_mod
@@ -23,11 +23,11 @@ function Core_mod:OnInitialize()
 end
 
 function Core_mod:OnEnable()
-    --Limpiar todo al entrar al juego (cuando todo ha cargado)
     self:RegisterEvent("PLAYER_ENTERING_WORLD", "RestoreUI")
 end
 
 function Core_mod:OnDisable()
+    self:UnegisterEvent("PLAYER_ENTERING_WORLD")
 end
 
 -- SCRIPTS
