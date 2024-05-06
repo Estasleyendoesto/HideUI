@@ -23,6 +23,7 @@ function Alpha_mod:GetStaticFrames()
         TargetFrame,
         FocusFrame,
         PetFrame,
+        PetActionBar,
         MinimapCluster,
         ObjectiveTrackerFrame,
         BuffFrame,
@@ -37,6 +38,7 @@ function Alpha_mod:GetStaticFrames()
         Multibar6,
         Multibar7,
         EncounterBar,--Dragonflight
+        StanceBar,--Dragonflight
         -- UIWidgetPowerBarContainerFrame --Dragonflight
     }
 end
@@ -54,7 +56,7 @@ end
 
 function Alpha_mod:UpdateFrameOpacity(frame, amount)
     --Opacidad a un unico frame
-    if frame then
+    if frame and frame:IsVisible() then
         frame:SetAlpha(amount / 100)
     end
 end
@@ -85,7 +87,7 @@ function Alpha_mod:UnhookAnimatedFrames()
     for _, frame in pairs(frames) do
         if self:IsHooked(frame, "OnUpdate") then
             self:Unhook(frame, "OnUpdate")
-            self:OnAnimatedFrameOff(frame)
+            self:UpdateFrameOpacity(frame, 100)
         end
     end
 end
@@ -101,8 +103,4 @@ function Alpha_mod:OnAnimatedFrameUpdate(frame)
             self:UpdateFrameOpacity(frame, self.db.profile.globalOpacity)
         end
     end
-end
-
-function Alpha_mod:OnAnimatedFrameOff(frame)
-    self:UpdateFrameOpacity(frame, 100)
 end

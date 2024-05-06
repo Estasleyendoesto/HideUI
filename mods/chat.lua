@@ -1,13 +1,73 @@
+--Ocultar todo el chat
+--Mostrar todo el chat al hacer mouseover
+--Mostrar el editbox, chatframe y chattab solo cuando hago enter para escribir, y luego ocultarse tras x tiempo con fade
+--Se cambiar de chatframe al hacer clic sobre chattab, sin embargo chattab da problemas, requiere alterar su opacity en su interior (rawhook)
+---
+--QuickJoinToastButton o como se llame no es un frame persistente
+---
+--Al recibir mensajes revelar en el chatframe con fade y ocultarse con fade tras x tiempo
+--Decidir cuantos mensajes  se conservan en el tiempo antes de ocultarse
+--Por supuesto, se ocultarán uno a uno dsede el más antiguo al más nuevo
+--Decidir que canales de chat se verán afectados por esto último (susurros, guild, grupo, comercio, sistema, etc...)
+--
+--Comprobar activamente cuantas ventnas de chat existen
+--Comprobar con mouseover
+--
+
 local Chat_mod = HideUI:NewModule("Chat_mod")
-local Core_mod
+local Timer_mod
+
+local UPDATE_INTERVAL = 3
 
 function Chat_mod:OnInitialize()
-    --Load Modules
-    Core_mod = HideUI:GetModule("Core_mod")
+    Timer_mod = HideUI:GetModule("Timer_mod")
+    self.updateInterval = UPDATE_INTERVAL
 end
 
 function Chat_mod:OnEnable()
+    Timer_mod:Bind(self, "Run")
 end
+
+function Chat_mod:OnDisable()
+    Timer_mod:Unbind(self)
+end
+
+function Chat_mod:Run()
+    print("Chat_mod is running")
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ----------------------------------------------------------------------------
         -- for _, frame in ipairs(chatInfo.frames) do

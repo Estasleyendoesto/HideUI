@@ -1,6 +1,8 @@
 local Mouseover_mod = HideUI:NewModule("Mouseover_mod", "AceHook-3.0")
 local Core_mod
 
+--Ta bien, shi, pero puede optimizar aun mas (para algún momento)
+
 function Mouseover_mod:OnInitialize()
     --Load Modules
     Core_mod = HideUI:GetModule("Core_mod")
@@ -26,9 +28,10 @@ function Mouseover_mod:GetTargetFrames()
         "PlayerFrame",
         "TargetFrame",
         "FocusFrame",
-        "PetFrame",
+        -- "PetFrame", --No, porque le afecta PlayerFrame
         "MinimapCluster",
         "BuffFrame",
+        "PetActionBar",
         "ObjectiveTrackerFrame",    --quests
         "MicroMenuContainer",       --minimenu
         "BagsBar",                  --bags
@@ -44,6 +47,7 @@ function Mouseover_mod:GetTargetFrames()
         "Multibar7",
         --Dragonflight
         "EncounterBar",
+        "StanceBar",
         -- "UIWidgetPowerBarContainerFrame",
     }
 end

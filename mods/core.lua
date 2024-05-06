@@ -1,4 +1,5 @@
-local Core_mod = HideUI:NewModule("Core_mod", "AceEvent-3.0")
+local Core_mod = HideUI:NewModule("Core_mod")
+local Timer_mod
 local Alpha_mod
 local Mouseover_mod
 local Combat_mod
@@ -9,6 +10,8 @@ local UI_mod
 
 function Core_mod:OnInitialize()
     --Load Modules
+    Timer_mod = HideUI:GetModule("Timer_mod")
+    Timer_mod.db = self.db
     Alpha_mod = HideUI:GetModule("Alpha_mod")
     Alpha_mod.db = self.db
     Mouseover_mod = HideUI:GetModule("Mouseover_mod")
@@ -26,45 +29,49 @@ function Core_mod:OnInitialize()
 end
 
 function Core_mod:OnEnable()
-    self:RegisterEvent("PLAYER_ENTERING_WORLD", "RestoreUI")
+    self:RestoreUI()
 end
 
 function Core_mod:OnDisable()
-    self:UnegisterEvent("PLAYER_ENTERING_WORLD")
 end
 
--- SCRIPTS
+-- CORE
 ----------------------------------------------------------------------------
 function Core_mod:IsActive()
     return self.db.profile.isEnabled
 end
 
 function Core_mod:RestoreUI()
-    --off all
-    Mouseover_mod:Disable()
-    Combat_mod:Disable()
-    AFK_mod:Disable()
-    Alpha_mod:Disable()
-    Nameplates_mod:Disable()
-    self:ToggleAll()
+    self:DisableModules()
+    self:ToggleModules()
 end
 
-function Core_mod:ToggleAll()
+function Core_mod:ToggleModules()
     if self:IsActive() then
-        Alpha_mod:Enable()
-        Mouseover_mod:Enable()
-        Combat_mod:Enable()
-        Chat_mod:Enable()
-        AFK_mod:Enable()
-        Nameplates_mod:Enable()
+        self:EnableModules()
     else
-        Alpha_mod:Disable()
-        Mouseover_mod:Disable()
-        Combat_mod:Disable()
-        Chat_mod:Disable()
-        AFK_mod:Disable()
-        Nameplates_mod:Disable()
+        self:DisableModules()
     end
+end
+
+function Core_mod:EnableModules()
+    Timer_mod:Enable() --First
+    Alpha_mod:Enable()
+    Mouseover_mod:Enable()
+    Combat_mod:Enable()
+    Chat_mod:Enable()
+    AFK_mod:Enable()
+    Nameplates_mod:Enable()
+end
+
+function Core_mod:DisableModules()
+    Alpha_mod:Disable()
+    Mouseover_mod:Disable()
+    Combat_mod:Disable()
+    Chat_mod:Disable()
+    AFK_mod:Disable()
+    Nameplates_mod:Disable()
+    Timer_mod:Disable() --Last
 end
 
 -- KEYBINDING EVENT
@@ -81,9 +88,8 @@ function Core_mod:OnActiveToggle(checked)
     else
         self.db.profile.isEnabled = not self.db.profile.isEnabled
     end
-    --Toggle Addon
-    self:ToggleAll()
-    --Update UI
+
+    Core_mod:ToggleModules() --Core_mod
     UI_mod:UpdateUI() --UI_mod
 end
 
@@ -96,7 +102,7 @@ function Core_mod:OnMouseoverToggle(checked)
     self.db.profile.isMouseover = checked
 
     if checked then
-        Mouseover_mod:Enable()
+        Mouseover_mod:Enable() --Mouseover_mod
     else
         Mouseover_mod:Disable()
     end
@@ -114,7 +120,7 @@ function Core_mod:OnCombatToggle(checked)
     self.db.profile.isCombat = checked
 
     if checked then
-        Combat_mod:Enable()
+        Combat_mod:Enable() --Combat_mod
     else
         Combat_mod:Disable()
     end
@@ -124,7 +130,7 @@ function Core_mod:OnAFKToggle(checked)
     self.db.profile.isAFK = checked
 
     if checked then
-        AFK_mod:Enable()
+        AFK_mod:Enable() --AFK_mod
     else
         AFK_mod:Disable()
     end

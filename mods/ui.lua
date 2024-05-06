@@ -3,7 +3,6 @@ local Core_mod
 
 function UI_mod:OnInitialize()
     Core_mod = HideUI:GetModule("Core_mod")
-    UI_mod:AmigableUI_Start()
 end
 
 function UI_mod:OnEnable()
@@ -93,10 +92,6 @@ end
 
 -- AmigableUI
 ----------------------------------------------------------------------------
-function UI_mod:AmigableUI_Start()
-    self.lastElement = nil
-end
-
 function UI_mod:CreateScrollBox(name, panel, isBarVisible)
     --Es lo primero a crear al usar un panel
     local scrollFrame = CreateFrame("ScrollFrame", nil, panel, "UIPanelScrollFrameTemplate")

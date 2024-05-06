@@ -14,6 +14,7 @@ libs\AceDB-3.0\AceDB-3.0.lua
 
 ## ...
 init.lua
+mods\timer.lua
 mods\core.lua
 mods\alpha.lua
 mods\mouseover.lua
