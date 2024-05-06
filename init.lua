@@ -17,5 +17,5 @@ function HideUI:OnInitialize()
     --Load DB
     self.db = LibStub("AceDB-3.0"):New("HideUIDB", defaults, true)
     --Load Modules
-    HideUI:GetModule("Core_mod").db = self.db
+    HideUI:GetModule("DB_mod").db = self.db
 end

@@ -1,26 +1,26 @@
 local UI_mod = HideUI:NewModule("UI_mod")
+local DB_mod
 local Core_mod
 
 function UI_mod:OnInitialize()
+    DB_mod = HideUI:GetModule("DB_mod")
     Core_mod = HideUI:GetModule("Core_mod")
 end
 
 function UI_mod:OnEnable()
-    self.menuPanel = UI_mod:CreateMenu("HideUI")
-    self.OptionsPanel = UI_mod:CreateOptionsMenu("Options")
-    --actualiza la UI desde la configuración guardada.
+    self:LoadUI()
     self:UpdateUI()
 end
 
 function UI_mod:UpdateUI()
     -- Global Settings
-    self.OptionsPanel.isEnabled:SetChecked(self.db.profile.isEnabled)
-    self.OptionsPanel.globalOpacity:SetValue(self.db.profile.globalOpacity)
-    self.OptionsPanel.isMouseover:SetChecked(self.db.profile.isMouseOver)
-    self.OptionsPanel.mouseoverFadeIn:SetValue(self.db.profile.mouseoverFadeIn)
-    self.OptionsPanel.mouseoverFadeOut:SetValue(self.db.profile.mouseoverFadeOut)
-    self.OptionsPanel.isCombat:SetChecked(self.db.profile.isCombat)
-    self.OptionsPanel.isAFK:SetChecked(self.db.profile.isAFK)
+    self.OptionsPanel.isEnabled:SetChecked(DB_mod:Find("isEnabled"))
+    self.OptionsPanel.globalOpacity:SetValue(DB_mod:Find("globalOpacity"))
+    self.OptionsPanel.isMouseover:SetChecked(DB_mod:Find("isMouseOver"))
+    self.OptionsPanel.mouseoverFadeIn:SetValue(DB_mod:Find("mouseoverFadeIn"))
+    self.OptionsPanel.mouseoverFadeOut:SetValue(DB_mod:Find("mouseoverFadeOut"))
+    self.OptionsPanel.isCombat:SetChecked(DB_mod:Find("isCombat"))
+    self.OptionsPanel.isAFK:SetChecked(DB_mod:Find("isAFK"))
 end
 
 -- ADDON UI Menus and Submenus
@@ -46,6 +46,11 @@ function UI_mod:CreateOptionsMenu(name)
     OptionsMenuPanel_Build(panel)
 
     return panel
+end
+
+function UI_mod:LoadUI()
+    self.menuPanel = UI_mod:CreateMenu("HideUI")
+    self.OptionsPanel = UI_mod:CreateOptionsMenu("Options")
 end
 
 -- BUILDER

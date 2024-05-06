@@ -1,11 +1,12 @@
 local Mouseover_mod = HideUI:NewModule("Mouseover_mod", "AceHook-3.0")
-local Core_mod
+local DB_mod
 
---Ta bien, shi, pero puede optimizar aun mas (para algún momento)
+--funciona, si, pero tocará optimizar y rehacer ciertas partes, queda pendiente
 
 function Mouseover_mod:OnInitialize()
     --Load Modules
-    Core_mod = HideUI:GetModule("Core_mod")
+    DB_mod = HideUI:GetModule("DB_mod")
+
     --Init core variables
     self.updateInterval = 0.12 --Para OnUpdate, lectura de frames (Razon:Rendimiento)
     self.ticInterval = 2.5 --Para FrameIsRunning, check if frame exists
@@ -125,10 +126,10 @@ function Mouseover_mod:OnFrameMouseover(frame)
     self:IsMouseOut(frame)
 
     if frame.isMouseEnter then
-        UIFrameFadeIn(frame, self.db.profile.mouseoverFadeIn, frame:GetAlpha(), 1)
+        UIFrameFadeIn(frame, DB_mod:Find("mouseoverFadeIn"), frame:GetAlpha(), 1)
     end
     if frame.isMouseOut then
-        UIFrameFadeOut(frame, self.db.profile.mouseoverFadeOut, frame:GetAlpha(), self.db.profile.globalOpacity / 100)
+        UIFrameFadeOut(frame, DB_mod:Find("mouseoverFadeOut"), frame:GetAlpha(), DB_mod:Find("globalOpacity") / 100)
     end
 end
 

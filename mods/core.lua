@@ -1,4 +1,5 @@
 local Core_mod = HideUI:NewModule("Core_mod")
+local DB_mod
 local Timer_mod
 local Alpha_mod
 local Mouseover_mod
@@ -10,22 +11,15 @@ local UI_mod
 
 function Core_mod:OnInitialize()
     --Load Modules
-    Timer_mod = HideUI:GetModule("Timer_mod")
-    Timer_mod.db = self.db
-    Alpha_mod = HideUI:GetModule("Alpha_mod")
-    Alpha_mod.db = self.db
-    Mouseover_mod = HideUI:GetModule("Mouseover_mod")
-    Mouseover_mod.db = self.db
-    Chat_mod = HideUI:GetModule("Chat_mod")
-    Chat_mod.db = self.db
-    Combat_mod = HideUI:GetModule("Combat_mod")
-    Combat_mod.db = self.db
-    AFK_mod = HideUI:GetModule("AFK_mod")
-    AFK_mod.db = self.db
+    DB_mod         = HideUI:GetModule("DB_mod")
+    Timer_mod      = HideUI:GetModule("Timer_mod")
+    Alpha_mod      = HideUI:GetModule("Alpha_mod")
+    Mouseover_mod  = HideUI:GetModule("Mouseover_mod")
+    Chat_mod       = HideUI:GetModule("Chat_mod")
+    Combat_mod     = HideUI:GetModule("Combat_mod")
+    AFK_mod        = HideUI:GetModule("AFK_mod")
     Nameplates_mod = HideUI:GetModule("Nameplates_mod")
-    Nameplates_mod.db = self.db
-    UI_mod = HideUI:GetModule("UI_mod")
-    UI_mod.db = self.db
+    UI_mod         = HideUI:GetModule("UI_mod")
 end
 
 function Core_mod:OnEnable()
@@ -38,7 +32,7 @@ end
 -- CORE
 ----------------------------------------------------------------------------
 function Core_mod:IsActive()
-    return self.db.profile.isEnabled
+    return DB_mod:Find("isEnabled")
 end
 
 function Core_mod:RestoreUI()
@@ -83,24 +77,18 @@ end
 -- UI BEHAVIOUR
 ----------------------------------------------------------------------------
 function Core_mod:OnActiveToggle(checked)
-    if checked then
-        self.db.profile.isEnabled = checked
-    else
-        self.db.profile.isEnabled = not self.db.profile.isEnabled
-    end
-
+    DB_mod:Update("isEnabled", checked or not DB_mod:Find("isEnabled"))
     Core_mod:ToggleModules() --Core_mod
     UI_mod:UpdateUI() --UI_mod
 end
 
 function Core_mod:UpdateGlobalTransparency(amount)
-    self.db.profile.globalOpacity = amount
+    DB_mod:Update("globalOpacity", amount)
     Alpha_mod:UpdateAllFramesOpacity(amount) --Alpha_mod
 end
 
 function Core_mod:OnMouseoverToggle(checked)
-    self.db.profile.isMouseover = checked
-
+    DB_mod:Update("isMouseover", checked)
     if checked then
         Mouseover_mod:Enable() --Mouseover_mod
     else
@@ -109,16 +97,15 @@ function Core_mod:OnMouseoverToggle(checked)
 end
 
 function Core_mod:UpdateMouseoverFadeInAmount(amount)
-    self.db.profile.mouseoverFadeIn = amount
+    DB_mod:Update("mouseoverFadeIn", amount)
 end
 
 function Core_mod:UpdateMouseoverFadeOutAmount(amount)
-    self.db.profile.mouseoverFadeOut = amount
+    DB_mod:Update("mouseoverFadeOut", amount)
 end
 
 function Core_mod:OnCombatToggle(checked)
-    self.db.profile.isCombat = checked
-
+    DB_mod:Update("isCombat", checked)
     if checked then
         Combat_mod:Enable() --Combat_mod
     else
@@ -127,8 +114,7 @@ function Core_mod:OnCombatToggle(checked)
 end 
 
 function Core_mod:OnAFKToggle(checked)
-    self.db.profile.isAFK = checked
-
+    DB_mod:Update("isAFK", checked)
     if checked then
         AFK_mod:Enable() --AFK_mod
     else

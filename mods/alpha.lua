@@ -1,13 +1,15 @@
 local Alpha_mod = HideUI:NewModule("Alpha_mod", "AceHook-3.0")
+local DB_mod
 local Core_mod
 
 function Alpha_mod:OnInitialize()
     --Load Modules
+    DB_mod = HideUI:GetModule("DB_mod")
     Core_mod = HideUI:GetModule("Core_mod")
 end
 
 function Alpha_mod:OnEnable()
-    self:UpdateAllFramesOpacity(self.db.profile.globalOpacity)
+    self:UpdateAllFramesOpacity( DB_mod:Find("globalOpacity") )
     self:HookAnimatedFrames()
 end
 
@@ -96,11 +98,11 @@ function Alpha_mod:OnAnimatedFrameUpdate(frame)
     if not frame:IsVisible() then
         return
     end
-    if frame:GetAlpha() == (self.db.profile.globalOpacity / 100) then
+    if frame:GetAlpha() == (DB_mod:Find("globalOpacity") / 100) then
         return --Reduce impacto de rendimiento de OnUpdate
     else
         if not frame.isMouseEnter and not frame.isMouseOut then
-            self:UpdateFrameOpacity(frame, self.db.profile.globalOpacity)
+            self:UpdateFrameOpacity(frame, DB_mod:Find("globalOpacity"))
         end
     end
 end
