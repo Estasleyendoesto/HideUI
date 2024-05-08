@@ -1,7 +1,7 @@
 local Mouseover_mod = HideUI:NewModule("Mouseover_mod", "AceHook-3.0")
 local DB_mod
 
---funciona, si, pero tocará optimizar y rehacer ciertas partes, queda pendiente
+--funciona, si, pero tocará optimizar y rehacer ciertas partes, queda pendiente (adaptar como en chat.lua)
 
 function Mouseover_mod:OnInitialize()
     --Load Modules
@@ -123,43 +123,45 @@ end
 
 function Mouseover_mod:OnFrameMouseover(frame)
     self:IsMouseEnter(frame)
-    self:IsMouseOut(frame)
+    self:IsMouseOut(frame, self.mouseOutDelay)
 
-    if frame.isMouseEnter then
+    if frame.hideUI.isMouseEnter then
         UIFrameFadeIn(frame, DB_mod:Find("mouseoverFadeIn"), frame:GetAlpha(), 1)
     end
-    if frame.isMouseOut then
-        UIFrameFadeOut(frame, DB_mod:Find("mouseoverFadeOut"), frame:GetAlpha(), DB_mod:Find("globalOpacity") / 100)
+    if frame.hideUI.isMouseOut then
+        UIFrameFadeOut(frame, DB_mod:Find("mouseoverFadeOut"), frame:GetAlpha(), DB_mod:Find("globalOpacity"))
     end
 end
 
 function Mouseover_mod:IsMouseEnter(frame)
+    frame.hideUI = frame.hideUI or {}
     if frame:IsMouseOver() then
-        if not frame.isMouseEnter then
-            frame.isMouseEnter = true
+        if not frame.hideUI.isMouseEnter then
+            frame.hideUI.isMouseEnter = true
         end
     else
-        if frame.isMouseEnter then
-            frame.isMouseEnter = false
+        if frame.hideUI.isMouseEnter then
+            frame.hideUI.isMouseEnter = false
         end
     end
 
-    return frame.isMouseEnter
+    return frame.hideUI.isMouseEnter
 end
 
-function Mouseover_mod:IsMouseOut(frame)
-    if frame.isMouseEnter then
-        frame.isMouseOut = false    --Reset
-        frame.mouseOutTime = nil
+function Mouseover_mod:IsMouseOut(frame, delay)
+    frame.hideUI = frame.hideUI or {}
+    if frame.hideUI.isMouseEnter then
+        frame.hideUI.isMouseOut = false    --Reset
+        frame.hideUI.mouseOutTime = nil
     else --Si está fuera
-        frame.mouseOutTime = frame.mouseOutTime or GetTime()
-        local elapsedTime = GetTime() - frame.mouseOutTime
-        if elapsedTime >= self.mouseOutDelay then --Diferencia de tiempo
-            frame.isMouseOut = false
+        frame.hideUI.mouseOutTime = frame.hideUI.mouseOutTime or GetTime()
+        local elapsedTime = GetTime() - frame.hideUI.mouseOutTime
+        if elapsedTime >= delay then --Diferencia de tiempo
+            frame.hideUI.isMouseOut = false
         else
-            frame.isMouseOut = true
+            frame.hideUI.isMouseOut = true
         end
     end
 
-    return frame.isMouseOut
+    return frame.hideUI.isMouseOut
 end

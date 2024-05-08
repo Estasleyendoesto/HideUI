@@ -9,7 +9,6 @@ function DB_mod:Find(name)
     if data then
         return data
     else
-        print("La variable " .. name .. " no existe")
         return nil
     end
 end

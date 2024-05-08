@@ -13,10 +13,10 @@ function UI_mod:OnEnable()
 end
 
 function UI_mod:UpdateUI()
-    -- Global Settings
+    -- Options Subpanel
     self.OptionsPanel.isEnabled:SetChecked(DB_mod:Find("isEnabled"))
     self.OptionsPanel.globalOpacity:SetValue(DB_mod:Find("globalOpacity"))
-    self.OptionsPanel.isMouseover:SetChecked(DB_mod:Find("isMouseOver"))
+    self.OptionsPanel.isMouseover:SetChecked(DB_mod:Find("isMouseover"))
     self.OptionsPanel.mouseoverFadeIn:SetValue(DB_mod:Find("mouseoverFadeIn"))
     self.OptionsPanel.mouseoverFadeOut:SetValue(DB_mod:Find("mouseoverFadeOut"))
     self.OptionsPanel.isCombat:SetChecked(DB_mod:Find("isCombat"))
@@ -64,7 +64,7 @@ function OptionsMenuPanel_Build(panel)
     UI_mod:CreateCheckbox("isEnabled", "Activate", true, function(checked) 
         Core_mod:OnActiveToggle(checked)
     end)
-    UI_mod:CreateSlider("globalOpacity", "Overall Transparency", 0, 100, 50, 1, function(amount)
+    UI_mod:CreateSlider("globalOpacity", "Overall Transparency", 0, 1, 0.5, 0.01, function(amount)
         Core_mod:UpdateGlobalTransparency(amount)
     end)
 

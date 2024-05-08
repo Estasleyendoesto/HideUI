@@ -16,9 +16,10 @@ libs\AceDB-3.0\AceDB-3.0.lua
 init.lua
 mods\db.lua
 mods\timer.lua
+mods\utils.lua
 mods\core.lua
-mods\alpha.lua
-mods\mouseover.lua
+#mods\alpha.lua
+#mods\mouseover.lua
 mods\combat.lua
 mods\afk.lua
 mods\nameplates.lua

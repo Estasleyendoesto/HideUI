@@ -1,6 +1,6 @@
 local Timer_mod = HideUI:NewModule("Timer_mod")
 
-local TIMER_DELAY = 0.05 --Global timer delay
+local TIMER_DELAY = 0.02 --Global timer delay
 
 function Timer_mod:OnInitialize()
     self.delay = TIMER_DELAY
@@ -49,6 +49,25 @@ function Timer_mod:OnTimerDelay(mod, func_name)
     local dif = GetTime() - mod.lastUpdate
     if dif >= mod.updateInterval then
         mod.lastUpdate = GetTime()
-        mod[func_name]()
+        mod[func_name](mod)
+    end 
+end
+
+function Timer_mod:Wait(mod, func_name, time, noWait, ...)
+    --Ejecuta una función tras esperar X tiempo
+    local args = {...}
+    local lastUpdate = func_name .. "_lastUpdate"
+    if not mod[lastUpdate] then
+        if noWait then
+            mod[lastUpdate] = GetTime() - time --Si se empieza sin esperar
+        else
+            mod[lastUpdate] = GetTime()
+        end
+    end
+
+    local dif = GetTime() - mod[lastUpdate]
+    if dif >= time then
+        mod[lastUpdate] = GetTime()
+        mod[func_name](mod, unpack(args)) --Elapsed = (tiempo exacto cuando se ejecute esta función)
     end 
 end

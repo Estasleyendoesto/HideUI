@@ -10,6 +10,12 @@ local defaults = {
         mouseoverFadeOut = 0.4,
         isCombat = true,
         isAFK = true,
+        
+        --Chat Tabs Fade
+        chatTabShowDelay = 0,
+        ChatTabHideDelay = 1,
+        ChatFrameFadeTime = 0.15,
+        ChatFrameFadeOutTime = 2.0,
     },
 }
 

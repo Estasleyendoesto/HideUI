@@ -14,7 +14,7 @@ function Alpha_mod:OnEnable()
 end
 
 function Alpha_mod:OnDisable()
-    self:UpdateAllFramesOpacity(100)
+    self:UpdateAllFramesOpacity(1)
     self:UnhookAnimatedFrames()
 end
 
@@ -59,7 +59,7 @@ end
 function Alpha_mod:UpdateFrameOpacity(frame, amount)
     --Opacidad a un unico frame
     if frame and frame:IsVisible() then
-        frame:SetAlpha(amount / 100)
+        frame:SetAlpha(amount)
     end
 end
 
@@ -89,7 +89,7 @@ function Alpha_mod:UnhookAnimatedFrames()
     for _, frame in pairs(frames) do
         if self:IsHooked(frame, "OnUpdate") then
             self:Unhook(frame, "OnUpdate")
-            self:UpdateFrameOpacity(frame, 100)
+            self:UpdateFrameOpacity(frame, 1)
         end
     end
 end
@@ -98,7 +98,7 @@ function Alpha_mod:OnAnimatedFrameUpdate(frame)
     if not frame:IsVisible() then
         return
     end
-    if frame:GetAlpha() == (DB_mod:Find("globalOpacity") / 100) then
+    if frame:GetAlpha() == (DB_mod:Find("globalOpacity")) then
         return --Reduce impacto de rendimiento de OnUpdate
     else
         if not frame.isMouseEnter and not frame.isMouseOut then
