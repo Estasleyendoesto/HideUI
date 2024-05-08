@@ -43,6 +43,7 @@ end
 
 function Timer_mod:Unbind(mod)
     self.OnTimer = mod.oldTimer
+    mod.oldTimer = nil
 end
 
 function Timer_mod:OnTimerDelay(mod, func_name)
@@ -70,4 +71,12 @@ function Timer_mod:Wait(mod, func_name, time, noWait, ...)
         mod[lastUpdate] = GetTime()
         mod[func_name](mod, unpack(args)) --Elapsed = (tiempo exacto cuando se ejecute esta función)
     end 
+end
+
+function Timer_mod:IsBinded(mod)
+    if mod.oldTimer then
+        return true
+    else
+        return false
+    end
 end

@@ -6,7 +6,7 @@
 --Decidir que canales de chat se verán afectados por esto último (susurros, guild, grupo, comercio, sistema, etc...)
 --
 
-local Chat_mod = HideUI:NewModule("Chat_mod", "AceHook-3.0", "AceEvent-3.0")
+local Chat_mod = HideUI:NewModule("Chat_mod", "AceHook-3.0")
 local DB_mod
 local Timer_mod
 local Utils_mod
@@ -27,13 +27,12 @@ end
 
 function Chat_mod:OnEnable()
     self:ChatboxesUpdateTrigger_Hook()
-    self:InterceptChatsEffects_Hook()
+    self:CheckMouseOverState()
     self:UpdateGlobalTransparency()
-    Timer_mod:Bind(self, "RunningTimer")
 end
 
 function Chat_mod:OnDisable()
-    Timer_mod:Unbind(self)
+    self:DisableMouseOver()
     self:UpdateGlobalTransparency(1)
     self:RestoreTabFrames(self.default_alpha) --Default (10.2.6)
     self:UnhookAll()
@@ -46,7 +45,7 @@ end
 ----------------------------------------------------------------------------
 function Chat_mod:RunningTimer()
     self:OnMouseOverFadeHandler()
-    --Pueden añadirse más temporaizadores con Timer_mod:Wait(...)
+    self:InterceptEditBoxFocusLost_Hook() --Actualiza los editBoxes hooks
 end
 
 function Chat_mod:ChatboxesUpdateTrigger_Hook()
@@ -68,7 +67,6 @@ end
 function Chat_mod:ChatboxesUpdateTable()
     self.chatboxes = self:FindActiveChats()
     self:UpdateGlobalTransparency(nil, true) --Actualiza el nuevo chat
-    self:InterceptEditBoxFocusLost_Hook() --Actualiza los editBoxes hooks
 end
 
 function Chat_mod:FindActiveChats()
@@ -322,4 +320,46 @@ function Chat_mod:OnInterceptedEditBoxFocusLost()
     end
 
     self.isEditBoxFocus = false
+end
+
+----------------------------------------------------------------------------
+function Chat_mod:CheckMouseOverState()
+    if DB_mod:Find("isMouseover") then
+        self:EnableMouseOver()
+    else
+        self:DisableMouseOver()
+    end
+end
+
+function Chat_mod:EnableMouseOver()
+    self:InterceptChatsEffects_Hook()
+    if not Timer_mod:IsBinded(self) then
+        Timer_mod:Bind(self, "RunningTimer")
+    end
+end
+
+function Chat_mod:DisableMouseOver()
+    if Timer_mod:IsBinded(self) then
+        Timer_mod:Unbind(self)
+    end
+
+    --Unhook Fade
+    if self:IsHooked("UIFrameFadeOut") then
+        self:Unhook("UIFrameFadeOut")
+    end
+    if self:IsHooked("UIFrameFadeIn") then
+        self:Unhook("UIFrameFadeIn")
+    end
+
+    --Unhook editBox
+    Utils_mod:Batch(self.chatboxes, function(chatbox) 
+        if chatbox.editBox then
+            if self:IsHooked(chatbox.editBox, "OnEditFocusLost") then
+                self:Unhook(chatbox.editBox, "OnEditFocusLost")
+            end
+            if self:IsHooked(chatbox.editBox, "OnEditFocusGained") then
+                self:Unhook(chatbox.editBox, "OnEditFocusGained")
+            end
+        end
+    end)
 end

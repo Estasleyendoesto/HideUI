@@ -2,7 +2,6 @@ local Core_mod = HideUI:NewModule("Core_mod")
 local DB_mod
 local Timer_mod
 local Alpha_mod
-local Mouseover_mod
 local Combat_mod
 local AFK_mod
 local Nameplates_mod
@@ -13,12 +12,10 @@ function Core_mod:OnInitialize()
     --Load Modules
     DB_mod         = HideUI:GetModule("DB_mod")
     Timer_mod      = HideUI:GetModule("Timer_mod")
-    -- Alpha_mod      = HideUI:GetModule("Alpha_mod")
-    -- Mouseover_mod  = HideUI:GetModule("Mouseover_mod")
     Chat_mod       = HideUI:GetModule("Chat_mod")
-    Combat_mod     = HideUI:GetModule("Combat_mod")
-    AFK_mod        = HideUI:GetModule("AFK_mod")
-    Nameplates_mod = HideUI:GetModule("Nameplates_mod")
+    -- Combat_mod     = HideUI:GetModule("Combat_mod")
+    -- AFK_mod        = HideUI:GetModule("AFK_mod")
+    -- Nameplates_mod = HideUI:GetModule("Nameplates_mod")
     UI_mod         = HideUI:GetModule("UI_mod")
 end
 
@@ -52,19 +49,19 @@ function Core_mod:EnableModules()
     Timer_mod:Enable() --First
     -- Alpha_mod:Enable()
     -- Mouseover_mod:Enable()
-    Combat_mod:Enable()
+    -- Combat_mod:Enable()
     Chat_mod:Enable()
-    AFK_mod:Enable()
-    Nameplates_mod:Enable()
+    -- AFK_mod:Enable()
+    -- Nameplates_mod:Enable()
 end
 
 function Core_mod:DisableModules()
     -- Alpha_mod:Disable()
     Chat_mod:Disable()
     -- Mouseover_mod:Disable()
-    Combat_mod:Disable()
-    AFK_mod:Disable()
-    Nameplates_mod:Disable()
+    -- Combat_mod:Disable()
+    -- AFK_mod:Disable()
+    -- Nameplates_mod:Disable()
     Timer_mod:Disable() --Last
 end
 
@@ -91,6 +88,9 @@ end
 
 function Core_mod:OnMouseoverToggle(checked)
     DB_mod:Update("isMouseover", checked)
+    if self:IsActive() then
+        Chat_mod:CheckMouseOverState()
+    end
 end
 
 function Core_mod:UpdateMouseoverFadeInAmount(amount)
