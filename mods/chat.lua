@@ -8,14 +8,12 @@
 
 local Chat_mod = HideUI:NewModule("Chat_mod", "AceHook-3.0")
 local DB_mod
-local Timer_mod
 local Utils_mod
 
 local UPDATE_INTERVAL = 0.25 -- 0 = Timer_mod interval
 
 function Chat_mod:OnInitialize()
     DB_mod = HideUI:GetModule("DB_mod")
-    Timer_mod = HideUI:GetModule("Timer_mod")
     Utils_mod = HideUI:GetModule("Utils_mod")
 
     self.updateInterval = UPDATE_INTERVAL
@@ -43,7 +41,7 @@ function Chat_mod:OnDisable()
 end
 
 ----------------------------------------------------------------------------
-function Chat_mod:RunningTimer()
+function Chat_mod:OnLoop()
     self:OnMouseOverFadeHandler()
     self:InterceptEditBoxFocusLost_Hook() --Actualiza los editBoxes hooks
 end
@@ -333,15 +331,11 @@ end
 
 function Chat_mod:EnableMouseOver()
     self:InterceptChatsEffects_Hook()
-    if not Timer_mod:IsBinded(self) then
-        Timer_mod:Bind(self, "RunningTimer")
-    end
+    self:CreateTimer()
 end
 
 function Chat_mod:DisableMouseOver()
-    if Timer_mod:IsBinded(self) then
-        Timer_mod:Unbind(self)
-    end
+    self:CancelTimer()
 
     --Unhook Fade
     if self:IsHooked("UIFrameFadeOut") then
@@ -362,4 +356,19 @@ function Chat_mod:DisableMouseOver()
             end
         end
     end)
+end
+
+function Chat_mod:CreateTimer()
+    if not self.timer then
+        self.timer = C_Timer.NewTicker(self.updateInterval, function()
+            self:OnLoop()
+        end)
+    end
+end
+        
+function Chat_mod:CancelTimer()
+    if self.timer then
+        self.timer:Cancel()
+        self.timer = nil
+    end
 end

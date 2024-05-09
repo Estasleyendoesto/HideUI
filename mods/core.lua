@@ -1,7 +1,6 @@
 local Core_mod = HideUI:NewModule("Core_mod")
 local DB_mod
-local Timer_mod
-local Alpha_mod
+local OnHide_mod
 local Combat_mod
 local AFK_mod
 local Nameplates_mod
@@ -11,9 +10,9 @@ local UI_mod
 function Core_mod:OnInitialize()
     --Load Modules
     DB_mod         = HideUI:GetModule("DB_mod")
-    Timer_mod      = HideUI:GetModule("Timer_mod")
     Chat_mod       = HideUI:GetModule("Chat_mod")
-    -- Combat_mod     = HideUI:GetModule("Combat_mod")
+    OnHide_mod     = HideUI:GetModule("OnHide_mod")
+    Combat_mod     = HideUI:GetModule("Combat_mod")
     -- AFK_mod        = HideUI:GetModule("AFK_mod")
     -- Nameplates_mod = HideUI:GetModule("Nameplates_mod")
     UI_mod         = HideUI:GetModule("UI_mod")
@@ -46,23 +45,19 @@ function Core_mod:ToggleModules()
 end
 
 function Core_mod:EnableModules()
-    Timer_mod:Enable() --First
-    -- Alpha_mod:Enable()
-    -- Mouseover_mod:Enable()
-    -- Combat_mod:Enable()
+    OnHide_mod:Enable()
+    Combat_mod:Enable()
     Chat_mod:Enable()
     -- AFK_mod:Enable()
     -- Nameplates_mod:Enable()
 end
 
 function Core_mod:DisableModules()
-    -- Alpha_mod:Disable()
+    OnHide_mod:Disable()
     Chat_mod:Disable()
-    -- Mouseover_mod:Disable()
-    -- Combat_mod:Disable()
+    Combat_mod:Disable()
     -- AFK_mod:Disable()
     -- Nameplates_mod:Disable()
-    Timer_mod:Disable() --Last
 end
 
 -- KEYBINDING EVENT
@@ -82,6 +77,7 @@ end
 function Core_mod:UpdateGlobalTransparency(amount)
     DB_mod:Update("globalOpacity", amount)
     if self:IsActive() then 
+        OnHide_mod:UpdateGlobalTransparency(amount) --OnHide_mod
         Chat_mod:UpdateGlobalTransparency(amount) --Chat_mod
     end
 end
@@ -90,6 +86,7 @@ function Core_mod:OnMouseoverToggle(checked)
     DB_mod:Update("isMouseover", checked)
     if self:IsActive() then
         Chat_mod:CheckMouseOverState()
+        OnHide_mod:CheckMouseOverState()
     end
 end
 

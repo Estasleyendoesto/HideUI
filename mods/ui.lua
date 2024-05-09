@@ -82,11 +82,9 @@ function OptionsMenuPanel_Build(panel)
 
     --Combat Settings
     UI_mod:CreateTitle("titleCombat", "Combat Settings")
-    UI_mod:CreateCheckbox("isCombat", "Show During Combat", false, function() 
+    UI_mod:CreateCheckbox("isCombat", "Show During Combat", false, function(checked) 
         Core_mod:OnCombatToggle(checked)
     end)
-    UI_mod:CreateSlider("combatFadeIn", "Combat Fade In Duration")
-    UI_mod:CreateSlider("combatFadeOut", "Combat Fade Out Duration")
 
     --AFK Settings
     UI_mod:CreateTitle("titleAFK", "AFK Settings")
