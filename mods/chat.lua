@@ -10,40 +10,30 @@ local Chat_mod = HideUI:NewModule("Chat_mod", "AceHook-3.0")
 local DB_mod
 local Utils_mod
 
-local UPDATE_INTERVAL = 0.25 -- 0 = Timer_mod interval
-
 function Chat_mod:OnInitialize()
     DB_mod = HideUI:GetModule("DB_mod")
     Utils_mod = HideUI:GetModule("Utils_mod")
 
-    self.updateInterval = UPDATE_INTERVAL
     self.chatboxes = {} --init
+    self.updateInterval = 0.25
 
+    self.globalOpacity = nil
     -- (10.2.6) Default variables
     self.default_alpha = 0.44
 end
 
 function Chat_mod:OnEnable()
-    self:ChatboxesUpdateTrigger_Hook()
-    self:CheckMouseOverState()
-    self:UpdateGlobalTransparency()
+    self:Restore()
+    self:EnableWithFade()
 end
 
 function Chat_mod:OnDisable()
-    self:DisableMouseOver()
-    self:UpdateGlobalTransparency(1)
-    self:RestoreTabFrames(self.default_alpha) --Default (10.2.6)
-    self:UnhookAll()
-    
-    --Reset Fade Out Alpha
-    self.isFadedIn = true
-    self:FadeOutChats(1)
+    self:DisableWithFade()
 end
 
 ----------------------------------------------------------------------------
-function Chat_mod:OnLoop()
+function Chat_mod:OnLoop() --Loop exclusivo de MouseOver
     self:OnMouseOverFadeHandler()
-    self:InterceptEditBoxFocusLost_Hook() --Actualiza los editBoxes hooks
 end
 
 function Chat_mod:ChatboxesUpdateTrigger_Hook()
@@ -62,9 +52,28 @@ function Chat_mod:ChatboxesUpdateTrigger_Hook()
     end
 end
 
+function Chat_mod:ChatboxesUpdateTrigger_Unhook()
+    --Detecta cambios en los chats
+    local methods = {
+        "FCF_Close",               --Al cerrar una ventana
+        "FCF_OpenNewWindow",       --Si es < NUM_CHAT_WINDOWS, 1 al 10
+        "FCF_OpenTemporaryWindow", --Si es > NUM_CHAT_WINDOWS, desde 11+ 
+        "FCF_ResetChatWindows",    --Cuando se reducen a 2 (default y combatlog)
+        "FCF_NewChatWindow",       --No se lo que hace pero igual lo pongo xD
+    }
+    for _, method in ipairs(methods) do
+        if self:IsHooked(method) then
+            self:Unhook(method)
+        end
+    end
+end
+
 function Chat_mod:ChatboxesUpdateTable()
     self.chatboxes = self:FindActiveChats()
-    self:UpdateGlobalTransparency(nil, true) --Actualiza el nuevo chat
+
+    if self.mouseOverEnabled then
+        self:InterceptEditBoxFocusLost_Hook()
+    end
 end
 
 function Chat_mod:FindActiveChats()
@@ -96,10 +105,8 @@ end
 
 function Chat_mod:UpdateFixedFrames(alpha)
     --Frames con opacidad inalterable
-    --QuickJoinToastButton
     local social = QuickJoinToastButton
     Utils_mod:UpdateAlpha(social, alpha)
-    --CombatLogQuickButtonFrame_Custom
     local combatLogMenu = CombatLogQuickButtonFrame_Custom
     Utils_mod:UpdateAlpha(combatLogMenu, alpha)
 end
@@ -140,30 +147,43 @@ function Chat_mod:UpdateEditBoxFrames(alpha)
     end)
 end
 
-function Chat_mod:UpdateGlobalTransparency(alpha, fromUpdate)
-    if not fromUpdate then --Si es otra fuente
-        self.new_globalAlpha = alpha --Conversa bandera alpha
-        self:ChatboxesUpdateTable()
-    else
-        --Actualiza el alpha de todos los frames
-        local new_alpha = self.new_globalAlpha or DB_mod:Find("globalOpacity")
+function Chat_mod:UpdateGlobalTransparency(amount) --From Core_mod
+    self.globalOpacity = amount or DB_mod:Find("globalOpacity")
+    
+    local chatbox_db_alpha = self:GetCustomAlpha()
+    local alpha = chatbox_db_alpha or self.globalOpacity -- own alpha
 
-        self:UpdateFixedFrames(new_alpha)
-        self:UpdateChatFrames(new_alpha)
-        self:UpdateTabFrames(new_alpha)
-        self:UpdateEditBoxFrames(new_alpha)
-
-        self.new_globalAlpha = nil --reset
-    end
+    self:UpdateFixedFrames(alpha)
+    self:UpdateChatFrames(alpha)
+    self:UpdateTabFrames(alpha)
+    self:UpdateEditBoxFrames(alpha)
 end
 
-function Chat_mod:InterceptChatsEffects_Hook()
+function Chat_mod:UpdateFrameAlpha(alpha)
+    local alpha = alpha or self:GetCustomAlpha() or self.globalOpacity
+    self:UpdateFixedFrames(alpha)
+    self:UpdateChatFrames(alpha)
+    self:UpdateTabFrames(alpha)
+    self:UpdateEditBoxFrames(alpha)
+end
+
+function Chat_mod:InterceptChatsFade_Hook()
     --Fade
     if not self:IsHooked("UIFrameFadeOut") then
         self:RawHook("UIFrameFadeOut", "OnInterceptedFadeOut", true)
     end
     if not self:IsHooked("UIFrameFadeIn") then
         self:RawHook("UIFrameFadeIn", "OnInterceptedFadeIn", true)
+    end
+end
+
+function Chat_mod:InterceptChatsFade_Unhook()
+    --Unhook Fade
+    if self:IsHooked("UIFrameFadeOut") then
+        self:Unhook("UIFrameFadeOut")
+    end
+    if self:IsHooked("UIFrameFadeIn") then
+        self:Unhook("UIFrameFadeIn")
     end
 end
 
@@ -220,12 +240,17 @@ function Chat_mod:OnMouseOverFadeHandler()
     end
 end
 
-function Chat_mod:FadeInChats(alpha)
+function Chat_mod:FadeInChats(alpha, fade_duration)
     self.fadeInEnabled = true
 
     local max_alpha = alpha or 1
+    if self.inAFK then
+        local chatbox_db_alpha = self:GetCustomAlpha()
+        max_alpha = chatbox_db_alpha or self.globalOpacity -- own alpha
+    end
+
     local normalized_alpha = max_alpha * self.default_alpha
-    local fadeInDuration = DB_mod:Find("mouseoverFadeIn")
+    local fadeInDuration = fade_duration or DB_mod:Find("mouseoverFadeIn")
 
     local social = Utils_mod:FrameExists("QuickJoinToastButton")
     local combatLogMenu = Utils_mod:FrameExists("CombatLogQuickButtonFrame_Custom")
@@ -255,21 +280,26 @@ function Chat_mod:FadeInChats(alpha)
     self.fadeInEnabled = false
 end
 
-function Chat_mod:FadeOutChats(original_alpha)
-    if self.isFadedIn then
+function Chat_mod:FadeOutChats(original_alpha, fade_duration, forceFade)
+    if forceFade or self.isFadedIn then
         self.fadeOutEnabled = true
 
-        local alpha = original_alpha or DB_mod:Find("globalOpacity")
+        local alpha = original_alpha or self.globalOpacity
+        if not self.inAFK then
+            local chatbox_db_alpha = self:GetCustomAlpha() 
+            alpha = chatbox_db_alpha or self.globalOpacity -- own alpha
+        end
+
         local normalized_alpha = alpha * self.default_alpha
-        local fadeOutDuration = DB_mod:Find("mouseoverFadeOut")
+        local fadeOutDuration = fade_duration or DB_mod:Find("mouseoverFadeOut")
 
         local social = Utils_mod:FrameExists("QuickJoinToastButton")
         local combatLogMenu = Utils_mod:FrameExists("CombatLogQuickButtonFrame_Custom")
     
-        if social:IsShown() then
+        if social and social:IsShown() then
             UIFrameFadeOut(social, fadeOutDuration, social:GetAlpha(), alpha)
         end
-        if combatLogMenu:IsShown() then
+        if combatLogMenu and combatLogMenu:IsShown() then
             UIFrameFadeOut(combatLogMenu, fadeOutDuration, combatLogMenu:GetAlpha(), alpha)
         end
     
@@ -303,6 +333,19 @@ function Chat_mod:InterceptEditBoxFocusLost_Hook()
     end)
 end
 
+function Chat_mod:InterceptEditBoxFocusLost_Unhook()
+    Utils_mod:Batch(self.chatboxes, function(chatbox) 
+        if chatbox.editBox then
+            if self:IsHooked(chatbox.editBox, "OnEditFocusLost") then
+                self:Unhook(chatbox.editBox, "OnEditFocusLost")
+            end
+            if self:IsHooked(chatbox.editBox, "OnEditFocusGained") then
+                self:Unhook(chatbox.editBox, "OnEditFocusGained")
+            end
+        end
+    end)
+end
+
 function Chat_mod:OnInterceptedEditBoxFocusGained()
     if not self.isFadedIn then
         self:FadeInChats()
@@ -320,44 +363,6 @@ function Chat_mod:OnInterceptedEditBoxFocusLost()
     self.isEditBoxFocus = false
 end
 
-----------------------------------------------------------------------------
-function Chat_mod:CheckMouseOverState()
-    if DB_mod:Find("isMouseover") then
-        self:EnableMouseOver()
-    else
-        self:DisableMouseOver()
-    end
-end
-
-function Chat_mod:EnableMouseOver()
-    self:InterceptChatsEffects_Hook()
-    self:CreateTimer()
-end
-
-function Chat_mod:DisableMouseOver()
-    self:CancelTimer()
-
-    --Unhook Fade
-    if self:IsHooked("UIFrameFadeOut") then
-        self:Unhook("UIFrameFadeOut")
-    end
-    if self:IsHooked("UIFrameFadeIn") then
-        self:Unhook("UIFrameFadeIn")
-    end
-
-    --Unhook editBox
-    Utils_mod:Batch(self.chatboxes, function(chatbox) 
-        if chatbox.editBox then
-            if self:IsHooked(chatbox.editBox, "OnEditFocusLost") then
-                self:Unhook(chatbox.editBox, "OnEditFocusLost")
-            end
-            if self:IsHooked(chatbox.editBox, "OnEditFocusGained") then
-                self:Unhook(chatbox.editBox, "OnEditFocusGained")
-            end
-        end
-    end)
-end
-
 function Chat_mod:CreateTimer()
     if not self.timer then
         self.timer = C_Timer.NewTicker(self.updateInterval, function()
@@ -371,4 +376,60 @@ function Chat_mod:CancelTimer()
         self.timer:Cancel()
         self.timer = nil
     end
+end
+
+function Chat_mod:GetCustomAlpha()
+    local _dbchatbox = DB_mod:Find("frames") 
+    local dbchatbox = _dbchatbox["Chatbox"]
+    if dbchatbox and dbchatbox.withAlpha then
+        return dbchatbox.alpha
+    else
+        return nil
+    end
+end
+
+----------------------------------------------------------------------------
+function Chat_mod:Restore()
+    self:ChatboxesUpdateTrigger_Unhook()
+    self:DisableMouseOver()
+    self:UnhookAll()
+end
+
+function Chat_mod:EnableWithFade()
+    self:ChatboxesUpdateTrigger_Hook()
+    self.chatboxes = self:FindActiveChats()
+    self:CheckMouseOverState()
+    self.globalOpacity = DB_mod:Find("globalOpacity")
+    self:FadeOutChats(nil, nil, true)
+end
+
+function Chat_mod:DisableWithFade()
+    self:ChatboxesUpdateTrigger_Unhook()
+    self.chatboxes = self:FindActiveChats()
+    self:DisableMouseOver()
+    self:UnhookAll()
+
+    self:FadeInChats()
+end
+
+function Chat_mod:CheckMouseOverState() --From Core_mod
+    if DB_mod:Find("isMouseover") then
+        self:EnableMouseOver()
+    else
+        self:DisableMouseOver()
+    end
+end
+
+function Chat_mod:EnableMouseOver()
+    self:CreateTimer()
+    self:InterceptChatsFade_Hook()
+    self:InterceptEditBoxFocusLost_Hook()
+    self.mouseOverEnabled = true
+end
+
+function Chat_mod:DisableMouseOver()
+    self:CancelTimer()
+    self:InterceptChatsFade_Unhook()
+    self:InterceptEditBoxFocusLost_Unhook()
+    self.mouseOverEnabled = nil
 end

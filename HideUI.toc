@@ -17,9 +17,9 @@ init.lua
 mods\db.lua
 mods\utils.lua
 mods\core.lua
-mods\on_hide.lua
+mods\frameHandler.lua
 mods\combat.lua
-                            #mods\afk.lua
+mods\afk.lua
                             #mods\nameplates.lua
 mods\chat.lua
 mods\ui.lua

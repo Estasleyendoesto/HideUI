@@ -105,21 +105,21 @@ function Utils_mod:InspectFrame(frame)
     end
 end
 
-function Utils_mod:Wait(mod, func_name, time, noWait, ...)
+function Utils_mod:Wait(mod, func_name, time, noWait)
     --Ejecuta una función tras esperar X tiempo
-    local args = {...}
     local lastUpdate = func_name .. "_lastUpdate"
+    local current_time = GetTime()
     if not mod[lastUpdate] then
         if noWait then
-            mod[lastUpdate] = GetTime() - time --Si se empieza sin esperar
+            mod[lastUpdate] = current_time - time --Si se empieza sin esperar
         else
-            mod[lastUpdate] = GetTime()
+            mod[lastUpdate] = current_time
         end
     end
 
-    local dif = GetTime() - mod[lastUpdate]
+    local dif = current_time - mod[lastUpdate]
     if dif >= time then
-        mod[lastUpdate] = GetTime()
-        mod[func_name](mod, unpack(args)) --Elapsed = (tiempo exacto cuando se ejecute esta función)
+        mod[lastUpdate] = current_time
+        mod[func_name](mod) --Elapsed = (tiempo exacto cuando se ejecute esta función)
     end 
 end

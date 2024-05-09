@@ -2,6 +2,12 @@ local UI_mod = HideUI:NewModule("UI_mod")
 local DB_mod
 local Core_mod
 
+local frame_names = { "PlayerFrame", "TargetFrame", "FocusFrame", "PetFrame", "PetActionBar", "MinimapCluster", "ObjectiveTrackerFrame",
+    "BuffFrame", "MicroMenuContainer", "BagsBar", "MainMenuBar", "BattlefieldMapFrame", "MultiBarBottomLeft", "MultiBarBottomRight",
+    "MultiBarRight", "MultiBarLeft", "Multibar5", "Multibar6", "Multibar7", "PlayerCastingBarFrame", "MainStatusTrackingBarContainer",
+    "EncounterBar", "StanceBar", "Chatbox",
+}
+
 function UI_mod:OnInitialize()
     DB_mod = HideUI:GetModule("DB_mod")
     Core_mod = HideUI:GetModule("Core_mod")
@@ -21,6 +27,15 @@ function UI_mod:UpdateUI()
     self.OptionsPanel.mouseoverFadeOut:SetValue(DB_mod:Find("mouseoverFadeOut"))
     self.OptionsPanel.isCombat:SetChecked(DB_mod:Find("isCombat"))
     self.OptionsPanel.isAFK:SetChecked(DB_mod:Find("isAFK"))
+    
+    --Individual Subpanel
+    local frames_dic = DB_mod:Find("frames")
+    for _, frame_name in ipairs(frame_names) do
+        local frame_db = frames_dic[frame_name]
+        self.IndividualOptionsPanel[frame_name .. "_enabledAlpha"]:SetChecked(frame_db.withAlpha)
+        self.IndividualOptionsPanel[frame_name .. "_alphaAmount"]:SetValue(frame_db.alpha)
+        -- self.IndividualOptionsPanel[frame_name .. "_inCombat"]:SetChecked(frame_db.combatEnable)
+    end
 end
 
 -- ADDON UI Menus and Submenus
@@ -48,9 +63,23 @@ function UI_mod:CreateOptionsMenu(name)
     return panel
 end
 
+function UI_mod:CreateIndividualOptionsMenu(name)
+    local parent = self.menuPanel
+    local panel = CreateFrame("Frame", "HideUI" .. name .. "Panel", parent)
+    panel.name = name
+    panel.type = "Panel"
+    panel.parent = parent.name
+
+    InterfaceOptions_AddCategory(panel)
+    IndividualMenuPanel_Build(panel)
+
+    return panel
+end
+
 function UI_mod:LoadUI()
     self.menuPanel = UI_mod:CreateMenu("HideUI")
     self.OptionsPanel = UI_mod:CreateOptionsMenu("Options")
+    self.IndividualOptionsPanel = UI_mod:CreateIndividualOptionsMenu("Individual")
 end
 
 -- BUILDER
@@ -88,9 +117,27 @@ function OptionsMenuPanel_Build(panel)
 
     --AFK Settings
     UI_mod:CreateTitle("titleAFK", "AFK Settings")
-    UI_mod:CreateCheckbox("isAFK", "Show After AFK", false, function() 
+    UI_mod:CreateCheckbox("isAFK", "AFK Mode", false, function(checked) 
         Core_mod:OnAFKToggle(checked)
     end)
+end
+
+function IndividualMenuPanel_Build(panel)
+    UI_mod:CreateScrollBox("scroll", panel, true)
+    UI_mod:CreateHeader("header", "Individual Options")
+
+    for _, frame_name in ipairs(frame_names) do
+        -- UI_mod:CreateTitle("title", frame_name)
+        UI_mod:CreateCheckbox(frame_name .. "_enabledAlpha", frame_name .. " alpha", true, function(checked)
+            Core_mod:OnFrameEnableAlpha(checked, frame_name)
+        end)
+        UI_mod:CreateSlider(frame_name .. "_alphaAmount", frame_name .. " alpha amount", 0, 1, 0.5, 0.01, function(amount)
+            Core_mod:UpdateFrameAlphaAmount(amount, frame_name)
+        end)
+        -- UI_mod:CreateCheckbox(frame_name .. "_inCombat", "Enable in Combat", true, function(checked)
+        --     Core_mod:OnFrameEnableCombat(checked, frame_name)
+        -- end)
+    end
 end
 
 -- AmigableUI
