@@ -1,6 +1,6 @@
 # HideUI Addon for World of Warcraft
 
-## Version 0.2 compatible with WoW 10.2.7
+## Version 0.3 compatible with WoW 10.2.7
 
 HideUI is a World of Warcraft addon designed to allow players to customize and control the visibility of their user interface for a more immersive experience. With HideUI, you can clear your gameplay screen, keeping only the essentials visible and enjoy the world of WoW with pleasant transition effects and adaptive functionality.
 
@@ -8,7 +8,8 @@ HideUI is a World of Warcraft addon designed to allow players to customize and c
 
 - **Easy Toggle On/Off**: Activate or deactivate the interface from the addon menu or via a customizable keybind from the keybinding menu.
 - **Opacity Control**: Adjust the global opacity of the interface using a slider accessible from the options menu.
-- **Automatic Hiding**: The interface automatically hides when you are AFK or mounted, providing a clear view of the surroundings.
+- **Automatic Hiding**: The interface automatically hides when you are AFK, mounted, or in combat, providing a clear view of the surroundings. The addon now ensures that if the game is launched in any of these states, it will automatically apply the appropriate visibility settings.
+- **Chat Visibility**: Toggle chat visibility along with other UI frames. Chat can also be revealed by pressing Enter and hidden again by pressing Enter again or clicking away.
 - **Reveal on Combat**: The interface automatically reappears when entering combat, ensuring quick access to all necessary controls.
 - **Individual Frame Customization**: Customize the opacity for each individual UI element.
 - **Mouseover to Reveal**: Frames automatically become visible when you hover the mouse over them, making them accessible without compromising the game view.

@@ -6,8 +6,6 @@ local UI_FRAMES = {}
 
 local DEFAULT_ALPHA = 1
 local GLOBAL_ALPHA = 1
-local AFK_ALPHA = 0
-local MOUNT_ALPHA = 0
 
 local LAST_STATE_ALPHA_AMOUNT = nil
 

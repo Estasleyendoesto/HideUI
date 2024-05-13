@@ -68,7 +68,7 @@ function Model:UpdateTable(frame_name, field_name, field_value)
 end
 
 function Model:UpdateChatTable(field_name, field_value)
-    if frame_name and field_name then
+    if field_name then
         self.db.profile["chatbox"][field_name] = field_value
     else
         print("HideUI: No puede actualizar ".. field_name .." en el registro.")

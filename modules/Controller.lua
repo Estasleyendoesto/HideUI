@@ -15,12 +15,14 @@ function Controller:ModulesHandler()
     local status = Model:Find("isEnabled")
     if status then
         HideUI:EnableModule("FrameManager")
+        HideUI:EnableModule("ChatManager")
         self:MouseOverModuleHandler()
         self:CombatModuleHandler()
         self:AFKManagerModuleHandler()
         self:MountModeModuleHandler()
     else
         HideUI:DisableModule("FrameManager")
+        HideUI:DisableModule("ChatManager")
         HideUI:DisableModule("MouseOver")
         HideUI:DisableModule("Combat")
         HideUI:DisableModule("AFKManager")
@@ -124,7 +126,7 @@ end
 
 function Controller:HandleChatChange(checked) --To Mount
     Model:UpdateChatTable("isAlphaEnabled", checked)
-    self:ModulesHandler()
+    self:SendMessage("CHAT_STATE_UPDATED", checked)
 end
 
 function Controller:HandleChatAlphaAmount(amount) --To FrameManager
