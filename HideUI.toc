@@ -1,8 +1,8 @@
 ## Interface: 100206
-## Title: HideUI_dev
-## Notes: HideUI modo development...
+## Title: HideUI
+## Notes: HideUI for you...
 ## Author: Estasleyendoesto
-## Version: 0.1
+## Version: 0.2
 
 ## SavedVariables: HideUIDB
 ## OptionalDeps: Ace3
