@@ -1,5 +1,5 @@
 <Bindings>
-    <Binding name="Toggle MinimalUI" category="ADDONS">
-        ToggleMinimalUI();
+    <Binding name="Enable HideUI" category="ADDONS">
+        HideUI_Enable_Keydown();
     </Binding>
 </Bindings>

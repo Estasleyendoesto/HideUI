@@ -1,25 +1,26 @@
 ## Interface: 100206
-## Title: HideUI
-## Notes: HideUI en desarrollo...
+## Title: HideUI_dev
+## Notes: HideUI modo development...
 ## Author: Estasleyendoesto
 ## Version: 0.1
+
 ## SavedVariables: HideUIDB
 ## OptionalDeps: Ace3
-
 libs\LibStub\LibStub.lua
 libs\AceAddon-3.0\AceAddon-3.0.lua
 libs\AceEvent-3.0\AceEvent-3.0.lua
 libs\AceHook-3.0\AceHook-3.0.lua
 libs\AceDB-3.0\AceDB-3.0.lua
 
-## ...
-init.lua
-mods\db.lua
-mods\utils.lua
-mods\core.lua
-mods\frameHandler.lua
-mods\combat.lua
-mods\afk.lua
-                            #mods\nameplates.lua
-mods\chat.lua
-mods\ui.lua
+main.lua
+modules\Model.lua
+modules\Controller.lua
+modules\StateManager.lua
+modules\FrameManager.lua
+modules\ChatManager.lua
+modules\MouseOver.lua
+modules\Combat.lua
+modules\AFKManager.lua
+modules\MountMode.lua
+modules\AmigableUI.lua
+modules\UIMenu.lua
