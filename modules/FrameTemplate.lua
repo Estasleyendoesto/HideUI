@@ -5,6 +5,7 @@
         - Actualizando sus propiedades tras un cambio en la DB
         - Activando o desactivando sus funcionalidades
         - Enviar el evento de mouseover
+        - Comprobar el estado de los frames en la escena (si aparecen en escena o son eliminados)(actualiza el registro de frames)
 
     Cada Frame tendrá insertado una tabla llamada HideUI y su interior será una instancia de este template,
     Para aquellos frames que puedan contener funcionalidades únicas y propias tendrán su propio módulo que heredará de la plantilla FrameTemplate
