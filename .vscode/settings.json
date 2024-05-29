@@ -1,0 +1,15 @@
+{
+    "Lua.diagnostics.globals": [
+        "QuickJoinToastButton",
+        "CombatLogQuickButtonFrame_Custom",
+        "PlayerCastingBarFrame",
+        "MainStatusTrackingBarContainer",
+        "InterfaceOptions_AddCategory",
+        "ReloadUI"
+    ],
+    "Lua.diagnostics.disable": [
+        "duplicate-set-field",
+        "undefined-field",
+        "inject-field"
+    ]
+}
