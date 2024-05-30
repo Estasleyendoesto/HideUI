@@ -5,7 +5,14 @@
         "PlayerCastingBarFrame",
         "MainStatusTrackingBarContainer",
         "InterfaceOptions_AddCategory",
-        "ReloadUI"
+        "ReloadUI",
+        "ENABLE",
+        "SETTINGS",
+        "INSTANCE",
+        "MOUNT",
+        "AFK",
+        "COMBAT",
+        "GAME"
     ],
     "Lua.diagnostics.disable": [
         "duplicate-set-field",

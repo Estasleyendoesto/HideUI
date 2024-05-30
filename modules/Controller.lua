@@ -1,5 +1,88 @@
 local Controller = HideUI:NewModule("Controller", "AceEvent-3.0")
 local Model
+local Interface
+
+function Controller:OnInitialize()
+    Model = HideUI:GetModule("Model")
+    Interface = HideUI:GetModule("Interface")
+end
+
+function Controller:OnEnable()
+    self:ModulesHandler()
+end
+
+function Controller:OnDisable()
+    self:ModulesHandler()
+end
+
+function Controller:ModulesHandler()
+    if Model:Find("isEnabled") then
+        HideUI:EnableModule("FrameManager")
+        HideUI:EnableModule("StateManager")
+    else
+        HideUI:DisableModule("StateManager")
+        HideUI:DisableModule("FrameManager")
+    end
+end
+
+-------------------------------------------------------------------------------->>>
+-- Bindings.xml
+function HideUI_Enable_Keydown()
+    Controller:HandleEnabledChange(not Model:Find("isEnabled"))
+    Interface:UpdateUI()
+end
+
+-------------------------------------------------------------------------------->>>
+-- Interface.lua...
+function Controller:HandleEnabledChange(checked) --Toggle All
+    Model:Update("isEnabled", checked)
+    self:ModulesHandler()
+end
+
+function Controller:HandleAlphaChange(amount) --To FrameManager
+    Model:Update("globalAlphaAmount", amount)
+    self:SendMessage("GLOBAL_SETTINGS_CHANGED", "ALPHA_AMOUNT", amount)
+end
+
+function Controller:HandleMouseoverChange(checked) --To MouseOver
+    Model:Update("isMouseoverEnabled", checked)
+    self:SendMessage("GLOBAL_SETTINGS_CHANGED", "MOUSEOVER", checked)
+end
+
+function Controller:HandleMouseoverFadeAmount(fade_type, amount) --To MouseOver
+    local field
+    if fade_type == "FADE_IN" then
+        field = "mouseoverFadeInAmount"
+    else
+        field = "mouseoverFadeOutAmount"
+    end
+
+    Model:Update(field, amount)
+    self:SendMessage("GLOBAL_SETTINGS_CHANGED", "MOUSEOVER_" .. fade_type .. "_AMOUNT", amount)
+end
+
+function Controller:HandleCombatChange(checked) --To Combat
+    Model:Update("isCombatEnabled", checked)
+    self:SendMessage("GLOBAL_SETTINGS_CHANGED", "COMBAT", checked)
+end
+
+function Controller:HandleAFKChange(checked) --To AFK
+    Model:Update("isAFKEnabled", checked)
+    self:SendMessage("GLOBAL_SETTINGS_CHANGED", "AFK", checked)
+end
+
+function Controller:HandleMountChange(checked) --To Mount
+    Model:Update("isMountEnabled", checked)
+    self:SendMessage("GLOBAL_SETTINGS_CHANGED", "MOUNT", checked)
+end
+
+function Controller:HandleInstanceChange(checked) --To Instance
+    Model:Update("isInstanceEnabled", checked)
+    self:SendMessage("GLOBAL_SETTINGS_CHANGED", "INSTANCE", checked)
+end
+
+--[[ local Controller = HideUI:NewModule("Controller", "AceEvent-3.0")
+local Model
 local UIMenu
 
 function Controller:OnInitialize()
@@ -137,4 +220,4 @@ end
 function HideUI_Enable_Keydown()
     Controller:HandleEnabledChange(not Model:Find("isEnabled"))
     UIMenu:UpdateUI()
-end
+end ]]

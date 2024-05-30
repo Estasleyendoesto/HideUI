@@ -1,6 +1,52 @@
 local FrameManager = HideUI:NewModule("FrameManager", "AceEvent-3.0")
 local Model
 
+local GAME_FRAMES = {}
+local FINDING_FRAMES_INTERVAL = 1.7
+local FINDING_FRAMES_REPEATS = 3
+
+function FrameManager:OnInitialize()
+    Model = HideUI:GetModule("Model")
+end
+
+function FrameManager:OnEnable()   
+    --StateHandler
+    self:RegisterMessage("PLAYER_STATE_CHANGED", "StateHandler")
+    --Al cambiar de instancia
+    self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnInstance")
+end
+
+function FrameManager:OnDisable()
+    --StateHandler
+    self:UnregisterMessage("PLAYER_STATE_CHANGED")
+    --Al cambiar de instancia
+    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    --Flush
+    GAME_FRAMES = {}
+end
+
+-------------------------------------------------------------------------------->>>
+-- StateHandler
+function FrameManager:StateHandler(msg, state)
+    print(state)
+end
+
+-------------------------------------------------------------------------------->>>
+-- Instance
+function FrameManager:OnInstance()
+    C_Timer.NewTicker(FINDING_FRAMES_INTERVAL, self.BindFrames, FINDING_FRAMES_REPEATS)
+end
+
+function FrameManager:BindFrames()
+    for _, frame in Model:Find("Frames") do
+        
+    end
+end
+
+
+--[[ local FrameManager = HideUI:NewModule("FrameManager", "AceEvent-3.0")
+local Model
+
 local CUSTOMIZED_FRAME_SETTINGS = {}
 local UI_FRAMES = {}
 
@@ -180,4 +226,4 @@ function FrameManager:PlayerStateHandler(msg, state)
             LAST_STATE_ALPHA_AMOUNT = nil
         end
     end
-end
+end ]]

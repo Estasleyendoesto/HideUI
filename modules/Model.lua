@@ -3,16 +3,20 @@ local Model = HideUI:NewModule("Model")
 local frame_names = { "PlayerFrame", "TargetFrame", "FocusFrame", "PetFrame", "PetActionBar", "MinimapCluster", "ObjectiveTrackerFrame",
 "BuffFrame", "MicroMenuContainer", "BagsBar", "MainMenuBar", "BattlefieldMapFrame", "MultiBarBottomLeft", "MultiBarBottomRight",
 "MultiBarRight", "MultiBarLeft", "Multibar5", "Multibar6", "Multibar7", "PlayerCastingBarFrame", "MainStatusTrackingBarContainer",
-"EncounterBar", "StanceBar",
+"EncounterBar", "StanceBar", "Chatbox",
 }
-local frame_table = {}
+local frames_table = {}
 for _, frame_name in ipairs(frame_names) do
-    frame_table[frame_name] = {
+    frames_table[frame_name] = {
         name = frame_name,
-        isAlphaEnabled = false,
         alphaAmount = 0.5,
+        isEnabled = true,
+        isAlphaEnabled = false,
         isCombatEnabled = true,
-        isIgnoreAFKEnabled = false,
+        isAFKEnabled = true,
+        isMountEnabled = true,
+        isMouseoverEnabled = true,
+        isInstanceEnabled = true,
     }
 end
 local defaults = {
@@ -20,21 +24,14 @@ local defaults = {
         isAccountWide = true,
         isEnabled = true,
         globalAlphaAmount = 0.5,
-        isMouseOverEnabled = true,
-        mouseOverFadeInAmount = 0.3,
-        mouseOverFadeOutAmount = 0.4,
+        isMouseoverEnabled = true,
+        mouseoverFadeInAmount = 0.3,
+        mouseoverFadeOutAmount = 0.4,
         isCombatEnabled = true,
         isAFKEnabled = true,
         isMountEnabled = true,
         isInstanceEnabled = true,
-        frames = frame_table,
-        chatbox = {
-            name = "Chatbox",
-            isAlphaEnabled = false,
-            alphaAmount = 0.5,
-            isCombatEnabled = true,
-            isIgnoreAFKEnabled = false,
-        }
+        frames = frames_table,
     }
 }
 
@@ -59,18 +56,10 @@ function Model:Update(field_name, field_value)
     end
 end
 
-function Model:UpdateTable(frame_name, field_name, field_value)
+function Model:UpdateFrame(frame_name, field_name, field_value)
     if frame_name and field_name then
         self.db.profile["frames"][frame_name][field_name] = field_value
     else
         print("HideUI: No puede actualizar ".. frame_name ..", ".. field_name .." en el registro.")
-    end
-end
-
-function Model:UpdateChatTable(field_name, field_value)
-    if field_name then
-        self.db.profile["chatbox"][field_name] = field_value
-    else
-        print("HideUI: No puede actualizar ".. field_name .." en el registro.")
     end
 end

@@ -1,4 +1,4 @@
-local MouseOver = HideUI:NewModule("MouseOver", "AceEvent-3.0")
+--[[ local MouseOver = HideUI:NewModule("MouseOver", "AceEvent-3.0")
 
 local UI_FRAMES = {}
 local CHATBOXES = {}
@@ -93,4 +93,4 @@ function MouseOver:FrameIsMouseover(frame)
     else
         return false
     end
-end
+end ]]

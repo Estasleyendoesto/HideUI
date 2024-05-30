@@ -164,7 +164,7 @@ function AmigableUI:Separator(name, height, alpha)
     local parent = self.lastElement
     local separator = parent:CreateTexture(nil, "BACKGROUND")
     separator:SetColorTexture(0.8, 0.8, 0.8, alpha or 0.3)
-    separator:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -10)
+    separator:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", 0, -10)
     separator:SetHeight(height or 1)
     separator:SetWidth(9999) --No queda de otra
     separator.type = "Separator"

@@ -2,7 +2,7 @@
 ## Title: HideUI
 ## Notes: HideUI for you!
 ## Author: Estasleyendoesto
-## Version: 0.3
+## Version: 0.4
 
 ## SavedVariables: HideUIDB
 ## OptionalDeps: Ace3
@@ -13,15 +13,19 @@ libs\AceEvent-3.0\AceEvent-3.0.lua
 libs\AceHook-3.0\AceHook-3.0.lua
 libs\AceDB-3.0\AceDB-3.0.lua
 
+## Modulos
 main.lua
+
 modules\Model.lua
+
 modules\Controller.lua
 modules\StateManager.lua
 modules\FrameManager.lua
-modules\ChatManager.lua
-modules\MouseOver.lua
-modules\Combat.lua
-modules\AFKManager.lua
-modules\MountMode.lua
+#modules\ChatManager.lua
+#modules\MouseOver.lua
+#modules\Combat.lua
+#modules\AFKManager.lua
+#modules\MountMode.lua
+
+modules\Interface.lua
 modules\AmigableUI.lua
-modules\UIMenu.lua

@@ -1,4 +1,108 @@
-local UIMenu = HideUI:NewModule("UIMenu")
+local Interface = HideUI:NewModule("Interface")
+
+local Model
+local Controller
+local AmigableUI
+
+local MAIN_MENU_PANEL
+local GENERAL_SETTINGS_PANEL
+local INDIVIDUAL_SETTINGS_PANEL
+
+function Interface:OnInitialize()
+    Model      = HideUI:GetModule("Model")
+    Controller = HideUI:GetModule("Controller")
+    AmigableUI = HideUI:GetModule("AmigableUI")
+end
+
+function Interface:OnEnable()
+    --Main menu
+    self:MainMenu("HideUI")
+    --Submenu 1
+    self:GeneralSettingsMenu("General")
+    --DB Update
+    self:UpdateUI()
+end
+
+-------------------------------------------------------------------------------->>>
+-- Update Menus
+function Interface:UpdateUI()
+    local GS_panel = GENERAL_SETTINGS_PANEL
+    -- General
+    GS_panel.isEnabled_checkbox:SetChecked(Model:Find("isEnabled"))
+    GS_panel.globalAlphaAmount_slider:SetValue(Model:Find("globalAlphaAmount"))
+    -- Mouseover
+    GS_panel.isMouseoverEnabled_checkbox:SetChecked(Model:Find("isMouseoverEnabled"))
+    GS_panel.mouseoverFadeIn_slider:SetValue(Model:Find("mouseoverFadeInAmount"))
+    GS_panel.mouseoverFadeOut_slider:SetValue(Model:Find("mouseoverFadeOutAmount"))
+    -- Combat
+    GS_panel.isCombatEnabled_checkbox:SetChecked(Model:Find("isCombatEnabled"))
+    -- AFK
+    GS_panel.isAFKEnabled_checkbox:SetChecked(Model:Find("isAFKEnabled"))
+    --Mount
+    GS_panel.isMountEnabled_checkbox:SetChecked(Model:Find("isMountEnabled"))
+    --Instance
+    GS_panel.isInstanceEnabled_checkbox:SetChecked(Model:Find("isInstanceEnabled"))
+end
+
+-------------------------------------------------------------------------------->>>
+-- Menus
+function Interface:MainMenu(menu_name)
+    local parent = InterfaceOptionsFramePanelContainer
+    local panel = CreateFrame("Frame", "HideUI" .. menu_name .. "Panel", parent)
+    panel.name = menu_name
+    panel.type = "Panel"
+    InterfaceOptions_AddCategory(panel)
+    MAIN_MENU_PANEL = panel
+end
+
+function Interface:GeneralSettingsMenu(submenu_name)
+    local parent = MAIN_MENU_PANEL
+    local panel = CreateFrame("Frame", "HideUI" .. submenu_name .. "Panel", parent)
+    panel.name = submenu_name
+    panel.type = "Panel"
+    panel.parent = parent.name
+    InterfaceOptions_AddCategory(panel)
+    GENERAL_SETTINGS_PANEL = panel
+    self:GeneralSettingsMenu_Build()
+end
+
+-------------------------------------------------------------------------------->>>
+-- Menu Options
+function Interface:GeneralSettingsMenu_Build()
+    -- Panel
+    AmigableUI:ScrollBox("panel_scroll", GENERAL_SETTINGS_PANEL, true)
+    AmigableUI:Header("panel_header", "General Settings")
+
+    -- General
+    AmigableUI:Title("title_1", "General")
+    AmigableUI:Checkbox("isEnabled_checkbox", "Enabled", false, function(e) Controller:HandleEnabledChange(e) end) 
+    AmigableUI:Slider("globalAlphaAmount_slider", "Overall Transparency", 0, 1, 0.5, 0.01, function(e) Controller:HandleAlphaChange(e) end)
+
+    -- Mouseover
+    AmigableUI:Title("title_2", "Mouseover Settings")
+    AmigableUI:Checkbox("isMouseoverEnabled_checkbox", "Reveal on Mouseover", true, function(e) Controller:HandleMouseoverChange(e) end)
+    AmigableUI:Slider("mouseoverFadeIn_slider", "Fade In Duration", 0, 2, 0.5, 0.1, function(e) Controller:HandleMouseoverFadeAmount("FADE_IN", e) end)
+    AmigableUI:Slider("mouseoverFadeOut_slider", "Fade Out Duration", 0, 2, 0.5, 0.1, function(e) Controller:HandleMouseoverFadeAmount("FADE_OUT", e) end)
+
+    -- Combat
+    AmigableUI:Title("title_3", "Combat Settings")
+    AmigableUI:Checkbox("isCombatEnabled_checkbox", "Reveal on Combat", true, function(e) Controller:HandleCombatChange(e) end)
+
+    -- AFK
+    AmigableUI:Title("title_4", "AFK Settings")
+    AmigableUI:Checkbox("isAFKEnabled_checkbox", "Hide on AFK", true, function(e) Controller:HandleAFKChange(e) end)
+    
+    -- Mount Mode
+    AmigableUI:Title("title_5", "Mount Settings")
+    AmigableUI:Checkbox("isMountEnabled_checkbox", "Hide on Mount", true, function(e) Controller:HandleMountChange(e) end)
+
+    --Instance
+    AmigableUI:Title("title_6", "Instance Settings")
+    AmigableUI:Checkbox("isInstanceEnabled_checkbox", "Reveal on Instance", true, function(e) Controller:HandleInstanceChange(e) end)
+end
+
+
+--[[local Interface = HideUI:NewModule("Interface")
 local Model
 local Controller
 local AmigableUI
@@ -7,13 +111,13 @@ local MAIN_MENU_PANEL = {}
 local GENERAL_SETTINGS_PANEL = {}
 local INDIVIDUAL_SETTINGS_PANEL = {}
 
-function UIMenu:OnInitialize()
+function Interface:OnInitialize()
     Model      = HideUI:GetModule("Model")
     Controller = HideUI:GetModule("Controller")
     AmigableUI = HideUI:GetModule("AmigableUI")
 end
 
-function UIMenu:OnEnable()
+function Interface:OnEnable()
     --Main menu
     self:MainMenu("HideUI")
     --Submenu 1
@@ -26,7 +130,7 @@ function UIMenu:OnEnable()
     self:UpdateUI()
 end
 
-function UIMenu:UpdateUI()
+function Interface:UpdateUI()
     local GS_panel = GENERAL_SETTINGS_PANEL
     -- General
     GS_panel.isEnabled_checkbox:SetChecked(Model:Find("isEnabled"))
@@ -58,7 +162,7 @@ end
 
 ----------------------------------------------------------------
 ----------------------------------------------------------------
-function UIMenu:MainMenu(menu_name)
+function Interface:MainMenu(menu_name)
     local parent = InterfaceOptionsFramePanelContainer
     local panel = CreateFrame("Frame", "HideUI" .. menu_name .. "Panel", parent)
     panel.name = menu_name
@@ -67,7 +171,7 @@ function UIMenu:MainMenu(menu_name)
     MAIN_MENU_PANEL = panel
 end
 
-function UIMenu:GeneralSettingsMenu(submenu_name)
+function Interface:GeneralSettingsMenu(submenu_name)
     local parent = MAIN_MENU_PANEL
     local panel = CreateFrame("Frame", "HideUI" .. submenu_name .. "Panel", parent)
     panel.name = submenu_name
@@ -77,7 +181,7 @@ function UIMenu:GeneralSettingsMenu(submenu_name)
     GENERAL_SETTINGS_PANEL = panel
 end
 
-function UIMenu:IndividualSettingsMenu(submenu_name)
+function Interface:IndividualSettingsMenu(submenu_name)
     local parent = MAIN_MENU_PANEL
     local panel = CreateFrame("Frame", "HideUI" .. submenu_name .. "Panel", parent)
     panel.name = submenu_name
@@ -89,7 +193,7 @@ end
 
 ----------------------------------------------------------------
 ----------------------------------------------------------------
-function UIMenu:GeneralSettingsMenu_Build()
+function Interface:GeneralSettingsMenu_Build()
     -- Panel
     AmigableUI:ScrollBox("panel_scroll", GENERAL_SETTINGS_PANEL, true)
     AmigableUI:Header("panel_header", "General Settings")
@@ -123,7 +227,7 @@ function UIMenu:GeneralSettingsMenu_Build()
     AmigableUI:Slider("ChatAlphaAmount_slider", "Chat Transparency", 0, 1, 0.5, 0.01, function(e) Controller:HandleChatAlphaAmount(e) end)
 end
 
-function UIMenu:IndividualSettingsMenu_Build()
+function Interface:IndividualSettingsMenu_Build()
     --Individual Subpanel TEST----------------------
     AmigableUI:ScrollBox("scroll", INDIVIDUAL_SETTINGS_PANEL, true)
     AmigableUI:Header("header", "Individual Options")
@@ -140,3 +244,4 @@ function UIMenu:IndividualSettingsMenu_Build()
     end
     ------------------------------------------------
 end
+ ]]

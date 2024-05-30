@@ -1,4 +1,4 @@
-local ChatManager = HideUI:NewModule("ChatManager", "AceEvent-3.0", "AceHook-3.0")
+--[[ local ChatManager = HideUI:NewModule("ChatManager", "AceEvent-3.0", "AceHook-3.0")
 local Model
 
 local CHATBOXES = {}
@@ -410,4 +410,4 @@ end
 
 function ChatManager:InterceptedEditBoxFocusLost()
     self.editBoxFocusActive = false
-end
+end ]]
