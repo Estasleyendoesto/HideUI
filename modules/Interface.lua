@@ -76,29 +76,29 @@ function Interface:GeneralSettingsMenu_Build()
     -- General
     AmigableUI:Title("title_1", "General")
     AmigableUI:Checkbox("isEnabled_checkbox", "Enabled", false, function(e) Controller:HandleEnabledChange(e) end) 
-    AmigableUI:Slider("globalAlphaAmount_slider", "Overall Transparency", 0, 1, 0.5, 0.01, function(e) Controller:HandleAlphaChange(e) end)
+    AmigableUI:Slider("globalAlphaAmount_slider", "Overall Transparency", 0, 1, 0.5, 0.01, function(e) Controller:HandleGlobalSettingsChange("ALPHA_AMOUNT", e) end)
 
     -- Mouseover
     AmigableUI:Title("title_2", "Mouseover Settings")
-    AmigableUI:Checkbox("isMouseoverEnabled_checkbox", "Reveal on Mouseover", true, function(e) Controller:HandleMouseoverChange(e) end)
-    AmigableUI:Slider("mouseoverFadeIn_slider", "Fade In Duration", 0, 2, 0.5, 0.1, function(e) Controller:HandleMouseoverFadeAmount("FADE_IN", e) end)
-    AmigableUI:Slider("mouseoverFadeOut_slider", "Fade Out Duration", 0, 2, 0.5, 0.1, function(e) Controller:HandleMouseoverFadeAmount("FADE_OUT", e) end)
+    AmigableUI:Checkbox("isMouseoverEnabled_checkbox", "Reveal on Mouseover", true, function(e) Controller:HandleGlobalSettingsChange("MOUSEOVER", e) end)
+    AmigableUI:Slider("mouseoverFadeIn_slider", "Fade In Duration", 0, 2, 0.5, 0.1, function(e) Controller:HandleGlobalSettingsChange("FADE_IN", e) end)
+    AmigableUI:Slider("mouseoverFadeOut_slider", "Fade Out Duration", 0, 2, 0.5, 0.1, function(e) Controller:HandleGlobalSettingsChange("FADE_OUT", e) end)
 
     -- Combat
     AmigableUI:Title("title_3", "Combat Settings")
-    AmigableUI:Checkbox("isCombatEnabled_checkbox", "Reveal on Combat", true, function(e) Controller:HandleCombatChange(e) end)
+    AmigableUI:Checkbox("isCombatEnabled_checkbox", "Reveal on Combat", true, function(e) Controller:HandleStateChange("COMBAT", e) end)
 
     -- AFK
     AmigableUI:Title("title_4", "AFK Settings")
-    AmigableUI:Checkbox("isAFKEnabled_checkbox", "Hide on AFK", true, function(e) Controller:HandleAFKChange(e) end)
+    AmigableUI:Checkbox("isAFKEnabled_checkbox", "Hide on AFK", true, function(e) Controller:HandleStateChange("AFK", e) end)
     
     -- Mount Mode
     AmigableUI:Title("title_5", "Mount Settings")
-    AmigableUI:Checkbox("isMountEnabled_checkbox", "Hide on Mount", true, function(e) Controller:HandleMountChange(e) end)
+    AmigableUI:Checkbox("isMountEnabled_checkbox", "Hide on Mount", true, function(e) Controller:HandleStateChange("MOUNT", e) end)
 
     --Instance
     AmigableUI:Title("title_6", "Instance Settings")
-    AmigableUI:Checkbox("isInstanceEnabled_checkbox", "Reveal on Instance", true, function(e) Controller:HandleInstanceChange(e) end)
+    AmigableUI:Checkbox("isInstanceEnabled_checkbox", "Reveal on Instance", true, function(e) Controller:HandleStateChange("INSTANCE", e) end)
 end
 
 

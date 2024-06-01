@@ -20,7 +20,11 @@ modules\Model.lua
 
 modules\Controller.lua
 modules\StateManager.lua
+modules\FrameTemplate.lua
+modules\ChatboxTemplate.lua
 modules\FrameManager.lua
+
+
 #modules\ChatManager.lua
 #modules\MouseOver.lua
 #modules\Combat.lua

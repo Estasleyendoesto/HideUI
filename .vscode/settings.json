@@ -12,11 +12,13 @@
         "MOUNT",
         "AFK",
         "COMBAT",
-        "GAME"
+        "GAME",
+        "InterfaceOptionsFramePanelContainer"
     ],
     "Lua.diagnostics.disable": [
         "duplicate-set-field",
         "undefined-field",
-        "inject-field"
+        "inject-field",
+        "undefined-global"
     ]
 }
