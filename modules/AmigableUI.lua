@@ -4,7 +4,7 @@ local AmigableUI = HideUI:NewModule("AmigableUI")
 ----------------------------------------------------------------------------
 function AmigableUI:ScrollBox(name, panel, isBarVisible)
     --Es lo primero a crear al usar un panel
-    local scrollFrame = CreateFrame("ScrollFrame", nil, panel, "UIPanelScrollFrameTemplate")
+    local scrollFrame = CreateFrame("ScrollFrame", "HideUIScrollBox", panel, "UIPanelScrollFrameTemplate")
     scrollFrame:SetPoint("TOPLEFT")
     scrollFrame:SetPoint("BOTTOMRIGHT", -28, 8)
     
@@ -55,7 +55,7 @@ function AmigableUI:Title(name, text)
     local before = self.lastElement
     local parent = before.parent
 
-    local title = parent:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    local title = parent:CreateFontString("HideUITitle", "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("LEFT", parent, "LEFT")
     title:SetPoint("TOPLEFT", before, "BOTTOMLEFT", 0, -25)
     title:SetText(text)
@@ -113,7 +113,7 @@ function AmigableUI:Slider(name, text, min, max, default, step, func)
         margin_top = -42
     end
 
-    local slider = CreateFrame("Slider", nil, parent, "OptionsSliderTemplate")
+    local slider = CreateFrame("Slider", "HideUISlider", parent, "OptionsSliderTemplate")
     slider:SetOrientation("HORIZONTAL")
     slider:SetWidth(340)    -- Ancho del slider
     slider:SetHeight(20)    -- Alto...
@@ -162,7 +162,7 @@ end
 
 function AmigableUI:Separator(name, height, alpha)
     local parent = self.lastElement
-    local separator = parent:CreateTexture(nil, "BACKGROUND")
+    local separator = parent:CreateTexture("HideUISeparator", "BACKGROUND")
     separator:SetColorTexture(0.8, 0.8, 0.8, alpha or 0.3)
     separator:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", 0, -10)
     separator:SetHeight(height or 1)
@@ -171,6 +171,87 @@ function AmigableUI:Separator(name, height, alpha)
     separator.parent = parent
     self.lastElement = separator
     parent.panel[name] = separator
+end
+
+function AmigableUI:Pool(name, title)
+    local before = self.lastElement
+    local parent = before.parent
+
+    -- Dropdown Frame
+    local frame = CreateFrame("Frame", "HiudeUIPool", parent.panel ,"BackdropTemplate")
+    local offset = -3
+    if before.type == "Title" or before.type == "Separator" then
+        offset = -24
+    end
+    frame:SetPoint("LEFT", 0, 0)
+    frame:SetPoint("RIGHT", -30, 0)
+    frame:SetPoint("TOPLEFT", before, "BOTTOMLEFT", 0, offset)
+    frame:SetSize(1, 32)
+    -- Dropdown Frame Style
+    frame:SetBackdrop({
+        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        edgeSize = 16,
+        insets = { left = 4, right = 4, top = 4, bottom = 4 },
+    })
+    frame:SetBackdropBorderColor(1, 1, 1, 0.5) --141011
+    frame:SetBackdropColor(0.5, 0.5, 0.5, 0.98)
+    -- Dropdown Text
+    local header = frame:CreateFontString(nil, "OVERLAY")
+    header:SetFont("Fonts\\FRIZQT__.TTF", 14, "OUTLINE")
+    header:SetPoint("LEFT", 22, 0)
+    header:SetText(title)
+    header:SetTextColor(1, 1, 1, 0.85)
+    -- Dropdown Icon
+    local icon = frame:CreateTexture(nil, "OVERLAY")
+    icon:SetSize(18, 18)
+    icon:SetPoint("RIGHT", -16, 0)
+    icon:SetTexture("Interface\\Buttons\\UI-PlusButton-Up")
+
+    -- Contenido del panel (oculto inicialmente)
+    local content = CreateFrame("Frame", nil, parent.panel, "BackdropTemplate")
+    content:SetPoint("LEFT", 0, 0)
+    content:SetPoint("RIGHT", -30, 0)
+    content:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 0, -3)
+    content:SetSize(1, 1) --OJO
+    content:SetBackdrop({
+        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        edgeSize = 16,
+        insets = { left = 4, right = 4, top = 4, bottom = 4 },
+    })
+    content:SetBackdropBorderColor(1, 1, 1, 1)
+    content:SetBackdropColor(0, 0, 0, 0.5)
+    content:Hide()
+
+    -- Función para expandir y contraer el panel
+    function ToggleAccordion()
+        if content:IsShown() then
+            content:Hide()
+            icon:SetTexture("Interface\\Buttons\\UI-PlusButton-Up")
+            if frame.after then
+                frame.after:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 0, -3)
+            end
+        else
+            content:Show()
+            icon:SetTexture("Interface\\Buttons\\UI-MinusButton-Up")
+            if frame.after then
+                frame.after:SetPoint("TOPLEFT", frame.content, "BOTTOMLEFT", 0, -3)
+            end
+        end
+    end
+    -- Evento al hacer clic en el marco
+    frame:SetScript("OnMouseDown", ToggleAccordion)
+
+    -- Store
+    content.type = "PoolContent"
+    content.parent = frame
+    frame.type = "Pool"
+    frame.parent = parent
+    frame.content = content
+    parent.panel[name] = frame
+    before.after = frame
+    self.lastElement = frame
 end
 
 function AmigableUI:Comment(name, text)

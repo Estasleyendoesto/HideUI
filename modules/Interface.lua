@@ -3,14 +3,15 @@ local Interface = HideUI:NewModule("Interface")
 local Model
 local Controller
 local AmigableUI
+local FrameInterface
 
 local MAIN_MENU_PANEL
 local GENERAL_SETTINGS_PANEL
-local INDIVIDUAL_SETTINGS_PANEL
 
 function Interface:OnInitialize()
     Model      = HideUI:GetModule("Model")
     Controller = HideUI:GetModule("Controller")
+    FrameInterface = HideUI:GetModule("FrameInterface")
     AmigableUI = HideUI:GetModule("AmigableUI")
 end
 
@@ -19,29 +20,32 @@ function Interface:OnEnable()
     self:MainMenu("HideUI")
     --Submenu 1
     self:GeneralSettingsMenu("General")
+    --Submenu 2
+    self:FrameSettingsMenu("Frames")
     --DB Update
     self:UpdateUI()
+    FrameInterface:UpdateUI()
 end
 
 -------------------------------------------------------------------------------->>>
 -- Update Menus
 function Interface:UpdateUI()
-    local GS_panel = GENERAL_SETTINGS_PANEL
+    local panel = GENERAL_SETTINGS_PANEL
     -- General
-    GS_panel.isEnabled_checkbox:SetChecked(Model:Find("isEnabled"))
-    GS_panel.globalAlphaAmount_slider:SetValue(Model:Find("globalAlphaAmount"))
+    panel.isEnabled_checkbox:SetChecked(Model:Find("isEnabled"))
+    panel.globalAlphaAmount_slider:SetValue(Model:Find("globalAlphaAmount"))
     -- Mouseover
-    GS_panel.isMouseoverEnabled_checkbox:SetChecked(Model:Find("isMouseoverEnabled"))
-    GS_panel.mouseoverFadeIn_slider:SetValue(Model:Find("mouseoverFadeInAmount"))
-    GS_panel.mouseoverFadeOut_slider:SetValue(Model:Find("mouseoverFadeOutAmount"))
+    panel.isMouseoverEnabled_checkbox:SetChecked(Model:Find("isMouseoverEnabled"))
+    panel.mouseoverFadeIn_slider:SetValue(Model:Find("mouseoverFadeInAmount"))
+    panel.mouseoverFadeOut_slider:SetValue(Model:Find("mouseoverFadeOutAmount"))
     -- Combat
-    GS_panel.isCombatEnabled_checkbox:SetChecked(Model:Find("isCombatEnabled"))
+    panel.isCombatEnabled_checkbox:SetChecked(Model:Find("isCombatEnabled"))
     -- AFK
-    GS_panel.isAFKEnabled_checkbox:SetChecked(Model:Find("isAFKEnabled"))
+    panel.isAFKEnabled_checkbox:SetChecked(Model:Find("isAFKEnabled"))
     --Mount
-    GS_panel.isMountEnabled_checkbox:SetChecked(Model:Find("isMountEnabled"))
+    panel.isMountEnabled_checkbox:SetChecked(Model:Find("isMountEnabled"))
     --Instance
-    GS_panel.isInstanceEnabled_checkbox:SetChecked(Model:Find("isInstanceEnabled"))
+    panel.isInstanceEnabled_checkbox:SetChecked(Model:Find("isInstanceEnabled"))
 end
 
 -------------------------------------------------------------------------------->>>
@@ -66,6 +70,16 @@ function Interface:GeneralSettingsMenu(submenu_name)
     self:GeneralSettingsMenu_Build()
 end
 
+function Interface:FrameSettingsMenu(submenu_name)
+    local parent = MAIN_MENU_PANEL
+    local panel = CreateFrame("Frame", "HideUI" .. submenu_name .. "Panel", parent)
+    panel.name = submenu_name
+    panel.type = "Panel"
+    panel.parent = parent.name
+    InterfaceOptions_AddCategory(panel)
+    FrameInterface:Menu_Build(panel)
+end
+
 -------------------------------------------------------------------------------->>>
 -- Menu Options
 function Interface:GeneralSettingsMenu_Build()
@@ -76,13 +90,13 @@ function Interface:GeneralSettingsMenu_Build()
     -- General
     AmigableUI:Title("title_1", "General")
     AmigableUI:Checkbox("isEnabled_checkbox", "Enabled", false, function(e) Controller:HandleEnabledChange(e) end) 
-    AmigableUI:Slider("globalAlphaAmount_slider", "Overall Transparency", 0, 1, 0.5, 0.01, function(e) Controller:HandleGlobalSettingsChange("ALPHA_AMOUNT", e) end)
+    AmigableUI:Slider("globalAlphaAmount_slider", "Overall Transparency", 0, 1, 0.5, 0.01, function(e) Controller:HandleGlobalSettings("ALPHA_AMOUNT", e) end)
 
     -- Mouseover
     AmigableUI:Title("title_2", "Mouseover Settings")
-    AmigableUI:Checkbox("isMouseoverEnabled_checkbox", "Reveal on Mouseover", true, function(e) Controller:HandleGlobalSettingsChange("MOUSEOVER", e) end)
-    AmigableUI:Slider("mouseoverFadeIn_slider", "Fade In Duration", 0, 2, 0.5, 0.1, function(e) Controller:HandleGlobalSettingsChange("FADE_IN", e) end)
-    AmigableUI:Slider("mouseoverFadeOut_slider", "Fade Out Duration", 0, 2, 0.5, 0.1, function(e) Controller:HandleGlobalSettingsChange("FADE_OUT", e) end)
+    AmigableUI:Checkbox("isMouseoverEnabled_checkbox", "Reveal on Mouseover", true, function(e) Controller:HandleGlobalSettings("MOUSEOVER", e) end)
+    AmigableUI:Slider("mouseoverFadeIn_slider", "Fade In Duration", 0, 2, 0.5, 0.1, function(e) Controller:HandleGlobalSettings("FADE_IN", e) end)
+    AmigableUI:Slider("mouseoverFadeOut_slider", "Fade Out Duration", 0, 2, 0.5, 0.1, function(e) Controller:HandleGlobalSettings("FADE_OUT", e) end)
 
     -- Combat
     AmigableUI:Title("title_3", "Combat Settings")

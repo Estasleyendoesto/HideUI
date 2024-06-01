@@ -32,4 +32,5 @@ modules\FrameManager.lua
 #modules\MountMode.lua
 
 modules\Interface.lua
+modules\FrameInterface.lua
 modules\AmigableUI.lua

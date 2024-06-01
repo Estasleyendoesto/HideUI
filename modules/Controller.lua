@@ -39,7 +39,7 @@ function Controller:HandleEnabledChange(checked) --Toggle All
     self:ModulesHandler()
 end
 
-function Controller:HandleGlobalSettingsChange(operator, input)
+function Controller:HandleGlobalSettings(operator, input)
     local field
     if operator == "ALPHA_AMOUNT" then
         field = "globalAlphaAmount"
@@ -79,7 +79,7 @@ end
 
 -------------------------------------------------------------------------------->>>
 -- Interface.lua - For Frames
-function Controller:HandleFrameSettingsChange(frame, field, input)
+function Controller:HandleFrameSettings(frame, field, input)
     Model:UpdateFrame(frame, field, input)
     self:SendMessage("FRAME_SETTINGS_CHANGED", frame, field, input)
 end
