@@ -96,10 +96,10 @@ end
 -------------------------------------------------------------------------------->>>
 -- Global settings
 function FrameManager:GlobalSettingsUpdate(msg, arg, value)
-    function AttachGlobal(_arg, _value)
+    function AttachGlobal(field, input)
         for _, frame  in pairs(GAME_FRAMES) do
             if frame and frame.HideUI then
-                frame.HideUI.globals[_arg] = _value
+                frame.HideUI.globals[field] = input
             end
         end
     end
@@ -117,8 +117,11 @@ end
 
 -------------------------------------------------------------------------------->>>
 -- Custom Frame settings
-function FrameManager:FrameSettingsUpdate(msg, frame_name, arg, value)
-
+function FrameManager:FrameSettingsUpdate(msg, frame_name, field, input)
+    local frame = GAME_FRAMES[frame_name]
+    if frame and frame.HideUI then
+        frame.HideUI.args[field] = input
+    end
 end
 
 -------------------------------------------------------------------------------->>>
@@ -145,8 +148,6 @@ function FrameManager:OnLoop()
         end
     end
 end
-
-
 
 -------------------------------------------------------------------------------->>>
 -- FrameTemplate

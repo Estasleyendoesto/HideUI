@@ -35,11 +35,12 @@ function AmigableUI:Header(name, text)
     title:SetText(text)
 
     --Separator
-    local separator = parent:CreateTexture(nil, "BACKGROUND")
+    local separator = parent.panel:CreateTexture(nil, "BACKGROUND")
     separator:SetColorTexture(0.8, 0.8, 0.8, 0.3)
+    separator:SetPoint("LEFT", 0, 0)
+    separator:SetPoint("RIGHT", -35, 0) --Largo del separator
     separator:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -10)
     separator:SetHeight(1)
-    separator:SetWidth(9999) --No queda de otra
 
     title.type = "Title"
     separator.type = "Separator"
@@ -53,11 +54,13 @@ end
 
 function AmigableUI:Title(name, text)
     local before = self.lastElement
-    local parent = before.parent
+    local parent = self.poolContainer or before.parent
 
     local title = parent:CreateFontString("HideUITitle", "OVERLAY", "GameFontNormalLarge")
-    title:SetPoint("LEFT", parent, "LEFT")
-    title:SetPoint("TOPLEFT", before, "BOTTOMLEFT", 0, -25)
+    local offset = 25
+    title:SetPoint("LEFT", offset, 0)
+    if before.type ~= "Separator" then offset = offset * 2 end
+    title:SetPoint("TOP", before, 0, -offset)
     title:SetText(text)
 
     title.type = "Title"
@@ -68,17 +71,14 @@ end
 
 function AmigableUI:Checkbox(name, text, state, func)
     local before = self.lastElement
-    local parent = before.parent
-
-    local margin_top = -12
-    if before.type == "Checkbox" then
-        margin_top = 0
-    end
+    local parent = self.poolContainer or before.parent
 
     -- Box
     local checkbox = CreateFrame("CheckButton", "HideUICheckbox", parent, "UICheckButtonTemplate")
-    checkbox:SetPoint("LEFT", parent, "LEFT")
-    checkbox:SetPoint("TOPLEFT", before, "BOTTOMLEFT", 0, margin_top)
+    local offset = 25
+    checkbox:SetPoint("LEFT", offset, 0)
+    if before.content then offset = 36 end
+    checkbox:SetPoint("TOP", before, 0, -offset)
 
     -- Text
     checkbox.text:SetPoint("TOPLEFT", checkbox, "TOPLEFT", 48, -8.5)
@@ -96,30 +96,26 @@ function AmigableUI:Checkbox(name, text, state, func)
 
     checkbox.type = "Checkbox"
     checkbox.parent = parent
-    parent.panel[name] = checkbox
     self.lastElement = checkbox
+    parent.panel[name] = checkbox
 end
 
 function AmigableUI:Slider(name, text, min, max, default, step, func)
     local before = self.lastElement
-    local parent = before.parent
+    local parent = self.poolContainer or before.parent
     max = max or 100
     min = min or 0
     default = default or (min + max) / 2
     step = step or 1
-
-    local margin_top = -32
-    if before.type == "Title" then
-        margin_top = -42
-    end
 
     local slider = CreateFrame("Slider", "HideUISlider", parent, "OptionsSliderTemplate")
     slider:SetOrientation("HORIZONTAL")
     slider:SetWidth(340)    -- Ancho del slider
     slider:SetHeight(20)    -- Alto...
 
-    slider:SetPoint("LEFT", parent, "LEFT")
-    slider:SetPoint("TOPLEFT", before, "BOTTOMLEFT", 0, margin_top)
+    local offset = 28
+    slider:SetPoint("LEFT", offset, 0)
+    slider:SetPoint("TOP", before, 0, -offset * 2.2)
 
     slider:SetMinMaxValues(min, max)
     slider:SetValueStep(step)
@@ -156,12 +152,12 @@ function AmigableUI:Slider(name, text, min, max, default, step, func)
 
     slider.type = "Slider"
     slider.parent = parent
-    parent.panel[name] = slider
     self.lastElement = slider
+    parent.panel[name] = slider
 end
 
 function AmigableUI:Separator(name, height, alpha)
-    local parent = self.lastElement
+    local parent = self.poolContainer or self.lastElement
     local separator = parent:CreateTexture("HideUISeparator", "BACKGROUND")
     separator:SetColorTexture(0.8, 0.8, 0.8, alpha or 0.3)
     separator:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", 0, -10)
@@ -173,20 +169,21 @@ function AmigableUI:Separator(name, height, alpha)
     parent.panel[name] = separator
 end
 
-function AmigableUI:Pool(name, title)
+function AmigableUI:Pool(name, title, height, active)
     local before = self.lastElement
     local parent = before.parent
 
     -- Dropdown Frame
-    local frame = CreateFrame("Frame", "HiudeUIPool", parent.panel ,"BackdropTemplate")
+    local frame = CreateFrame("Frame", "HideUIPool", parent, "BackdropTemplate")
     local offset = -3
     if before.type == "Title" or before.type == "Separator" then
         offset = -24
     end
-    frame:SetPoint("LEFT", 0, 0)
-    frame:SetPoint("RIGHT", -30, 0)
+    frame:ClearAllPoints()
+    frame:SetPoint("LEFT", parent.panel, 0, 0)
+    frame:SetPoint("RIGHT", parent.panel, -38, 0)
     frame:SetPoint("TOPLEFT", before, "BOTTOMLEFT", 0, offset)
-    frame:SetSize(1, 32)
+    frame:SetHeight(32)
     -- Dropdown Frame Style
     frame:SetBackdrop({
         bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
@@ -194,7 +191,11 @@ function AmigableUI:Pool(name, title)
         edgeSize = 16,
         insets = { left = 4, right = 4, top = 4, bottom = 4 },
     })
-    frame:SetBackdropBorderColor(1, 1, 1, 0.5) --141011
+    if active then
+        frame:SetBackdropBorderColor(1, 1, 0, 0.5) --141011
+    else
+        frame:SetBackdropBorderColor(1, 1, 1, 0.5) --141011
+    end
     frame:SetBackdropColor(0.5, 0.5, 0.5, 0.98)
     -- Dropdown Text
     local header = frame:CreateFontString(nil, "OVERLAY")
@@ -209,19 +210,12 @@ function AmigableUI:Pool(name, title)
     icon:SetTexture("Interface\\Buttons\\UI-PlusButton-Up")
 
     -- Contenido del panel (oculto inicialmente)
-    local content = CreateFrame("Frame", nil, parent.panel, "BackdropTemplate")
+    local content = CreateFrame("Frame", nil, frame, "BackdropTemplate")
+    content:ClearAllPoints()
     content:SetPoint("LEFT", 0, 0)
-    content:SetPoint("RIGHT", -30, 0)
-    content:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 0, -3)
-    content:SetSize(1, 1) --OJO
-    content:SetBackdrop({
-        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-        edgeSize = 16,
-        insets = { left = 4, right = 4, top = 4, bottom = 4 },
-    })
-    content:SetBackdropBorderColor(1, 1, 1, 1)
-    content:SetBackdropColor(0, 0, 0, 0.5)
+    content:SetPoint("RIGHT", 0, 0)
+    content:SetPoint("TOPLEFT", frame, 0, -20)
+    content:SetHeight(height or 190) --Altura manual, auto no va
     content:Hide()
 
     -- Función para expandir y contraer el panel
@@ -246,12 +240,14 @@ function AmigableUI:Pool(name, title)
     -- Store
     content.type = "PoolContent"
     content.parent = frame
+    content.panel = {}
     frame.type = "Pool"
     frame.parent = parent
     frame.content = content
     parent.panel[name] = frame
     before.after = frame
     self.lastElement = frame
+    self.poolContainer = content
 end
 
 function AmigableUI:Comment(name, text)

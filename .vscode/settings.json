@@ -19,6 +19,7 @@
         "duplicate-set-field",
         "undefined-field",
         "inject-field",
-        "undefined-global"
+        "undefined-global",
+        "assign-type-mismatch"
     ]
 }
