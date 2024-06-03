@@ -39,42 +39,9 @@ function Controller:HandleEnabledChange(checked) --Toggle All
     self:ModulesHandler()
 end
 
-function Controller:HandleGlobalSettings(operator, input)
-    local field
-    if operator == "ALPHA_AMOUNT" then
-        field = "globalAlphaAmount"
-    elseif operator == "MOUSEOVER" then
-        field = "isMouseoverEnabled"
-    elseif operator == "FADE_IN" then
-        field = "mouseoverFadeInAmount"
-        operator = "MOUSEOVER_" .. operator .. "_AMOUNT"
-    elseif operator == "FADE_OUT" then
-        field = "mouseoverFadeOutAmount"
-        operator = "MOUSEOVER_" .. operator .. "_AMOUNT"
-    end
-    if field then
-        Model:Update(field, input)
-        self:SendMessage("GLOBAL_SETTINGS_CHANGED", operator, input)
-    end
-end
-
--------------------------------------------------------------------------------->>>
--- Interface.lua - States
-function Controller:HandleStateChange(state, input)
-    local field
-    if state == "COMBAT" then
-        field =  "isCombatEnabled"
-    elseif state == "AFK" then
-        field = "isAFKEnabled"
-    elseif state == "MOUNT" then
-        field = "isMountEnabled"
-    elseif state == "INSTANCE" then
-        field = "isInstanceEnabled"
-    end
-    if field then
-        Model:Update(field, input)
-        self:SendMessage("GLOBAL_SETTINGS_CHANGED", state, input)
-    end
+function Controller:HandleGlobalSettings(field, input)
+    Model:Update(field, input)
+    self:SendMessage("GLOBAL_SETTINGS_CHANGED", field, input)
 end
 
 -------------------------------------------------------------------------------->>>

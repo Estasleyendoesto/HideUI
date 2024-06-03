@@ -70,6 +70,7 @@ function FrameInterface:Menu_Build(panel)
     AmigableUI:ScrollBox("panel_scroll", FRAME_SETTINGS_PANEL, true)
     AmigableUI:Header("panel_header", "Frame Settings")
 
+    -- Frame Settings
     for _, frame in ipairs(BINDINGS) do
         AmigableUI:Pool(frame.name, frame.alias, 270)
         self:AttachSettings(frame.name)
@@ -81,7 +82,6 @@ function FrameInterface:AttachSettings(frame_name)
 
     AmigableUI:Checkbox("isEnabled_checkbox", "Custom Enabled", false, function(e)
         Controller:HandleFrameSettings(frame_name, "isEnabled", e)
-        print(pool.type)
         if e then
             pool:SetBackdropBorderColor(1, 1, 0, 0.5)
         else

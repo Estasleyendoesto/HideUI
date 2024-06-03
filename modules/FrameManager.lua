@@ -22,7 +22,7 @@ function FrameManager:OnEnable()
     --After Full Game Loaded
     self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnInstance")
     --State Handler
-    self:RegisterMessage("PLAYER_STATE_CHANGED", "StateHandler")
+    self:RegisterMessage("PLAYER_STATE_CHANGED", "EventReceiver")
     --Bind Frames
     self:BindFrames()
     --Mouseover
@@ -53,18 +53,22 @@ function FrameManager:BindFrames()
         globalAlphaAmount = Model:Find("globalAlphaAmount"),
         mouseoverFadeInAmount = Model:Find("mouseoverFadeInAmount"),
         mouseoverFadeOutAmount = Model:Find("mouseoverFadeOutAmount"),
+        isAFKEnabled = Model:Find("isAFKEnabled"),
+        isMountEnabled = Model:Find("isMountEnabled"),
+        isCombatEnabled = Model:Find("isCombatEnabled"),
+        isInstanceEnabled = Model:Find("isInstanceEnabled"),
     }
-    for _, db_frame in pairs(Model:Find("frames")) do
-        local frame = _G[db_frame.name]
+    for _, dataframe in pairs(Model:Find("frames")) do
+        local frame = _G[dataframe.name]
         if frame and not frame.HideUI then
-            frame.HideUI = FrameTemplate:Create(frame, db_frame, globals)
+            frame.HideUI = FrameTemplate:Create(frame, dataframe, globals)
         else
-            if db_frame.name == "Chatbox" then
+            if dataframe.name == "Chatbox" then
                 frame = {}
-                frame.HideUI = ChatboxTemplate:Create(db_frame, globals)
+                frame.HideUI = ChatboxTemplate:Create(dataframe, globals)
             end
         end
-        temp[db_frame.name] = frame
+        temp[dataframe.name] = frame
     end
     GAME_FRAMES = temp
 end
@@ -89,38 +93,49 @@ end
 
 -------------------------------------------------------------------------------->>>
 -- State Handler
-function FrameManager:StateHandler(msg, state)
-    print(state)
+function FrameManager:EventReceiver(msg, event)
+    for _, frame in pairs(GAME_FRAMES) do
+        if frame and frame.HideUI then
+            frame.HideUI:OnEvent(event)
+        end
+    end
+end
+
+function FrameManager:VerifyStateSetting(frame, field, from)
+    if field == "isAFKEnabled" or
+       field == "isMountEnabled" or
+       field == "isCombatEnabled" or
+       field == "isInstanceEnabled" or
+      (field == "isEnabled" and from == "Custom")
+    then
+        frame.HideUI:OnStateConfig(field, from)
+    end
 end
 
 -------------------------------------------------------------------------------->>>
--- Global settings
-function FrameManager:GlobalSettingsUpdate(msg, arg, value)
-    function AttachGlobal(field, input)
-        for _, frame  in pairs(GAME_FRAMES) do
-            if frame and frame.HideUI then
-                frame.HideUI.globals[field] = input
+-- Global and Frame settings
+function FrameManager:GlobalSettingsUpdate(msg, field, input)
+    for _, frame  in pairs(GAME_FRAMES) do
+        if frame and frame.HideUI then
+            frame.HideUI.globals[field] = input
+            if field == "globalAlphaAmount" then
+                frame.HideUI:OnAlphaUpdate("Global")
+            else
+                self:VerifyStateSetting(frame, field, "Global")
             end
         end
     end
-
-    if arg == "MOUSEOVER" then
-        AttachGlobal("isMouseoverEnabled", value)
-    elseif arg == "ALPHA_AMOUNT" then
-        AttachGlobal("globalAlphaAmount", value)
-    elseif arg == "MOUSEOVER_FADE_IN_AMOUNT" then
-        AttachGlobal("mouseoverFadeInAmount", value)
-    elseif arg == "MOUSEOVER_FADE_OUT_AMOUNT" then
-        AttachGlobal("mouseoverFadeOutAmount", value)
-    end
 end
 
--------------------------------------------------------------------------------->>>
--- Custom Frame settings
 function FrameManager:FrameSettingsUpdate(msg, frame_name, field, input)
     local frame = GAME_FRAMES[frame_name]
     if frame and frame.HideUI then
         frame.HideUI.args[field] = input
+        if field == "alphaAmount" then
+            frame.HideUI:OnAlphaUpdate("Custom")
+        else
+            self:VerifyStateSetting(frame, field, "Custom")
+        end
     end
 end
 
