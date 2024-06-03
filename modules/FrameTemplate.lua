@@ -9,8 +9,13 @@ function FrameTemplate:Create(parent, args, globals)
     local template = {}
     self:Embed(template)
 
+    function template:OnCreate()
+        local alpha = self:FindAlphaAmount()
+        self.frame:SetAlpha(alpha)
+    end
+
     function template:OnDestroy()
-        -- Para desvincular mensajes, eventos o unhooks
+        self.frame:SetAlpha(1)
     end
 
     -- Calls from FrameManager
@@ -18,7 +23,14 @@ function FrameTemplate:Create(parent, args, globals)
     function template:OnMouseover()
         -- Temporizador desde OnLoop()
         if self:IsMouseoverEnabled() and self:IsOnMouseover(self.frame) then
-            print("Mouseover en:", self.name)
+            self.frame:SetAlpha(1)
+        else
+            if self.alphaEvent then
+                self.frame:SetAlpha(self.alphaEvent)
+            else
+                local alpha = self:FindAlphaAmount()
+                self.frame:SetAlpha(alpha)
+            end
         end
     end
 
@@ -26,18 +38,53 @@ function FrameTemplate:Create(parent, args, globals)
         -- Solo cuando el jugador manipula el alpha slider
         local origin = self:CheckAlphaOrigin(from)
         if origin == "Global" then
-            if self.name == "MinimapCluster" then
-                print("Me estás tocando el global alpha, te vas a enterar!", self.name)
-            end
+            self.frame:SetAlpha(self.globals.globalAlphaAmount)
         elseif origin == "Custom" then
-            print("Me estás tocando el custom alpha, te vas a enterar!", self.name)
+            self.frame:SetAlpha(self.args.alphaAmount)
+        end
+    end
+
+    function template:OnAlphaEvent(from)
+        local origin = self:CheckAlphaOrigin(from)
+        if origin == "Custom" then
+            self.frame:SetAlpha(self.args.alphaAmount)
+        else
+            self.frame:SetAlpha(self.globals.globalAlphaAmount)
         end
     end
 
     function template:OnState(state)
         -- Ejecución final del estado tras filtros
-        if self.name == "MinimapCluster" then
-            print(state, self.name)
+        local states = {
+            --AFK
+            PLAYER_AFK_STATE_ENTER    = {alphaAmount = 0},
+            PLAYER_AFK_STATE_HOLD     = {alphaAmount = 0},
+            PLAYER_AFK_STATE_NEXT     = {alphaAmount = 0},
+            PLAYER_AFK_STATE_EXIT     = {alphaAmount = self:FindAlphaAmount()},
+            --Mount
+            PLAYER_MOUNT_STATE_ENTER  = {alphaAmount = 0},
+            PLAYER_MOUNT_STATE_HOLD   = {alphaAmount = 0},
+            PLAYER_MOUNT_STATE_NEXT   = {alphaAmount = 0},
+            PLAYER_MOUNT_STATE_EXIT   = {alphaAmount = self:FindAlphaAmount()},
+            --Combat
+            PLAYER_COMBAT_STATE_ENTER = {alphaAmount = 1},
+            PLAYER_COMBAT_STATE_HOLD  = {alphaAmount = 1},
+            PLAYER_COMBAT_STATE_NEXT  = {alphaAmount = 1},
+            PLAYER_COMBAT_STATE_EXIT  = {alphaAmount = self:FindAlphaAmount()},
+            --Instance
+            PLAYER_INSTANTE_STATE_ENTER = {alphaAmount = 1},
+            PLAYER_INSTANTE_STATE_HOLD  = {alphaAmount = 1},
+            PLAYER_INSTANTE_STATE_NEXT  = {alphaAmount = 1},
+            PLAYER_INSTANTE_STATE_EXIT  = {alphaAmount = self:FindAlphaAmount()},
+        }
+        local current_state = states[state]
+        if current_state then
+            self.alphaEvent = current_state.alphaAmount
+            self.frame:SetAlpha(self.alphaEvent)
+
+            if string.find(state, "EXIT") then
+                self.alphaEvent = nil
+            end
         end
     end
 
@@ -131,6 +178,32 @@ function FrameTemplate:Create(parent, args, globals)
             return true
         else
             return false
+        end
+    end
+
+    function template:FrameIsVisible(frame)
+        if frame and frame:IsVisible() and frame:IsShown() then
+            return true
+        else
+            return false
+        end
+    end
+
+    function template:IsAlphaEnabled()
+        if self.args.isEnabled and self.args.isAlphaEnabled then
+            return true
+        else
+            return false
+        end
+    end
+
+    -- Methods
+    ------------------------------------------------------------>>
+    function template:FindAlphaAmount()
+        if self:IsAlphaEnabled() then
+            return self.args.alphaAmount
+        else
+            return self.globals.globalAlphaAmount
         end
     end
 

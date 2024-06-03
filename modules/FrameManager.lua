@@ -62,10 +62,12 @@ function FrameManager:BindFrames()
         local frame = _G[dataframe.name]
         if frame and not frame.HideUI then
             frame.HideUI = FrameTemplate:Create(frame, dataframe, globals)
+            frame.HideUI:OnCreate()
         else
             if dataframe.name == "Chatbox" then
                 frame = {}
                 frame.HideUI = ChatboxTemplate:Create(dataframe, globals)
+                frame.HideUI:OnCreate()
             end
         end
         temp[dataframe.name] = frame
@@ -133,6 +135,8 @@ function FrameManager:FrameSettingsUpdate(msg, frame_name, field, input)
         frame.HideUI.args[field] = input
         if field == "alphaAmount" then
             frame.HideUI:OnAlphaUpdate("Custom")
+        elseif field == "isAlphaEnabled" or field == "isEnabled" then
+            frame.HideUI:OnAlphaEvent("Custom")
         else
             self:VerifyStateSetting(frame, field, "Custom")
         end

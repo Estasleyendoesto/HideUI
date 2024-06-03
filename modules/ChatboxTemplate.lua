@@ -9,10 +9,48 @@ function ChatboxTemplate:Create(args, globals)
     local template = FrameTemplate:Create(nil, args, globals)
     self:Embed(template)
 
+    function template:OnCreate()
+        self:ChatFramesUpdate("hook")
+    end
+
     function template:OnDestroy()
         self:ChatFramesUpdate("unhook")
     end
 
+    -- Calls from FrameManager
+    ------------------------------------------------------------>>
+    function template:OnMouseover()
+        if not self:IsMouseoverEnabled() then return end
+
+        for _, chatbox in ipairs(self.chatboxes) do
+            if self:IsOnMouseover(chatbox.chatFrame) or
+               self:IsOnMouseover(chatbox.tab) or
+               self:IsOnMouseover(chatbox.editBox) or
+               self:IsOnMouseover(chatbox.buttonFrame) or
+               self:IsOnMouseover(self.socialFrame) or
+               self:IsOnMouseover(self.combatLogFrame)
+            then
+                print("Mouseover en Chatbox")
+                return
+            end
+        end
+    end
+
+    function template:OnAlphaUpdate(from)
+    end
+
+    function template:OnAlphaEvent(from)
+    end
+
+    function template:OnState(state)
+        -- Ejecución final del estado tras filtros
+        if self.name == "MinimapCluster" then
+            print(state, self.name)
+        end
+    end
+
+    -- Methods
+    ------------------------------------------------------------>>
     function template:GetChatFrames()
         --Busca y empaqueta los chatframes
         local activeChats = {}
@@ -40,31 +78,6 @@ function ChatboxTemplate:Create(args, globals)
         return activeChats
     end
 
-    function template:OnMouseover()
-        if not template.globals.isMouseoverEnabled then return end
-
-        if self:IsOnMouseover(self.socialFrame) then
-            print("Mouseover en", self.socialFrame:GetName())
-            return
-        end
-
-        if self:IsOnMouseover(self.combatLogFrame) then
-            print("Mouseover en", self.combatLogFrame:GetName())
-            return
-        end
-
-        for _, chatbox in ipairs(self.chatboxes) do
-            if self:IsOnMouseover(chatbox.chatFrame) or
-               self:IsOnMouseover(chatbox.tab) or
-               self:IsOnMouseover(chatbox.editBox) or
-               self:IsOnMouseover(chatbox.buttonFrame)
-            then
-                print("Mouseover en Chatbox")
-                return
-            end
-        end
-    end
-
     function template:ChatFramesUpdate(operator)
         local methods = {
             "FCF_Close",               --Al cerrar una ventana
@@ -87,12 +100,12 @@ function ChatboxTemplate:Create(args, globals)
         end
     end
 
+    -- Props
+    ------------------------------------------------------------>>
     template.name = "Chatbox"
     template.chatboxes = template:GetChatFrames()
     template.socialFrame = _G["QuickJoinToastButton"]
     template.combatLogFrame = _G["CombatLogQuickButtonFrame_Custom"]
-
-    template:ChatFramesUpdate("hook")
 
     return template
 end

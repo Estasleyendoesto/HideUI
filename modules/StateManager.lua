@@ -43,6 +43,7 @@ function StateManager:OnDisable()
     self:UnregisterEvent("PLAYER_ENTERING_WORLD")
     --Flush
     self:ExitStates()
+    self.execute = nil
 end
 
 -------------------------------------------------------------------------------->>>
@@ -160,12 +161,7 @@ end
 
 ---------------------------------------------------------------------------->>>
 -- New Instance
-function StateManager:OnInstance(firstCall)
-    if firstCall then
-        -- Impide ejecución doble (solo al entrar al juego)
-        if not self.executed then return end
-    end
-
+function StateManager:OnInstance()
     self.isMounted = false
     self.inCombat = false
     self.inInstance = false
@@ -173,10 +169,6 @@ function StateManager:OnInstance(firstCall)
     self:OnMountState(nil, "player")
     self:OnCombatState("UNIT_COMBAT", "player")
     self:CheckInstance()
-
-    if not firstCall then
-        self.executed = true
-    end
 end
 
 function StateManager:CheckInstance()
