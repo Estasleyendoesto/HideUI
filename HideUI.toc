@@ -16,12 +16,12 @@ libs\AceDB-3.0\AceDB-3.0.lua
 ## Modulos
 main.lua
 
-modules\Model.lua
+modules\Data.lua
 
 modules\Controller.lua
-modules\StateManager.lua
+modules\EventManager.lua
 modules\FrameTemplate.lua
-modules\ChatboxTemplate.lua
+#modules\ChatboxTemplate.lua
 modules\FrameManager.lua
 
 
