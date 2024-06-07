@@ -1,6 +1,7 @@
-local StateManager = HideUI:NewModule("StateManager", "AceEvent-3.0")
+local EventManager = HideUI:NewModule("EventManager", "AceEvent-3.0")
 
 local COMBAT_END_DELAY = 1
+local EVENT_LOG = {}
 local PRIORITIES = {
     -- Número más alto mayor prioridad
     PLAYER_MOUNT_STATE = 1,
@@ -9,7 +10,7 @@ local PRIORITIES = {
     PLAYER_INSTANCE_STATE = 4,
 }
 
-function StateManager:OnEnable()
+function EventManager:OnEnable()
     --AFK
     self:RegisterEvent("PLAYER_FLAGS_CHANGED", "OnAFKState")
     --Combat
@@ -24,10 +25,10 @@ function StateManager:OnEnable()
     --Al cambiar de instancia
     self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnInstance")
     --Evaluación inicial
-    self:OnInstance()
+    self:CheckEvents()
 end
 
-function StateManager:OnDisable()
+function EventManager:OnDisable()
     --AFK
     self:UnregisterEvent("PLAYER_FLAGS_CHANGED")
     --Combat
@@ -43,12 +44,22 @@ function StateManager:OnDisable()
     self:UnregisterEvent("PLAYER_ENTERING_WORLD")
     --Flush
     self:ExitStates()
-    self.execute = nil
+    EVENT_LOG = {}
 end
 
 -------------------------------------------------------------------------------->>>
--- State Manager
-function StateManager:Recall(state)
+-- Events Manager
+function EventManager:CheckEvents()
+    self.isMounted = false
+    self.inCombat = false
+    self.inInstance = false
+    self:OnAFKState()
+    self:OnMountState(nil, "player")
+    self:OnCombatState("UNIT_COMBAT", "player")
+    self:CheckInstance()
+end
+
+function EventManager:Recall(state)
     if state == "PLAYER_AFK_STATE" then
         self:OnAFKState()
     elseif state == "PLAYER_MOUNT_STATE" then
@@ -63,57 +74,67 @@ function StateManager:Recall(state)
     end
 end
 
-function StateManager:ExitStates()
-    self:EventHandler("PLAYER_AFK_STATE", false)
-    self:EventHandler("PLAYER_COMBAT_STATE", false)
-    self:EventHandler("PLAYER_MOUNT_STATE", false)
-    self:EventHandler("PLAYER_INSTANCE_STATE", false)
+function EventManager:ExitStates()
+    self:NotifyEvent("PLAYER_AFK_STATE", false)
+    self:NotifyEvent("PLAYER_COMBAT_STATE", false)
+    self:NotifyEvent("PLAYER_MOUNT_STATE", false)
+    self:NotifyEvent("PLAYER_INSTANCE_STATE", false)
 end
 
-function StateManager:BuildEvent(state, isActive)
+function EventManager:GetLog()
+    return EVENT_LOG
+end
+
+function EventManager:CreateEvent(state, isActive)
     return {
         state = state,
         priority = PRIORITIES[state] or 0,
-        isActive = isActive or nil
+        isActive = isActive
     }
 end
 
-function StateManager:EventHandler(state, isActive)
-    local event = self:BuildEvent(state, isActive)
+function EventManager:NotifyEvent(state, isActive)
+    local event = self:CreateEvent(state, isActive)
+    self:EventHandler(event, EVENT_LOG)
     self:SendMessage("PLAYER_STATE_CHANGED", event)
 end
-
-function StateManager:EventManager(event, registry, func, firstOut)
-    -- Evita el primer llamado de _exited si la entrada inicial es false
+ 
+function EventManager:EventHandler(event, registry, func, firstOut)
+    -- Evita el primer llamado de _exit si la entrada inicial es false
     if #registry == 0 and not event.isActive then
         return
     end
 
     -- Inserta/elimina del registro
     if event.isActive then
-        local exists
+        local exists = false
         for _, reg_ev in ipairs(registry) do
-            if reg_ev.state == event.state then
+            if reg_ev.state == event.state and reg_ev.isActive then
                 exists = true
                 break
             end
         end
         if not exists then
             table.insert(registry, event) -- Inserta si no existe
-            self:NotifyEvent(event, registry, func, firstOut)
+            if func then
+                self:EventSender(event, registry, func, firstOut)
+            end
         end
     else
-        for _, reg_ev in ipairs(registry) do
+        for i = #registry, 1, -1 do
+            local reg_ev = registry[i]
             if reg_ev.isActive and reg_ev.state == event.state then
-                table.remove(registry, _) -- Elimina par registrado
-                self:NotifyEvent(event, registry, func, firstOut)
+                table.remove(registry, i) -- Elimina par registrado
+                if func then
+                    self:EventSender(event, registry, func, firstOut)
+                end
                 break
             end
         end
     end
 end
 
-function StateManager:NotifyEvent(event, registry, func, firstOut)
+function EventManager:EventSender(event, registry, func, firstOut)
     local max_event = self:GetMaxEvent(registry)
     -- _exit, lista vacía
     if not event.isActive and #registry == 0 then
@@ -145,7 +166,7 @@ function StateManager:NotifyEvent(event, registry, func, firstOut)
     end
 end
 
-function StateManager:GetMaxEvent(registry)
+function EventManager:GetMaxEvent(registry)
     local max_event
     for _, reg_event in ipairs(registry) do
         if not max_event then
@@ -161,41 +182,35 @@ end
 
 ---------------------------------------------------------------------------->>>
 -- New Instance
-function StateManager:OnInstance()
-    self.isMounted = false
-    self.inCombat = false
-    self.inInstance = false
-    self:OnAFKState()
-    self:OnMountState(nil, "player")
-    self:OnCombatState("UNIT_COMBAT", "player")
-    self:CheckInstance()
+function EventManager:OnInstance()
+    self:CheckEvents()
 end
 
-function StateManager:CheckInstance()
+function EventManager:CheckInstance()
     if IsInInstance() then
         if not self.inInstance then
-            self:EventHandler("PLAYER_INSTANCE_STATE", true)
+            self:NotifyEvent("PLAYER_INSTANCE_STATE", true)
             self.inInstance = true
         end
     else
-        self:EventHandler("PLAYER_INSTANCE_STATE", false)
+        self:NotifyEvent("PLAYER_INSTANCE_STATE", false)
         self.inInstance = false
     end
 end
 
 -------------------------------------------------------------------------------->>>
 -- AFK State
-function StateManager:OnAFKState()
+function EventManager:OnAFKState()
     if UnitIsAFK("player") then
-        self:EventHandler("PLAYER_AFK_STATE", true)
+        self:NotifyEvent("PLAYER_AFK_STATE", true)
     else
-        self:EventHandler("PLAYER_AFK_STATE", false)
+        self:NotifyEvent("PLAYER_AFK_STATE", false)
     end
 end
 
 -------------------------------------------------------------------------------->>>
 -- Combat State
-function StateManager:OnCombatState(event, unit, ...)
+function EventManager:OnCombatState(event, unit, ...)
     local combat_enter = false
     local combat_end = false
     if event == "PLAYER_REGEN_ENABLED" then
@@ -218,29 +233,29 @@ function StateManager:OnCombatState(event, unit, ...)
         end
     end
     if combat_enter then
-        self:EventHandler("PLAYER_COMBAT_STATE", true)
+        self:NotifyEvent("PLAYER_COMBAT_STATE", true)
     end
     if combat_end then
         C_Timer.After(COMBAT_END_DELAY, function()
-            self:EventHandler("PLAYER_COMBAT_STATE", false)
+            self:NotifyEvent("PLAYER_COMBAT_STATE", false)
         end)
     end
 end
 
 -------------------------------------------------------------------------------->>>
 -- Mount State
-function StateManager:OnMountState(event, unit)
+function EventManager:OnMountState(event, unit)
     if unit ~= "player" then return end
 
     if IsMounted() or UnitInVehicle("player") then
         if not self.isMounted then
             self.isMounted = true
-            self:EventHandler("PLAYER_MOUNT_STATE", true)
+            self:NotifyEvent("PLAYER_MOUNT_STATE", true)
         end
     else
         if self.isMounted then
             self.isMounted = false
-            self:EventHandler("PLAYER_MOUNT_STATE", false)
+            self:NotifyEvent("PLAYER_MOUNT_STATE", false)
         end
     end
 end

@@ -1,187 +1,223 @@
 local FrameTemplate = HideUI:NewModule("FrameTemplate")
-local StateManager
+local EventManager
 
 function FrameTemplate:OnInitialize()
-    StateManager = HideUI:GetModule("StateManager")
+    EventManager = HideUI:GetModule("EventManager")
 end
 
-function FrameTemplate:Create(parent, args, globals)
+function FrameTemplate:Embed(target)
+    LibStub("AceEvent-3.0"):Embed(target)
+end
+
+function FrameTemplate:Create(frame, props, globals)
     local template = {}
     self:Embed(template)
 
-    function template:OnCreate()
-        local alpha = self:FindAlphaAmount()
-        self.frame:SetAlpha(alpha)
+    function template:OnReady()
+        self.originalAlpha = self.frame:GetAlpha()
+
+        local alpha = self:GetAlpha()
+        if self:IsVisible() then
+            UIFrameFadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.originalAlpha, alpha)
+        end
     end
 
     function template:OnDestroy()
-        self.frame:SetAlpha(1)
-    end
-
-    -- Calls from FrameManager
-    ------------------------------------------------------------>>
-    function template:OnMouseover()
-        -- Temporizador desde OnLoop()
-        if self:IsMouseoverEnabled() and self:IsOnMouseover(self.frame) then
-            self.frame:SetAlpha(1)
-        else
-            if self.alphaEvent then
-                self.frame:SetAlpha(self.alphaEvent)
-            else
-                local alpha = self:FindAlphaAmount()
-                self.frame:SetAlpha(alpha)
-            end
+        local alpha = self:GetAlpha()
+        if self:IsVisible() then
+            UIFrameFadeOut(self.frame, self.globals.mouseoverFadeOutAmount, alpha, self.originalAlpha)
         end
     end
 
-    function template:OnAlphaUpdate(from)
-        -- Solo cuando el jugador manipula el alpha slider
-        local origin = self:CheckAlphaOrigin(from)
-        if origin == "Global" then
-            self.frame:SetAlpha(self.globals.globalAlphaAmount)
+    -------------------------------------------------------------------------------->>>
+    -- Toggles (From Interface)
+    function template:OnAlphaUpdate(field, origin) --From FrameManager:FrameSettingsUpdate(), :GlobalSettingsUpdate()
+        if origin == "Global" and field == "globalAlphaAmount" then
+            if not self.props.isAlphaEnabled then
+                self.frame:SetAlpha(self.event_alpha or self.globals.globalAlphaAmount)
+            end
         elseif origin == "Custom" then
-            self.frame:SetAlpha(self.args.alphaAmount)
+            if field == "alphaAmount" and self.props.isAlphaEnabled then
+                self.frame:SetAlpha(self.event_alpha or self.props.alphaAmount)
+            elseif field == "isAlphaEnabled" then
+                if self.event_alpha then return end -- Si en evento, no hay fade
+                if self.props.isAlphaEnabled then
+                    UIFrameFadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.globals.globalAlphaAmount, self.props.alphaAmount)
+                else
+                    UIFrameFadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.props.alphaAmount, self.globals.globalAlphaAmount)
+                end
+            end
         end
     end
 
-    function template:OnAlphaEvent(from)
-        local origin = self:CheckAlphaOrigin(from)
+    function template:OnFrameToggle(origin) --From FrameManager:FrameSettingsUpdate()
+        local fields = {"isAFKEnabled", "isMountEnabled", "isCombatEnabled", "isInstanceEnabled"}
         if origin == "Custom" then
-            self.frame:SetAlpha(self.args.alphaAmount)
-        else
-            self.frame:SetAlpha(self.globals.globalAlphaAmount)
+            print(self.name .. ": Switching to Custom")
+            --Event
+            for _, field in ipairs(fields) do
+                self:OnEventUpdate(field, "Custom")
+            end
+            --Alpha
+            if self.event_alpha then return end
+            if self.props.isAlphaEnabled then
+                UIFrameFadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.globals.globalAlphaAmount, self.props.alphaAmount)
+            end
+        elseif origin == "Global" then
+            print(self.name .. ": Switching to Global")
+            --Event
+            for _, field in ipairs(fields) do
+                self:OnEventUpdate(field, "Global")
+            end
+            --Alpha
+            if self.event_alpha then return end
+            UIFrameFadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.props.alphaAmount, self.globals.globalAlphaAmount)
         end
     end
 
-    function template:OnState(state)
-        -- Ejecución final del estado tras filtros
-        local states = {
-            --AFK
-            PLAYER_AFK_STATE_ENTER    = {alphaAmount = 0},
-            PLAYER_AFK_STATE_HOLD     = {alphaAmount = 0},
-            PLAYER_AFK_STATE_NEXT     = {alphaAmount = 0},
-            PLAYER_AFK_STATE_EXIT     = {alphaAmount = self:FindAlphaAmount()},
-            --Mount
-            PLAYER_MOUNT_STATE_ENTER  = {alphaAmount = 0},
-            PLAYER_MOUNT_STATE_HOLD   = {alphaAmount = 0},
-            PLAYER_MOUNT_STATE_NEXT   = {alphaAmount = 0},
-            PLAYER_MOUNT_STATE_EXIT   = {alphaAmount = self:FindAlphaAmount()},
-            --Combat
-            PLAYER_COMBAT_STATE_ENTER = {alphaAmount = 1},
-            PLAYER_COMBAT_STATE_HOLD  = {alphaAmount = 1},
-            PLAYER_COMBAT_STATE_NEXT  = {alphaAmount = 1},
-            PLAYER_COMBAT_STATE_EXIT  = {alphaAmount = self:FindAlphaAmount()},
-            --Instance
-            PLAYER_INSTANTE_STATE_ENTER = {alphaAmount = 1},
-            PLAYER_INSTANTE_STATE_HOLD  = {alphaAmount = 1},
-            PLAYER_INSTANTE_STATE_NEXT  = {alphaAmount = 1},
-            PLAYER_INSTANTE_STATE_EXIT  = {alphaAmount = self:FindAlphaAmount()},
-        }
-        local current_state = states[state]
-        if current_state then
-            self.alphaEvent = current_state.alphaAmount
-            self.frame:SetAlpha(self.alphaEvent)
-
-            if string.find(state, "EXIT") then
-                self.alphaEvent = nil
-            end
-        end
-    end
-
-    function template:OnStateConfig(field, from)
-        -- Responde al momento de activar/desactivar estados desde la interfaz
-        local bindings = {
-            isAFKEnabled = "PLAYER_AFK_STATE",
-            isMountEnabled = "PLAYER_MOUNT_STATE",
-            isCombatEnabled = "PLAYER_COMBAT_STATE",
-            isInstanceEnabled = "PLAYER_INSTANCE_STATE"
-        }
-
-        function UpdateEvents(state, isActive)
-            if isActive then
-                StateManager:Recall(state)
-            else
-                local event = StateManager:BuildEvent(state, isActive)
-                self:OnEvent(event)
-            end
-        end
-
-        if from == "Custom" then
-            if field == "isEnabled" then
-                for fieldname, state in pairs(bindings) do
-                    local isActive = self:IsEventEnabled(fieldname)
-                    UpdateEvents(state, isActive)
+    function template:OnEventUpdate(field, origin) --From FrameManager:FrameSettingsUpdate(), :GlobalSettingsUpdate()
+        local EventHandler = function(_field, isEnabled)
+            local bindings = {
+                isAFKEnabled = "PLAYER_AFK_STATE",
+                isMountEnabled = "PLAYER_MOUNT_STATE",
+                isCombatEnabled = "PLAYER_COMBAT_STATE",
+                isInstanceEnabled = "PLAYER_INSTANCE_STATE"
+            }
+            local eventLog = EventManager:GetLog()
+            local event
+            if isEnabled then
+                for _, log in ipairs(eventLog) do
+                    if log.state == bindings[_field] then
+                        -- Para un evento reactivado, si está en log copia el evento a su registro
+                        event = EventManager:CreateEvent(log.state, log.isActive)
+                        break
+                    end
                 end
             else
-                local isActive = self:IsEventEnabled(field)
-                UpdateEvents(bindings[field], isActive)
+                event = EventManager:CreateEvent(bindings[_field], isEnabled)
             end
-        elseif from == "Global" then
-            local isActive = self:IsEventEnabled(field)
-            UpdateEvents(bindings[field], isActive)
+            if event ~= nil then
+                self:OnEvent(event, origin)
+            end
+        end
+
+        if origin == "Global" then
+            local isEnabled = self.globals[field]
+            EventHandler(field, isEnabled)
+        elseif origin == "Custom" then
+            local isEnabled = self.props[field]
+            EventHandler(field, isEnabled)
         end
     end
 
-    -- State Manager
-    ------------------------------------------------------------>>
-    function template:OnEvent(event)
-        -- Filtra estados activos y desactivados según la base de datos antes del registro
+     -------------------------------------------------------------------------------->>>
+    -- Calls
+    function template:OnEvent(event, origin) --From FrameManager:EventReceiver()  
         local bindings = {
             PLAYER_AFK_STATE = "isAFKEnabled",
             PLAYER_MOUNT_STATE = "isMountEnabled",
             PLAYER_COMBAT_STATE = "isCombatEnabled",
             PLAYER_INSTANCE_STATE = "isInstanceEnabled"
         }
-
         local field = bindings[event.state]
-        local isDisabled = not self:IsEventEnabled(field)
-        if isDisabled then
-            event.isActive = false
+        local isEnabled
+
+        if origin == "Custom" then
+            isEnabled = self.props[field]
+        elseif origin == "Global" then
+            isEnabled = self.globals[field]
         end
-        StateManager:EventManager(event, self.registry, function(e) self:OnState(e) end)
+
+        -- Copia el evento compartido por todos los frames
+        local copy = EventManager:CreateEvent(event.state, event.isActive)
+
+        if isEnabled and event.isActive then
+            copy.isActive = true
+        elseif isEnabled == false then
+            copy.isActive = false
+        end
+
+        EventManager:EventHandler(copy, self.registry, function(e) self:OnEventEnter(e) end)
     end
 
-    -- Conditions
-    ------------------------------------------------------------>>
-    function template:IsOnMouseover(frame)
-        if frame and frame:IsVisible() and frame:IsShown() and frame:IsMouseOver() then
-            return true
+    function template:OnEventEnter(msg) --From EventManager:EventSender()
+        local bindings = {
+            --AFK
+            PLAYER_AFK_STATE_ENTER    = {alphaAmount = 0},
+            PLAYER_AFK_STATE_HOLD     = {alphaAmount = 0},
+            PLAYER_AFK_STATE_NEXT     = {alphaAmount = 0},
+            PLAYER_AFK_STATE_EXIT     = {alphaAmount = 0},
+            --Mount
+            PLAYER_MOUNT_STATE_ENTER  = {alphaAmount = 0},
+            PLAYER_MOUNT_STATE_HOLD   = {alphaAmount = 0},
+            PLAYER_MOUNT_STATE_NEXT   = {alphaAmount = 0},
+            PLAYER_MOUNT_STATE_EXIT   = {alphaAmount = 0},
+            --Combat
+            PLAYER_COMBAT_STATE_ENTER = {alphaAmount = 1},
+            PLAYER_COMBAT_STATE_HOLD  = {alphaAmount = 1},
+            PLAYER_COMBAT_STATE_NEXT  = {alphaAmount = 1},
+            PLAYER_COMBAT_STATE_EXIT  = {alphaAmount = 1},
+            --Instance
+            PLAYER_INSTANCE_STATE_ENTER = {alphaAmount = 1},
+            PLAYER_INSTANCE_STATE_HOLD  = {alphaAmount = 1},
+            PLAYER_INSTANCE_STATE_NEXT  = {alphaAmount = 1},
+            PLAYER_INSTANCE_STATE_EXIT  = {alphaAmount = 1},
+        }
+        local binding = bindings[msg]
+        if binding then
+            local alpha = self:GetAlpha()
+            self.event_alpha = binding.alphaAmount
+            if self:IsVisible() then
+                if string.find(msg, "_EXIT") then
+                    UIFrameFadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.event_alpha, alpha)
+                    self.event_alpha = nil
+                else
+                    UIFrameFadeIn(self.frame, self.globals.mouseoverFadeInAmount, alpha, self.event_alpha)
+                end
+            end
+        end
+    end
+
+    function template:OnMouseover(origin) --From FrameManager:OnLoop()
+        local alpha = self.event_alpha or self:GetAlpha()
+        local isEnabled = false
+        local isMouseover = self:IsOnMouseover()
+
+        if origin == "Custom" then
+            isEnabled = self.props.isMouseoverEnabled
+        elseif origin == "Global" then
+            isEnabled = self.globals.isMouseoverEnabled
+        end
+
+        if isEnabled and isMouseover then
+            if not self.fadedIn then
+                UIFrameFadeIn(self.frame, self.globals.mouseoverFadeInAmount, alpha, self.mouseoverAlpha)
+                self.fadedIn = true
+            end
         else
-            return false
+            if self.fadedIn then
+                UIFrameFadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.mouseoverAlpha, alpha)
+                self.fadedIn = false
+            end
         end
     end
 
-    function template:IsMouseoverEnabled()
-        if self.args.isEnabled and self.args.isMouseoverEnabled then
-            return true
-        elseif not self.args.isEnabled and self.globals.isMouseoverEnabled then
-            return true
+    -------------------------------------------------------------------------------->>>
+    -- Utils
+    function template:IsActive()
+        return self.props.isEnabled
+    end
+
+    function template:GetAlpha()
+        if self.props.isEnabled then
+            return self.props.alphaAmount
         else
-            return false
+            return self.globals.globalAlphaAmount
         end
     end
 
-    function template:CheckAlphaOrigin(origin)
-        if not self.args.isEnabled then
-            return origin == "Global" and origin or nil
-        elseif self.args.isAlphaEnabled then
-            return origin == "Custom" and origin or nil
-        else
-            return origin == "Global" and origin or nil
-        end
-    end
-
-    function template:IsEventEnabled(state)
-        if self.args.isEnabled and self.args[state] then
-            return true
-        elseif not self.args.isEnabled and self.globals[state] then
-            return true
-        else
-            return false
-        end
-    end
-
-    function template:FrameIsVisible(frame)
+    function template:IsVisible(frame)
+        frame = frame or self.frame
         if frame and frame:IsVisible() and frame:IsShown() then
             return true
         else
@@ -189,37 +225,25 @@ function FrameTemplate:Create(parent, args, globals)
         end
     end
 
-    function template:IsAlphaEnabled()
-        if self.args.isEnabled and self.args.isAlphaEnabled then
+    function template:IsOnMouseover(frame)
+        frame = frame or self.frame
+        if frame and frame:IsVisible() and frame:IsShown() and frame:IsMouseOver() then
             return true
         else
             return false
         end
     end
 
-    -- Methods
-    ------------------------------------------------------------>>
-    function template:FindAlphaAmount()
-        if self:IsAlphaEnabled() then
-            return self.args.alphaAmount
-        else
-            return self.globals.globalAlphaAmount
-        end
-    end
-
-    -- Props
-    ------------------------------------------------------------>>
     template.registry = {}
-    template.globals = globals
-    template.args = args
-    if parent then
-        template.frame = parent
-        template.name = parent:GetName()
-    end
+    template.globals  = globals
+    template.props    = props
+    template.mouseoverAlpha = 1
+    template.originalAlpha  = nil
+    template.event_alpha    = nil
     template.enableFirstOut = false
+    if frame and type(frame) == "table" then
+        template.frame = frame
+        template.name = frame:GetName()
+    end
     return template
-end
-
-function FrameTemplate:Embed(target)
-    LibStub("AceEvent-3.0"):Embed(target)
 end

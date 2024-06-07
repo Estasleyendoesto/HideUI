@@ -1,6 +1,6 @@
 local Interface = HideUI:NewModule("Interface")
 
-local Model
+local Data
 local Controller
 local AmigableUI
 local FrameInterface
@@ -9,10 +9,10 @@ local MAIN_MENU_PANEL
 local GENERAL_SETTINGS_PANEL
 
 function Interface:OnInitialize()
-    Model      = HideUI:GetModule("Model")
-    Controller = HideUI:GetModule("Controller")
+    Data           = HideUI:GetModule("Data")
+    Controller     = HideUI:GetModule("Controller")
     FrameInterface = HideUI:GetModule("FrameInterface")
-    AmigableUI = HideUI:GetModule("AmigableUI")
+    AmigableUI     = HideUI:GetModule("AmigableUI")
 end
 
 function Interface:OnEnable()
@@ -31,21 +31,22 @@ end
 -- Update Menus
 function Interface:UpdateUI()
     local panel = GENERAL_SETTINGS_PANEL
+    local globals = Data:Find("globals")
     -- General
-    panel.isEnabled_checkbox:SetChecked(Model:Find("isEnabled"))
-    panel.globalAlphaAmount_slider:SetValue(Model:Find("globalAlphaAmount"))
+    panel.isEnabled_checkbox:SetChecked(globals.isEnabled)
+    panel.globalAlphaAmount_slider:SetValue(globals.globalAlphaAmount)
     -- Mouseover
-    panel.isMouseoverEnabled_checkbox:SetChecked(Model:Find("isMouseoverEnabled"))
-    panel.mouseoverFadeIn_slider:SetValue(Model:Find("mouseoverFadeInAmount"))
-    panel.mouseoverFadeOut_slider:SetValue(Model:Find("mouseoverFadeOutAmount"))
+    panel.isMouseoverEnabled_checkbox:SetChecked(globals.isMouseoverEnabled)
+    panel.mouseoverFadeIn_slider:SetValue(globals.mouseoverFadeInAmount)
+    panel.mouseoverFadeOut_slider:SetValue(globals.mouseoverFadeOutAmount)
     -- Combat
-    panel.isCombatEnabled_checkbox:SetChecked(Model:Find("isCombatEnabled"))
+    panel.isCombatEnabled_checkbox:SetChecked(globals.isCombatEnabled)
     -- AFK
-    panel.isAFKEnabled_checkbox:SetChecked(Model:Find("isAFKEnabled"))
+    panel.isAFKEnabled_checkbox:SetChecked(globals.isAFKEnabled)
     --Mount
-    panel.isMountEnabled_checkbox:SetChecked(Model:Find("isMountEnabled"))
+    panel.isMountEnabled_checkbox:SetChecked(globals.isMountEnabled)
     --Instance
-    panel.isInstanceEnabled_checkbox:SetChecked(Model:Find("isInstanceEnabled"))
+    panel.isInstanceEnabled_checkbox:SetChecked(globals.isInstanceEnabled)
 end
 
 -------------------------------------------------------------------------------->>>
@@ -91,35 +92,27 @@ function Interface:GeneralSettingsMenu_Build()
     -- General
     AmigableUI:Title("title_1", "General")
     AmigableUI:Checkbox("isEnabled_checkbox", "Enabled", false, function(e) Controller:HandleEnabledChange(e) end)
-    field = "globalAlphaAmount"
-    AmigableUI:Slider(field .. "_slider", "Overall Transparency", 0, 1, 0.5, 0.01, function(e) Controller:HandleGlobalSettings("globalAlphaAmount", e) end)
+    AmigableUI:Slider("globalAlphaAmount" .. "_slider", "Overall Transparency", 0, 1, 0.5, 0.01, function(e) Controller:HandleGlobalSettings("globalAlphaAmount", e) end)
 
     -- Mouseover
     AmigableUI:Title("title_2", "Mouseover Settings")
-    field = "isMouseoverEnabled"
-    AmigableUI:Checkbox(field .. "_checkbox", "Reveal on Mouseover", true, function(e) Controller:HandleGlobalSettings("isMouseoverEnabled", e) end)
-    field = "mouseoverFadeIn"
-    AmigableUI:Slider(field .. "_slider", "Fade In Duration", 0, 2, 0.5, 0.1, function(e) Controller:HandleGlobalSettings("mouseoverFadeIn", e) end)
-    field = "mouseoverFadeOut"
-    AmigableUI:Slider(field .. "_slider", "Fade Out Duration", 0, 2, 0.5, 0.1, function(e) Controller:HandleGlobalSettings("mouseoverFadeOut", e) end)
+    AmigableUI:Checkbox("isMouseoverEnabled" .. "_checkbox", "Reveal on Mouseover", true, function(e) Controller:HandleGlobalSettings("isMouseoverEnabled", e) end)
+    AmigableUI:Slider("mouseoverFadeIn" .. "_slider", "Fade In Duration", 0, 2, 0.5, 0.1, function(e) Controller:HandleGlobalSettings("mouseoverFadeIn", e) end)
+    AmigableUI:Slider("mouseoverFadeOut" .. "_slider", "Fade Out Duration", 0, 2, 0.5, 0.1, function(e) Controller:HandleGlobalSettings("mouseoverFadeOut", e) end)
 
     -- Combat
     AmigableUI:Title("title_3", "Combat Settings")
-    field = "isCombatEnabled"
-    AmigableUI:Checkbox(field .. "_checkbox", "Reveal on Combat", true, function(e) Controller:HandleGlobalSettings("isCombatEnabled", e) end)
+    AmigableUI:Checkbox("isCombatEnabled" .. "_checkbox", "Reveal on Combat", true, function(e) Controller:HandleGlobalSettings("isCombatEnabled", e) end)
 
     -- AFK
     AmigableUI:Title("title_4", "AFK Settings")
-    field = "isAFKEnabled"
-    AmigableUI:Checkbox(field .. "_checkbox", "Hide on AFK", true, function(e) Controller:HandleGlobalSettings("isAFKEnabled", e) end)
+    AmigableUI:Checkbox("isAFKEnabled" .. "_checkbox", "Hide on AFK", true, function(e) Controller:HandleGlobalSettings("isAFKEnabled", e) end)
     
     -- Mount Mode
     AmigableUI:Title("title_5", "Mount Settings")
-    field = "isMountEnabled"
-    AmigableUI:Checkbox(field .. "_checkbox", "Hide on Mount", true, function(e) Controller:HandleGlobalSettings("isMountEnabled", e) end)
+    AmigableUI:Checkbox("isMountEnabled" .. "_checkbox", "Hide on Mount", true, function(e) Controller:HandleGlobalSettings("isMountEnabled", e) end)
 
     --Instance
     AmigableUI:Title("title_6", "Instance Settings")
-    field = "isInstanceEnabled"
-    AmigableUI:Checkbox(field .. "_checkbox", "Reveal on Instance", true, function(e) Controller:HandleGlobalSettings("isInstanceEnabled", e) end)
+    AmigableUI:Checkbox("isInstanceEnabled" .. "_checkbox", "Reveal on Instance", true, function(e) Controller:HandleGlobalSettings("isInstanceEnabled", e) end)
 end

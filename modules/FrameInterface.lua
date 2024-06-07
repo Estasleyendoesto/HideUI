@@ -1,5 +1,5 @@
 local FrameInterface = HideUI:NewModule("FrameInterface")
-local Model
+local Data
 local Controller
 local AmigableUI
 
@@ -38,14 +38,14 @@ local BINDINGS = {
 }
 
 function FrameInterface:OnInitialize()
-    Model      = HideUI:GetModule("Model")
+    Data      = HideUI:GetModule("Data")
     Controller = HideUI:GetModule("Controller")
     AmigableUI = HideUI:GetModule("AmigableUI")
 end
 
 function FrameInterface:UpdateUI()
     local panel = FRAME_SETTINGS_PANEL
-    local data = Model:Find("frames")
+    local data = Data:Find("frames")
 
     for _, frame in pairs(data) do
         panel[frame.name].content.panel["isEnabled_checkbox"]:SetChecked(frame.isEnabled)
@@ -77,24 +77,24 @@ function FrameInterface:Menu_Build(panel)
     end
 end
 
-function FrameInterface:AttachSettings(frame_name)
+function FrameInterface:AttachSettings(frame)
     local pool = AmigableUI.lastElement
 
     AmigableUI:Checkbox("isEnabled_checkbox", "Custom Enabled", false, function(e)
-        Controller:HandleFrameSettings(frame_name, "isEnabled", e)
+        Controller:HandleFrameSettings(frame, "isEnabled", e)
         if e then
             pool:SetBackdropBorderColor(1, 1, 0, 0.5)
         else
             pool:SetBackdropBorderColor(1, 1, 1, 0.5)
         end
     end)
-    AmigableUI:Checkbox("isAlphaEnabled_checkbox", "Custom Alpha", false, function(e) Controller:HandleFrameSettings(frame_name, "isAlphaEnabled", e) end)
-    AmigableUI:Slider("alphaAmount_slider", "Alpha Amount", 0, 1, 0.5, 0.01, function(e) Controller:HandleFrameSettings(frame_name, "alphaAmount", e) end)
-    AmigableUI:Checkbox("isMouseoverEnabled_checkbox", "Reveal on Mouseover", false, function(e) Controller:HandleFrameSettings(frame_name, "isMouseoverEnabled", e) end)
-    AmigableUI:Checkbox("isCombatEnabled_checkbox", "Reveal on Combat", false, function(e) Controller:HandleFrameSettings(frame_name, "isCombatEnabled", e) end)
-    AmigableUI:Checkbox("isAFKEnabled_checkbox", "Hide on AFK", false, function(e) Controller:HandleFrameSettings(frame_name, "isAFKEnabled", e) end)
-    AmigableUI:Checkbox("isMountEnabled_checkbox", "Hide on Mount", false, function(e) Controller:HandleFrameSettings(frame_name, "isMountEnabled", e) end)
-    AmigableUI:Checkbox("isInstanceEnabled_checkbox", "Reveal on Instance", false, function(e) Controller:HandleFrameSettings(frame_name, "isInstanceEnabled", e) end)
+    AmigableUI:Checkbox("isAlphaEnabled_checkbox", "Custom Alpha", false, function(e) Controller:HandleFrameSettings(frame, "isAlphaEnabled", e) end)
+    AmigableUI:Slider("alphaAmount_slider", "Alpha Amount", 0, 1, 0.5, 0.01, function(e) Controller:HandleFrameSettings(frame, "alphaAmount", e) end)
+    AmigableUI:Checkbox("isMouseoverEnabled_checkbox", "Reveal on Mouseover", false, function(e) Controller:HandleFrameSettings(frame, "isMouseoverEnabled", e) end)
+    AmigableUI:Checkbox("isCombatEnabled_checkbox", "Reveal on Combat", false, function(e) Controller:HandleFrameSettings(frame, "isCombatEnabled", e) end)
+    AmigableUI:Checkbox("isAFKEnabled_checkbox", "Hide on AFK", false, function(e) Controller:HandleFrameSettings(frame, "isAFKEnabled", e) end)
+    AmigableUI:Checkbox("isMountEnabled_checkbox", "Hide on Mount", false, function(e) Controller:HandleFrameSettings(frame, "isMountEnabled", e) end)
+    AmigableUI:Checkbox("isInstanceEnabled_checkbox", "Reveal on Instance", false, function(e) Controller:HandleFrameSettings(frame, "isInstanceEnabled", e) end)
 
     AmigableUI.lastElement = pool
 end
