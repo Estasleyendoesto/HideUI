@@ -34,7 +34,7 @@ local globals = {
 local defaults = {
     profile = {
         globals = globals,
-        frames = frames_table,
+        frames  = frames_table,
     }
 }
 

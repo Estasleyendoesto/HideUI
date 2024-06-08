@@ -1,6 +1,6 @@
 local FrameManager = HideUI:NewModule("FrameManager", "AceEvent-3.0")
 local FrameTemplate
-local ChatboxTemplate
+local ChatTemplate
 local Data
 
 local GAME_FRAMES = {}
@@ -11,7 +11,7 @@ local MOUSEOVER_TIME_INTERVAL = 0.2
 function FrameManager:OnInitialize()
     Data          = HideUI:GetModule("Data")
     FrameTemplate = HideUI:GetModule("FrameTemplate")
-    -- ChatboxTemplate = HideUI:GetModule("ChatboxTemplate")
+    ChatTemplate  = HideUI:GetModule("ChatTemplate")
 end
 
 function FrameManager:OnEnable()
@@ -61,12 +61,12 @@ function FrameManager:BindFrames()
             end
             temp[data.name] = frame
         else
-            -- if data.name == "Chatbox" then
-            --     frame = {}
-            --     frame.HideUI = ChatboxTemplate:Create(data, GLOBALS)
-            --     frame.HideUI:OnCreate()
-            --     temp[data.name] = frame
-            -- end
+            if data.name == "Chatbox" then
+                frame = {}
+                frame.HideUI = ChatTemplate:Create(data, globals)
+                frame.HideUI:OnChatReady()
+                temp[data.name] = frame
+            end
         end
     end
     GAME_FRAMES = temp

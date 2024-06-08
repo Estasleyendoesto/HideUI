@@ -14,19 +14,15 @@ function FrameTemplate:Create(frame, props, globals)
     self:Embed(template)
 
     function template:OnReady()
-        self.originalAlpha = self.frame:GetAlpha()
+        self.originalAlpha = 1
 
         local alpha = self:GetAlpha()
-        if self:IsVisible() then
-            UIFrameFadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.originalAlpha, alpha)
-        end
+        self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.originalAlpha, alpha)
     end
 
     function template:OnDestroy()
         local alpha = self:GetAlpha()
-        if self:IsVisible() then
-            UIFrameFadeOut(self.frame, self.globals.mouseoverFadeOutAmount, alpha, self.originalAlpha)
-        end
+        self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, alpha, self.originalAlpha)
     end
 
     -------------------------------------------------------------------------------->>>
@@ -34,17 +30,17 @@ function FrameTemplate:Create(frame, props, globals)
     function template:OnAlphaUpdate(field, origin) --From FrameManager:FrameSettingsUpdate(), :GlobalSettingsUpdate()
         if origin == "Global" and field == "globalAlphaAmount" then
             if not self.props.isAlphaEnabled then
-                self.frame:SetAlpha(self.event_alpha or self.globals.globalAlphaAmount)
+                self:SetAlpha(self.frame, self.event_alpha or self.globals.globalAlphaAmount)
             end
         elseif origin == "Custom" then
             if field == "alphaAmount" and self.props.isAlphaEnabled then
-                self.frame:SetAlpha(self.event_alpha or self.props.alphaAmount)
+                self:SetAlpha(self.frame, self.event_alpha or self.props.alphaAmount)
             elseif field == "isAlphaEnabled" then
                 if self.event_alpha then return end -- Si en evento, no hay fade
                 if self.props.isAlphaEnabled then
-                    UIFrameFadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.globals.globalAlphaAmount, self.props.alphaAmount)
+                    self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.globals.globalAlphaAmount, self.props.alphaAmount)
                 else
-                    UIFrameFadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.props.alphaAmount, self.globals.globalAlphaAmount)
+                    self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.props.alphaAmount, self.globals.globalAlphaAmount)
                 end
             end
         end
@@ -61,7 +57,7 @@ function FrameTemplate:Create(frame, props, globals)
             --Alpha
             if self.event_alpha then return end
             if self.props.isAlphaEnabled then
-                UIFrameFadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.globals.globalAlphaAmount, self.props.alphaAmount)
+                self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.globals.globalAlphaAmount, self.props.alphaAmount)
             end
         elseif origin == "Global" then
             print(self.name .. ": Switching to Global")
@@ -71,7 +67,7 @@ function FrameTemplate:Create(frame, props, globals)
             end
             --Alpha
             if self.event_alpha then return end
-            UIFrameFadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.props.alphaAmount, self.globals.globalAlphaAmount)
+            self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.props.alphaAmount, self.globals.globalAlphaAmount)
         end
     end
 
@@ -167,13 +163,11 @@ function FrameTemplate:Create(frame, props, globals)
         if binding then
             local alpha = self:GetAlpha()
             self.event_alpha = binding.alphaAmount
-            if self:IsVisible() then
-                if string.find(msg, "_EXIT") then
-                    UIFrameFadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.event_alpha, alpha)
-                    self.event_alpha = nil
-                else
-                    UIFrameFadeIn(self.frame, self.globals.mouseoverFadeInAmount, alpha, self.event_alpha)
-                end
+            if string.find(msg, "_EXIT") then
+                self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.event_alpha, alpha)
+                self.event_alpha = nil
+            else
+                self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, alpha, self.event_alpha)
             end
         end
     end
@@ -191,12 +185,12 @@ function FrameTemplate:Create(frame, props, globals)
 
         if isEnabled and isMouseover then
             if not self.fadedIn then
-                UIFrameFadeIn(self.frame, self.globals.mouseoverFadeInAmount, alpha, self.mouseoverAlpha)
+                self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, alpha, self.mouseoverAlpha)
                 self.fadedIn = true
             end
         else
             if self.fadedIn then
-                UIFrameFadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.mouseoverAlpha, alpha)
+                self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.mouseoverAlpha, alpha)
                 self.fadedIn = false
             end
         end
@@ -231,6 +225,24 @@ function FrameTemplate:Create(frame, props, globals)
             return true
         else
             return false
+        end
+    end
+
+    function template:FadeIn(frame, delay, base, target)
+        if self:IsVisible(frame) then
+            UIFrameFadeIn(frame, delay, base, target)
+        end
+    end
+
+    function template:FadeOut(frame, delay, base, target)
+        if self:IsVisible(frame) then
+            UIFrameFadeOut(frame, delay, base, target)
+        end
+    end
+
+    function template:SetAlpha(frame, amount)
+        if self:IsVisible(frame) then
+            frame:SetAlpha(amount)
         end
     end
 
