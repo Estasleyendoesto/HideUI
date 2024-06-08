@@ -19,6 +19,8 @@ local BINDINGS = {
     {name = "PlayerCastingBarFrame", alias = "Casting Bar"},
     {name = "MainStatusTrackingBarContainer", alias = "Tracking Bar"},
     {name = "StanceBar", alias = "Stance Bar"},
+    {name = "PartyFrame", alias = "Party Frame"},
+    {name = "WorldFrame", alias = "World Frame"},
     -- Frames
     {name = "PlayerFrame", alias = "Player"},
     {name = "TargetFrame", alias = "Target"},

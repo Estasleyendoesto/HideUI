@@ -3,7 +3,7 @@ local Data = HideUI:NewModule("Data")
 local frames = { "PlayerFrame", "TargetFrame", "FocusFrame", "PetFrame", "PetActionBar", "MinimapCluster", "ObjectiveTrackerFrame",
 "BuffFrame", "MicroMenuContainer", "BagsBar", "MainMenuBar", "BattlefieldMapFrame", "MultiBarBottomLeft", "MultiBarBottomRight",
 "MultiBarRight", "MultiBarLeft", "Multibar5", "Multibar6", "Multibar7", "PlayerCastingBarFrame", "MainStatusTrackingBarContainer",
-"EncounterBar", "StanceBar", "ZoneAbilityFrame", "Chatbox",
+"EncounterBar", "StanceBar", "ZoneAbilityFrame", "PartyFrame", "WorldFrame", "Chatbox"
 }
 local frames_table = {}
 for _, frame in ipairs(frames) do
