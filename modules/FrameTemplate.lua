@@ -49,7 +49,6 @@ function FrameTemplate:Create(frame, props, globals)
     function template:OnFrameToggle(origin) --From FrameManager:FrameSettingsUpdate()
         local fields = {"isAFKEnabled", "isMountEnabled", "isCombatEnabled", "isInstanceEnabled"}
         if origin == "Custom" then
-            print(self.name .. ": Switching to Custom")
             --Event
             for _, field in ipairs(fields) do
                 self:OnEventUpdate(field, "Custom")
@@ -60,7 +59,6 @@ function FrameTemplate:Create(frame, props, globals)
                 self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.globals.globalAlphaAmount, self.props.alphaAmount)
             end
         elseif origin == "Global" then
-            print(self.name .. ": Switching to Global")
             --Event
             for _, field in ipairs(fields) do
                 self:OnEventUpdate(field, "Global")
