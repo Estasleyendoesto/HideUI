@@ -35,11 +35,15 @@ function AmigableUI:Header(name, text)
     title:SetText(text)
 
     --Separator
-    local separator = parent.panel:CreateTexture(nil, "BACKGROUND")
+    local separator = parent:CreateTexture(nil, "BACKGROUND")
     separator:SetColorTexture(0.8, 0.8, 0.8, 0.3)
-    separator:SetPoint("LEFT", 0, 0)
-    separator:SetPoint("RIGHT", -35, 0) --Largo del separator
-    separator:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -10)
+
+    local offset = -24
+    separator:ClearAllPoints()
+    separator:SetPoint("LEFT", parent.panel, 0, 0)
+    separator:SetPoint("RIGHT", parent.panel, -38, 0)
+    separator:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, offset)
+
     separator:SetHeight(1)
 
     title.type = "Title"

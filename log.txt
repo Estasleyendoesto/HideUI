@@ -4,3 +4,5 @@ Cambios en la versión 0.5:
 - Corregido problema cuando al hacer target/focus o invocar cualquier frame en medio del juego no aparezca con su opacidad asignada
 - Corregido problema al iniciar o /reload y estando dentro de un estado no se aplicaba la opacidad correspondiente
 - Corregido fallo de opacidad con los EditBox tras FadeOut pues su alpha original no es 1, sino 0.44
+- Corregido problema con los separator del Header que no seguían el scrollBox
+- Añadido activación/ocultación del chat al pulsar la tecla "Enter" cuando se envía un mensaje

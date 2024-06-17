@@ -24,7 +24,10 @@ function ChatFrame:Create(args, globals)
         self:ChatFramesUpdate("unhook")
     end
 
+    -------------------------------------------------------------------------------->>>
+    -- Hooks
     function template:ChatFramesUpdate(operator)
+        -- Para la detección de nuevas ventanas de chat
         local methods = {
             "FCF_Close",               --Al cerrar una ventana
             "FCF_OpenNewWindow",       --Si es < NUM_CHAT_WINDOWS, 1 al 10
@@ -44,35 +47,31 @@ function ChatFrame:Create(args, globals)
                 self:Unhook(method)
             end
         end
-    end
 
-    function template:GetChatFrames()
-        --Busca y empaqueta los chatframes
-        local activeChats = {}
-        local i = 1
-        while true do
-            local chatTab = _G["ChatFrame" .. i .. "Tab"]
-            if chatTab then --Tab es más preciso para encontrar los chatframes
-                if chatTab:IsVisible() then
-                    table.insert(
-                        activeChats,
-                        {
-                            id = i,
-                            tab = chatTab,
-                            chatFrame = _G["ChatFrame" .. i] or  nil,
-                            editBox = _G["ChatFrame" .. i .. "EditBox"] or nil,
-                            buttonFrame = _G["ChatFrame" .. i .. "ButtonFrame"] or nil,
-                        }
-                    )
+        -- Para los Editboxes
+        for _, chatbox in ipairs(self.chatboxes) do
+            if chatbox.editBox then
+                if operator == "hook" then
+                    if not self:IsHooked(chatbox.editBox, "OnEditFocusLost") then
+                        self:SecureHookScript(chatbox.editBox, "OnEditFocusLost", function() self:EditBoxHandler("FocusLost") end)
+                    end
+                    if not self:IsHooked(chatbox.editBox, "OnEditFocusGained") then
+                        self:SecureHookScript(chatbox.editBox, "OnEditFocusGained", function() self:EditBoxHandler("FocusGained") end)
+                    end
+                elseif operator == "unhook" then 
+                    if self:IsHooked(chatbox.editBox, "OnEditFocusLost") then
+                        self:Unhook(chatbox.editBox, "OnEditFocusLost")
+                    end
+                    if self:IsHooked(chatbox.editBox, "OnEditFocusGained") then
+                        self:Unhook(chatbox.editBox, "OnEditFocusGained")
+                    end
                 end
-            else
-                break
             end
-            i = i + 1
         end
-        return activeChats
     end
 
+    -------------------------------------------------------------------------------->>>
+    -- Mouseover
     function template:OnMouseover(origin)
         local alpha = self.event_alpha or self:GetAlpha()
         local isEnabled = false
@@ -84,6 +83,7 @@ function ChatFrame:Create(args, globals)
         end
 
         if not isEnabled then return end
+        if self.isOnFocusGained then return end -- Previene que altere al editbox
 
         for _, chatbox in ipairs(self.chatboxes) do
             if self:IsOnMouseover(chatbox.chatFrame) or
@@ -111,11 +111,54 @@ function ChatFrame:Create(args, globals)
         end
     end
 
+    -------------------------------------------------------------------------------->>>
+    -- Editbox
+    function template:EditBoxHandler(action)
+        local alpha = self:GetAlpha()
+        if action == "FocusLost" then
+            self.isOnFocusGained = false
+            self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, 1, alpha)
+        elseif action == "FocusGained" then
+            self.isOnFocusGained = true
+            self:FadeIn(nil, self.globals.mouseoverFadeInAmount, alpha, 1)
+        end
+    end
+
+    -------------------------------------------------------------------------------->>>
+    -- ...
+    function template:GetChatFrames()
+        --Busca y empaqueta los chatframes
+        local activeChats = {}
+        local i = 1
+        while true do
+            local chatTab = _G["ChatFrame" .. i .. "Tab"]
+            if chatTab then --Tab es más preciso para encontrar los chatframes
+                if chatTab:IsVisible() then
+                    table.insert(
+                        activeChats,
+                        {
+                            id = i,
+                            tab = chatTab,
+                            chatFrame = _G["ChatFrame" .. i] or  nil,
+                            editBox = _G["ChatFrame" .. i .. "EditBox"] or nil,
+                            buttonFrame = _G["ChatFrame" .. i .. "ButtonFrame"] or nil,
+                        }
+                    )
+                end
+            else
+                break
+            end
+            i = i + 1
+        end
+        return activeChats
+    end
+
     function template:FadeIn(empty, delay, base, target)
         local getFrame = function(frame)
             if self:IsVisible(frame) then
                 if string.find(frame:GetName(), "EditBox") then
                     target = target * self.editBoxFactor
+                    if self.isOnFocusGained then target = 1 end -- Previene editbox
                 end
                 UIFrameFadeIn(frame, delay, base, target)
             end
