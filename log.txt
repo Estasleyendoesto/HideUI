@@ -1,0 +1,4 @@
+Cambios en la versión 0.5:
+- Corregido problema con Combat End Delay, ahora el Fade Out asociado se invoca cuando realmente abandone el combate
+- Corregido problema al cambiar la opacidad tras iniciar el juego o hacer /reload donde algunos frames no se actualizaban cuando debían
+- Corregido problema cuando al hacer target/focus o invocar cualquier frame en medio del juego no aparezca con su opacidad asignada

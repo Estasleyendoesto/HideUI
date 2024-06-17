@@ -1,6 +1,5 @@
 local EventManager = HideUI:NewModule("EventManager", "AceEvent-3.0")
 
-local COMBAT_END_DELAY = 1
 local EVENT_LOG = {}
 local PRIORITIES = {
     -- Número más alto mayor prioridad
@@ -95,11 +94,11 @@ end
 
 function EventManager:NotifyEvent(state, isActive)
     local event = self:CreateEvent(state, isActive)
-    self:EventHandler(event, EVENT_LOG)
+    self:EventHandler(event, EVENT_LOG) -- Log
     self:SendMessage("PLAYER_STATE_CHANGED", event)
 end
- 
-function EventManager:EventHandler(event, registry, func, firstOut)
+
+function EventManager:EventHandler(event, registry, func, fifo)
     -- Evita el primer llamado de _exit si la entrada inicial es false
     if #registry == 0 and not event.isActive then
         return
@@ -117,7 +116,7 @@ function EventManager:EventHandler(event, registry, func, firstOut)
         if not exists then
             table.insert(registry, event) -- Inserta si no existe
             if func then
-                self:EventSender(event, registry, func, firstOut)
+                self:EventSender(event, registry, func, fifo)
             end
         end
     else
@@ -126,7 +125,7 @@ function EventManager:EventHandler(event, registry, func, firstOut)
             if reg_ev.isActive and reg_ev.state == event.state then
                 table.remove(registry, i) -- Elimina par registrado
                 if func then
-                    self:EventSender(event, registry, func, firstOut)
+                    self:EventSender(event, registry, func, fifo)
                 end
                 break
             end
@@ -134,7 +133,7 @@ function EventManager:EventHandler(event, registry, func, firstOut)
     end
 end
 
-function EventManager:EventSender(event, registry, func, firstOut)
+function EventManager:EventSender(event, registry, func, fifo)
     local max_event = self:GetMaxEvent(registry)
     -- _exit, lista vacía
     if not event.isActive and #registry == 0 then
@@ -151,7 +150,7 @@ function EventManager:EventSender(event, registry, func, firstOut)
         if event.priority < max_event.priority then
             func(max_event.state .. "_HOLD")
         else
-            if firstOut then
+            if fifo then
                 -- _exit, actual máximo
                 if event.priority > max_event.priority then
                     func(event.state .. "_EXIT_FIRST")
@@ -236,9 +235,7 @@ function EventManager:OnCombatState(event, unit, ...)
         self:NotifyEvent("PLAYER_COMBAT_STATE", true)
     end
     if combat_end then
-        C_Timer.After(COMBAT_END_DELAY, function()
-            self:NotifyEvent("PLAYER_COMBAT_STATE", false)
-        end)
+        self:NotifyEvent("PLAYER_COMBAT_STATE", false)
     end
 end
 

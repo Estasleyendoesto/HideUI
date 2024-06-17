@@ -21,7 +21,7 @@ modules\Data.lua
 modules\Controller.lua
 modules\EventManager.lua
 modules\FrameTemplate.lua
-modules\ChatTemplate.lua
+modules\ChatFrame.lua
 modules\FrameManager.lua
 
 modules\Interface.lua

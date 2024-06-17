@@ -30,6 +30,7 @@ local globals = {
     isAFKEnabled = true,
     isMountEnabled = true,
     isInstanceEnabled = true,
+    combatEndDelay = 1,
 }
 local defaults = {
     profile = {

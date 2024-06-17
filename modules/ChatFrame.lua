@@ -1,20 +1,23 @@
-local ChatTemplate = HideUI:NewModule("ChatTemplate")
+local ChatFrame = HideUI:NewModule("ChatFrame")
 local FrameTemplate
 
-function ChatTemplate:OnInitialize()
+function ChatFrame:OnInitialize()
     FrameTemplate = HideUI:GetModule("FrameTemplate")
 end
 
-function ChatTemplate:Embed(target)
+function ChatFrame:Embed(target)
     LibStub("AceHook-3.0"):Embed(target)
 end
 
-function ChatTemplate:Create(args, globals)
+function ChatFrame:Create(args, globals)
     local template = FrameTemplate:Create(nil, args, globals)
     self:Embed(template)
 
     function template:OnChatReady()
         self:OnReady()
+        -- self.originalAlpha = 1
+        -- local alpha = self:GetAlpha()
+        -- self:FadeIn(nil, self.globals.mouseoverFadeInAmount, self.originalAlpha, alpha)
         self:ChatFramesUpdate("hook")
     end
 

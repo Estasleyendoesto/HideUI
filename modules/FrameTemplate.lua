@@ -1,12 +1,38 @@
 local FrameTemplate = HideUI:NewModule("FrameTemplate")
 local EventManager
 
+local IS_LOADED = false
+local COMBAT_END_DELAY = 1
+local STATE_BINDINGS = {
+    --AFK
+    PLAYER_AFK_STATE_ENTER    = {alphaAmount = 0},
+    PLAYER_AFK_STATE_HOLD     = {alphaAmount = 0},
+    PLAYER_AFK_STATE_NEXT     = {alphaAmount = 0},
+    PLAYER_AFK_STATE_EXIT     = {alphaAmount = 0},
+    --Mount
+    PLAYER_MOUNT_STATE_ENTER  = {alphaAmount = 0},
+    PLAYER_MOUNT_STATE_HOLD   = {alphaAmount = 0},
+    PLAYER_MOUNT_STATE_NEXT   = {alphaAmount = 0},
+    PLAYER_MOUNT_STATE_EXIT   = {alphaAmount = 0},
+    --Combat
+    PLAYER_COMBAT_STATE_ENTER = {alphaAmount = 1},
+    PLAYER_COMBAT_STATE_HOLD  = {alphaAmount = 1},
+    PLAYER_COMBAT_STATE_NEXT  = {alphaAmount = 1},
+    PLAYER_COMBAT_STATE_EXIT  = {alphaAmount = 1},
+    --Instance
+    PLAYER_INSTANCE_STATE_ENTER = {alphaAmount = 1},
+    PLAYER_INSTANCE_STATE_HOLD  = {alphaAmount = 1},
+    PLAYER_INSTANCE_STATE_NEXT  = {alphaAmount = 1},
+    PLAYER_INSTANCE_STATE_EXIT  = {alphaAmount = 1},
+}
+
 function FrameTemplate:OnInitialize()
     EventManager = HideUI:GetModule("EventManager")
 end
 
 function FrameTemplate:Embed(target)
     LibStub("AceEvent-3.0"):Embed(target)
+    LibStub("AceHook-3.0"):Embed(target)
 end
 
 function FrameTemplate:Create(frame, props, globals)
@@ -14,15 +40,48 @@ function FrameTemplate:Create(frame, props, globals)
     self:Embed(template)
 
     function template:OnReady()
-        self.originalAlpha = 1
+        local SetOpacity = function()
+            if not self.frame then
+                self.originalAlpha = 1
+            else
+                self.originalAlpha = self.frame:GetAlpha()
 
-        local alpha = self:GetAlpha()
-        self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.originalAlpha, alpha)
+                -- Solución a aquellos frames que se muestran/ocultan en medio del juego
+                if not self:IsHooked(self.frame, "OnShow") then
+                    self:SecureHookScript(self.frame, "OnShow", function() self:OnShowHandler() end)
+                end
+            end
+
+            local alpha = self:GetAlpha()
+            self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.originalAlpha, alpha)
+        end
+
+        if not IS_LOADED then
+            -- IS_LOADED solo se ejecuta una vez al iniciar el addon o al hacer /reload
+            -- El temporizador de 1s es para aquellos frames que fijan su velocidad tarde
+            C_Timer.After(1, function()
+                SetOpacity()
+                IS_LOADED = true
+            end)
+        else
+            SetOpacity()
+        end
     end
 
     function template:OnDestroy()
         local alpha = self:GetAlpha()
         self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, alpha, self.originalAlpha)
+
+        if self.frame then
+            if self:IsHooked(self.frame, "OnShow") then self:Unhook(self.frame, "OnShow") end
+        end
+    end
+
+    -------------------------------------------------------------------------------->>>
+    -- Hooks
+    function template:OnShowHandler()
+        local alpha = self:GetAlpha()
+        self:SetAlpha(self.frame, alpha)
     end
 
     -------------------------------------------------------------------------------->>>
@@ -134,36 +193,33 @@ function FrameTemplate:Create(frame, props, globals)
         EventManager:EventHandler(copy, self.registry, function(e) self:OnEventEnter(e) end)
     end
 
+    function template:OnEventExit(msg, alpha, event_alpha)
+        local SetFadeOut = function()
+            self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, event_alpha, alpha)
+            self.event_alpha = nil
+        end
+
+        if msg == "PLAYER_COMBAT_STATE_EXIT" then
+            C_Timer.After(COMBAT_END_DELAY, function()
+                for _, event in ipairs(self.registry) do 
+                    if event.state == "PLAYER_COMBAT_STATE" and event.isActive then
+                        return -- Si evento sigue activo tras COMBAT_END_DELAY, no llamar a fade
+                    end
+                end
+                SetFadeOut()
+            end)
+        else
+            SetFadeOut()
+        end
+    end
+
     function template:OnEventEnter(msg) --From EventManager:EventSender()
-        local bindings = {
-            --AFK
-            PLAYER_AFK_STATE_ENTER    = {alphaAmount = 0},
-            PLAYER_AFK_STATE_HOLD     = {alphaAmount = 0},
-            PLAYER_AFK_STATE_NEXT     = {alphaAmount = 0},
-            PLAYER_AFK_STATE_EXIT     = {alphaAmount = 0},
-            --Mount
-            PLAYER_MOUNT_STATE_ENTER  = {alphaAmount = 0},
-            PLAYER_MOUNT_STATE_HOLD   = {alphaAmount = 0},
-            PLAYER_MOUNT_STATE_NEXT   = {alphaAmount = 0},
-            PLAYER_MOUNT_STATE_EXIT   = {alphaAmount = 0},
-            --Combat
-            PLAYER_COMBAT_STATE_ENTER = {alphaAmount = 1},
-            PLAYER_COMBAT_STATE_HOLD  = {alphaAmount = 1},
-            PLAYER_COMBAT_STATE_NEXT  = {alphaAmount = 1},
-            PLAYER_COMBAT_STATE_EXIT  = {alphaAmount = 1},
-            --Instance
-            PLAYER_INSTANCE_STATE_ENTER = {alphaAmount = 1},
-            PLAYER_INSTANCE_STATE_HOLD  = {alphaAmount = 1},
-            PLAYER_INSTANCE_STATE_NEXT  = {alphaAmount = 1},
-            PLAYER_INSTANCE_STATE_EXIT  = {alphaAmount = 1},
-        }
-        local binding = bindings[msg]
+        local binding = STATE_BINDINGS[msg]
         if binding then
             local alpha = self:GetAlpha()
             self.event_alpha = binding.alphaAmount
             if string.find(msg, "_EXIT") then
-                self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.event_alpha, alpha)
-                self.event_alpha = nil
+                self:OnEventExit(msg, alpha, self.event_alpha)
             else
                 self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, alpha, self.event_alpha)
             end
@@ -230,6 +286,15 @@ function FrameTemplate:Create(frame, props, globals)
         if self:IsVisible(frame) then
             UIFrameFadeIn(frame, delay, base, target)
         end
+        -- UIFrameFadeIn(frame, delay, base, target)
+        -- if string.find(self.name, "MultiBar") or
+        --    self.name == "MainStatusTrackingBarContainer" then
+        --     UIFrameFadeIn(frame, delay, base, target)
+        -- else
+        --     if self:IsVisible(frame) then
+        --         UIFrameFadeIn(frame, delay, base, target)
+        --     end
+        -- end
     end
 
     function template:FadeOut(frame, delay, base, target)
