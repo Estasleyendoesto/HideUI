@@ -15,9 +15,6 @@ function ChatFrame:Create(args, globals)
 
     function template:OnChatReady()
         self:OnReady()
-        -- self.originalAlpha = 1
-        -- local alpha = self:GetAlpha()
-        -- self:FadeIn(nil, self.globals.mouseoverFadeInAmount, self.originalAlpha, alpha)
         self:ChatFramesUpdate("hook")
     end
 
@@ -130,7 +127,7 @@ function ChatFrame:Create(args, globals)
         local getFrame = function(frame)
             if self:IsVisible(frame) then
                 if string.find(frame:GetName(), "EditBox") then
-                    base = base * self.editBoxFactor
+                    target = target * self.editBoxFactor
                 end
                 UIFrameFadeOut(frame, delay, base, target)
             end

@@ -52,7 +52,7 @@ function FrameTemplate:Create(frame, props, globals)
                 end
             end
 
-            local alpha = self:GetAlpha()
+            local alpha = self.event_alpha or self:GetAlpha()
             self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.originalAlpha, alpha)
         end
 
@@ -70,7 +70,7 @@ function FrameTemplate:Create(frame, props, globals)
 
     function template:OnDestroy()
         local alpha = self:GetAlpha()
-        self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, alpha, self.originalAlpha)
+        self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, alpha, 1)
 
         if self.frame then
             if self:IsHooked(self.frame, "OnShow") then self:Unhook(self.frame, "OnShow") end
@@ -286,15 +286,6 @@ function FrameTemplate:Create(frame, props, globals)
         if self:IsVisible(frame) then
             UIFrameFadeIn(frame, delay, base, target)
         end
-        -- UIFrameFadeIn(frame, delay, base, target)
-        -- if string.find(self.name, "MultiBar") or
-        --    self.name == "MainStatusTrackingBarContainer" then
-        --     UIFrameFadeIn(frame, delay, base, target)
-        -- else
-        --     if self:IsVisible(frame) then
-        --         UIFrameFadeIn(frame, delay, base, target)
-        --     end
-        -- end
     end
 
     function template:FadeOut(frame, delay, base, target)
