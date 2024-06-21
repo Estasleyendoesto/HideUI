@@ -2,6 +2,7 @@ local FrameTemplate = HideUI:NewModule("FrameTemplate")
 local EventManager
 
 local IS_LOADED = false
+local FIRST_LOAD_DELAY = 1
 local COMBAT_END_DELAY = 1
 local STATE_BINDINGS = {
     --AFK
@@ -59,7 +60,12 @@ function FrameTemplate:Create(frame, props, globals)
         if not IS_LOADED then
             -- IS_LOADED solo se ejecuta una vez al iniciar el addon o al hacer /reload
             -- El temporizador de 1s es para aquellos frames que fijan su velocidad tarde
-            C_Timer.After(1, function()
+            local delay = FIRST_LOAD_DELAY
+            if self.name == "MainStatusTrackingBarContainer" then
+                delay = 2.5 --Porque la barrita de exp es muy lenta en cargar
+            end
+
+            C_Timer.After(delay, function()
                 SetOpacity()
                 IS_LOADED = true
             end)
@@ -81,7 +87,7 @@ function FrameTemplate:Create(frame, props, globals)
     -- Hooks
     function template:OnShowHandler()
         local alpha = self:GetAlpha()
-        self:SetAlpha(self.frame, alpha)
+        self:SetAlpha(self.frame, self.event_alpha or alpha)
     end
 
     -------------------------------------------------------------------------------->>>
@@ -201,9 +207,13 @@ function FrameTemplate:Create(frame, props, globals)
 
         if msg == "PLAYER_COMBAT_STATE_EXIT" then
             C_Timer.After(COMBAT_END_DELAY, function()
+                local max = EventManager:GetMaxEvent(self.registry)
                 for _, event in ipairs(self.registry) do 
                     if event.state == "PLAYER_COMBAT_STATE" and event.isActive then
                         return -- Si evento sigue activo tras COMBAT_END_DELAY, no llamar a fade
+                    elseif max.priority > 3 then
+                        --Mucho cuidado aquí, si funciona crear un getPriority en eventmanager
+                        return
                     end
                 end
                 SetFadeOut()
