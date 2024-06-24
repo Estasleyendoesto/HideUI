@@ -39,9 +39,11 @@ function ChatFrame:Create(args, globals)
         }
 
         local OnIntercept = function()
+            -- Actualiza chatboxes si hay cambios en las ventanas
             self.chatboxes = self:GetChatFrames()
         end
 
+        -- Window Hooks
         for _, method in ipairs(methods) do
             if operator == "hook" and not self:IsHooked(method) then
                 self:SecureHook(method, OnIntercept)
@@ -60,7 +62,7 @@ function ChatFrame:Create(args, globals)
                     if not self:IsHooked(chatbox.editBox, "OnEditFocusGained") then
                         self:SecureHookScript(chatbox.editBox, "OnEditFocusGained", function() self:EditBoxHandler("FocusGained") end)
                     end
-                elseif operator == "unhook" then 
+                elseif operator == "unhook" then
                     if self:IsHooked(chatbox.editBox, "OnEditFocusLost") then
                         self:Unhook(chatbox.editBox, "OnEditFocusLost")
                     end
@@ -128,220 +130,6 @@ function ChatFrame:Create(args, globals)
 
     -------------------------------------------------------------------------------->>>
     -- Inmersive Mode
-    --[[
-    function template:OnMinimalMode(type, delay, base, target)
-        local getFrame = function(frame)
-            if self:IsVisible(frame) then
-                if type == "fadeIn" then
-                    if string.find(frame:GetName(), "EditBox") then
-                        target = target * self.editBoxFactor
-                        if self.isOnFocusGained then target = 1 end -- Previene editbox
-                    end
-                    base = frame:GetAlpha()
-                    UIFrameFadeIn(frame, delay, base, target)
-                elseif type == "fadeOut" then
-                    if string.find(frame:GetName(), "Tab") then
-                        frame.noMouseAlpha = target
-                    end
-                    base = frame:GetAlpha()
-                    local chatFrame = string.match(frame:GetName(), "^ChatFrame%d+$")
-                    if chatFrame and frame:GetName() == chatFrame then
-                        UIFrameFadeRemoveFrame(frame)
-                        UIFrameFadeOut(frame, delay, base, target)
-                    else
-                        -- target = 0
-                        UIFrameFadeRemoveFrame(frame)
-                        UIFrameFadeOut(frame, delay, base, target * 0)
-                    end
-
-                end
-            end
-        end
-        self:BatchBoxes(getFrame)
-
-            -- Si inmmersion ON
-            local chatFrame = string.match(frame:GetName(), "^ChatFrame%d+$")
-            if chatFrame and frame:GetName() == chatFrame then
-                local alpha = self.event_alpha or self:GetAlpha()
-                target = alpha
-                UIFrameFadeOut(frame, delay, base, target)
-                return
-            else
-                target = 0
-                UIFrameFadeOut(frame, delay, base, target)
-                return
-            end
-        --]]
-    --[[
-    function template:OnMinimalChatter(from)
-        if from == "MouseIn" then
-        elseif from == "MouseOut" then
-        elseif from == "FocusGained" then
-        elseif from == "FocusLost" then
-        else
-            ConsoleAddMessage("pepito")
-        end
-    end
-
-    function template:OnFocus(fade_type, amount, base, target, method)
-        IMMERSIVE_ON = false
-        if IMMERSIVE_ON then
-            self:OnMinimal(amount, base, target, method)
-        else
-            if fade_type == "FadeIn" then
-                self:FadeIn(nil, amount, base, target)
-            elseif fade_type == "FadeOut" then
-                self:FadeOut(nil, amount, base, target)
-            end
-        end
-    end
-
-    function template:OnMinimal(amount, base, target, method)
-        local hideAll = function(frame)
-            -- ChatFrame#
-            local chatFrame = string.match(frame:GetName(), "^ChatFrame%d+$")
-            if chatFrame and frame:GetName() == chatFrame then
-                for i = 1, select("#", frame:GetRegions()) do
-                    local region = select(i, frame:GetRegions())
-                    if region:GetObjectType() == "Texture" then
-                        if string.find(region:GetName(), "Background") then
-                            region:SetColorTexture(0, 0, 0, 0)
-                        else
-                            region:SetColorTexture(0, 0, 0, 0)
-                        end
-                    end
-                end
-
-                return
-            end
-
-            -- Editboxes
-            if string.find(frame:GetName(), "EditBox") then
-                if not frame:IsShown() then return end
-                UIFrameFadeOut(frame, amount, self.focusAlpha * 0.92, 0)
-                C_Timer.After(amount, function()
-                    frame:Hide()
-                end)
-
-                return
-            end
-
-            -- ButtonFrame (Buttons + CombatLog)
-            if string.find(frame:GetName(), "ButtonFrame") then
-                for i = 1, select("#", frame:GetRegions()) do
-                    local region = select(i, frame:GetRegions())
-                    if region:GetObjectType() == "Texture" then
-                        if string.find(region:GetName(), "Background") then
-                            region:SetColorTexture(0, 0, 0, 0)
-                        else
-                            region:SetColorTexture(0, 0, 0, 0)
-                        end
-                    end
-                end
-
-                return
-            end
-
-            -- Tabs
-            if string.find(frame:GetName(), "Tab") then
-                if not frame:IsShown() then return end
-
-                if not frame.old_show then
-                    frame.old_show = frame.Show
-                    frame.Show = function() end
-                end
-
-                UIFrameFadeOut(frame, amount, base , 0)
-                C_Timer.After(amount, function()
-                    frame:Hide()
-                end)
-
-                return
-            end
-        end
-
-        local showAll = function(frame)
-            -- if string.find(frame:GetName(), "ButtonFrame") then
-            --     if self:IsVisible(frame) then
-            --         frame:Show()
-            --     end
-            --     return
-            -- end
-
-            -- if string.find(frame:GetName(), "ButtonFrame") then
-            --     for i = 1, select("#", frame:GetRegions()) do
-            --         local region = select(i, frame:GetRegions())
-            --         if region:GetObjectType() == "Texture" then
-            --             if string.find(region:GetName(), "Background") then
-            --                 region:SetColorTexture(0, 0, 0, 1)
-            --             else
-            --                 region:SetColorTexture(0, 0, 0, 0.5)
-            --             end
-            --         end
-            --     end
-
-            --     return
-            -- end
-
-            if string.find(frame:GetName(), "Tab") then
-                if frame.old_show then
-                    frame.Show = frame.old_show
-                    frame.old_show = nil
-                end
-
-                UIFrameFadeIn(frame, amount, 0, self.mouseoverAlpha * 0.6)
-                frame:Show()
-                return
-            end
-
-
-        end
-
-        local getFrame = function(frame)
-            if frame then
-                if method == "FocusGained" then
-                    if string.find(frame:GetName(), "EditBox") then
-                        UIFrameFadeIn(frame, amount, 0, self.focusAlpha * 0.92)
-                    end
-                elseif method == "FocusLost" then
-                    if string.find(frame:GetName(), "EditBox") then
-                        UIFrameFadeOut(frame, amount,self.focusAlpha * 0.92, 0)
-                    end
-                elseif method == "MouseIn" then
-                    showAll(frame)
-
-                    UIFrameFadeIn(self.frameChannel, amount, 0, self.mouseoverAlpha)
-                    self.frameChannel:Show()
-
-                    UIFrameFadeIn(self.frameMenu, amount, 0, self.mouseoverAlpha)
-                    self.frameMenu:Show()
-
-                    UIFrameFadeIn(self.socialFrame, amount, 0, self.mouseoverAlpha)
-                    self.socialFrame:Show()
-                elseif method == "MouseOut" then
-                    hideAll(frame)
-
-                    UIFrameFadeOut(self.frameChannel, amount, self.mouseoverAlpha, 0)
-                    C_Timer.After(amount, function()
-                        self.frameChannel:Hide()
-                    end)
-
-                    UIFrameFadeOut(self.frameMenu, amount, self.mouseoverAlpha, 0)
-                    C_Timer.After(amount, function()
-                        self.frameMenu:Hide()
-                    end)
-
-                    UIFrameFadeOut(self.socialFrame, amount, self.mouseoverAlpha, 0)
-                    C_Timer.After(amount, function()
-                        self.socialFrame:Hide()
-                    end)
-                end
-            end
-        end
-        self:BatchBoxes(getFrame)
-    end
-    ]]
-
     function template:OnImmersive(frame, delay, base, target)
         local chatFrame = string.match(frame:GetName(), "^ChatFrame%d+$")
 
@@ -351,29 +139,58 @@ function ChatFrame:Create(args, globals)
         
         UIFrameFadeRemoveFrame(frame)
         if chatFrame and frame:GetName() == chatFrame then
-
-
-
             --[[
-            local topGradient = ChatFrame1:CreateTexture(nil, "BACKGROUND")
-            topGradient:SetTexture("Interface\\Buttons\\WHITE8X8") -- Usa una textura blanca
-            topGradient:SetPoint("TOPLEFT", ChatFrame1, "TOPLEFT")
-            topGradient:SetPoint("TOPRIGHT", ChatFrame1, "TOPRIGHT")
-            topGradient:SetHeight(100) -- Ajusta la altura del degradado
-
-            -- Aplica un degradado al color de la textura
-            topGradient:SetGradient("VERTICAL", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 0)) -- De negro a transparente
-
-            -- Asegúrate de que el texto del ChatFrame1 se vea afectado por el degradado
+            print("INFO-----------------------------------------------")
             for _, region in ipairs({ChatFrame1:GetRegions()}) do
-                if region:GetObjectType() == "FontString" then
-                    region:SetDrawLayer("OVERLAY")
+                local regionType = region:GetObjectType()
+                local info = "Tipo de región: " .. regionType
+                if regionType == "Texture" then
+                    info = info .. ", Nombre de la textura: " .. (region:GetName() or "nil") .. ", Layer: " .. region:GetDrawLayer()
                 end
+                print(info)
             end
             ]]
+            for _, region in ipairs({frame:GetRegions()}) do
+                local regionType  = region:GetObjectType()
+                local regionLayer = region:GetDrawLayer()
+
+                if regionType == "Texture" then
+                    region.old_alpha = region:GetAlpha()
+                    region:SetAlpha(0)
+                    region:Hide()
+
+                    --[[
+                    if regionLayer == "BACKGROUND" then
+                        region:SetAlpha(0)
+                    elseif regionLayer == "BORDER" then
+                        region:SetAlpha(0)
+                    end
+                    ]]
+                end
+            end
             UIFrameFadeOut(frame, delay, base, target)
-        else
-            UIFrameFadeOut(frame, delay, base, target * 0)
+            return
+        end
+
+        UIFrameFadeOut(frame, delay, base, target * 0)
+    end
+
+    function template:OnImmersiveOff(frame, delay, base, target)
+        local chatFrame = string.match(frame:GetName(), "^ChatFrame%d+$")
+        UIFrameFadeRemoveFrame(frame)
+        if chatFrame and frame:GetName() == chatFrame then
+            for _, region in ipairs({frame:GetRegions()}) do
+                local regionType  = region:GetObjectType()
+                local regionLayer = region:GetDrawLayer()
+    
+                if regionType == "Texture" then
+                    if region.old_alpha then
+                        region:SetAlpha(region.old_alpha)
+                        region.old_alpha = nil
+                        region:Show()
+                    end
+                end
+            end
         end
     end
 
@@ -413,7 +230,13 @@ function ChatFrame:Create(args, globals)
                     target = target * self.editBoxFactor
                     if self.isOnFocusGained then target = 1 end -- Previene editbox
                 end
-                base = frame:GetAlpha()
+                base = frame:GetAlpha() -- Evita parpadeo
+                
+                -- Si modo immersivo activo, solo modifica ChatFrame#
+                if IMMERSIVE_ON then
+                    self:OnImmersiveOff(frame, delay, base, target)
+                end
+
                 UIFrameFadeIn(frame, delay, base, target)
             end
         end
@@ -424,18 +247,23 @@ function ChatFrame:Create(args, globals)
         local getFrame = function(frame)
             if self:IsVisible(frame) then
                 if string.find(frame:GetName(), "EditBox") then
+                    -- Normaliza al verdadero valor escalar
                     base = base * self.editBoxFactor
                     target = target * self.editBoxFactor
                 end
                 if string.find(frame:GetName(), "Tab") then
+                    -- Cancela su reaparición tras clic
                     frame.noMouseAlpha = target
                 end
 
+                -- Si modo immersivo está activo, sino default
+                -- Puesto separado para fácil desacoplamiento
                 if IMMERSIVE_ON then
                     self:OnImmersive(frame, delay, base, target)
-                else
-                    UIFrameFadeOut(frame, delay, base, target)
+                    return
                 end
+
+                UIFrameFadeOut(frame, delay, base, target)
             end
         end
         self:BatchBoxes(getFrame)
