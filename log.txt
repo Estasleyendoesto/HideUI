@@ -6,4 +6,9 @@ Cambios en la versión 0.5:
 - Corregido fallo de opacidad con los EditBox tras FadeOut pues su alpha original no es 1, sino 0.44
 - Corregido problema con los separator del Header que no seguían el scrollBox
 - Corregido fallo de opacidad con "MainStatusTrackingBarContainer" al iniciar o /reload
+- Corregido fallo de opacidad con EditBox al hacer FadeIn
+- Corregido fallo de opacidad con el focus en EditBox
+- Corregido fallo estetico de parpadeo al perder el foco en el chat
+- Corregido problema con los tabs que vuelven a aparecer tras perder el foco
+- Corregido fallo de opcidad tardía al desactivar el addon justo después de activarlo
 - Añadido activación/ocultación del chat al pulsar la tecla "Enter" cuando se envía un mensaje

@@ -7,6 +7,7 @@ local GAME_FRAMES = {}
 local FINDING_FRAMES_INTERVAL = 1.7
 local FINDING_FRAMES_REPEATS = 3
 local MOUSEOVER_TIME_INTERVAL = 0.2
+local C_TIMER
 
 function FrameManager:OnInitialize()
     Data          = HideUI:GetModule("Data")
@@ -29,12 +30,18 @@ function FrameManager:OnDisable()
     self:UnregisterEvent("PLAYER_ENTERING_WORLD")
     self:TimeHandler(false) --Mouseover Off
     self:UnbindFrames()
+
+    -- Cancela el timer de búsqueda
+    if C_TIMER then
+        C_TIMER:Cancel()
+        C_TIMER = nil
+    end
 end
 
 -------------------------------------------------------------------------------->>>
 -- Builder
 function FrameManager:OnInstance()
-    C_Timer.NewTicker(FINDING_FRAMES_INTERVAL, function()
+    C_TIMER = C_Timer.NewTicker(FINDING_FRAMES_INTERVAL, function()
         self.BindFrames(self)
     end, FINDING_FRAMES_REPEATS)
     self:TimeHandler(true)

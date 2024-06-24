@@ -1,6 +1,8 @@
 local ChatFrame = HideUI:NewModule("ChatFrame")
 local FrameTemplate
 
+local IMMERSIVE_ON = false
+
 function ChatFrame:OnInitialize()
     FrameTemplate = HideUI:GetModule("FrameTemplate")
 end
@@ -100,13 +102,13 @@ function ChatFrame:Create(args, globals)
 
         if isMouseover then
             if not self.fadedIn then
-                self:FadeIn(nil, self.globals.mouseoverFadeInAmount, alpha, self.mouseoverAlpha)
                 self.fadedIn = true
+                self:FadeIn(nil, self.globals.mouseoverFadeInAmount, alpha, self.mouseoverAlpha)
             end
         else
             if self.fadedIn then
-                self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, self.mouseoverAlpha, alpha)
                 self.fadedIn = false
+                self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, self.mouseoverAlpha, alpha)
             end
         end
     end
@@ -114,13 +116,264 @@ function ChatFrame:Create(args, globals)
     -------------------------------------------------------------------------------->>>
     -- Editbox
     function template:EditBoxHandler(action)
-        local alpha = self:GetAlpha()
+        local alpha = self.event_alpha or self:GetAlpha()
         if action == "FocusLost" then
             self.isOnFocusGained = false
-            self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, 1, alpha)
+            self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, self.focusAlpha, alpha)
         elseif action == "FocusGained" then
             self.isOnFocusGained = true
-            self:FadeIn(nil, self.globals.mouseoverFadeInAmount, alpha, 1)
+            self:FadeIn(nil, self.globals.mouseoverFadeInAmount, alpha, self.focusAlpha)
+        end
+    end
+
+    -------------------------------------------------------------------------------->>>
+    -- Inmersive Mode
+    --[[
+    function template:OnMinimalMode(type, delay, base, target)
+        local getFrame = function(frame)
+            if self:IsVisible(frame) then
+                if type == "fadeIn" then
+                    if string.find(frame:GetName(), "EditBox") then
+                        target = target * self.editBoxFactor
+                        if self.isOnFocusGained then target = 1 end -- Previene editbox
+                    end
+                    base = frame:GetAlpha()
+                    UIFrameFadeIn(frame, delay, base, target)
+                elseif type == "fadeOut" then
+                    if string.find(frame:GetName(), "Tab") then
+                        frame.noMouseAlpha = target
+                    end
+                    base = frame:GetAlpha()
+                    local chatFrame = string.match(frame:GetName(), "^ChatFrame%d+$")
+                    if chatFrame and frame:GetName() == chatFrame then
+                        UIFrameFadeRemoveFrame(frame)
+                        UIFrameFadeOut(frame, delay, base, target)
+                    else
+                        -- target = 0
+                        UIFrameFadeRemoveFrame(frame)
+                        UIFrameFadeOut(frame, delay, base, target * 0)
+                    end
+
+                end
+            end
+        end
+        self:BatchBoxes(getFrame)
+
+            -- Si inmmersion ON
+            local chatFrame = string.match(frame:GetName(), "^ChatFrame%d+$")
+            if chatFrame and frame:GetName() == chatFrame then
+                local alpha = self.event_alpha or self:GetAlpha()
+                target = alpha
+                UIFrameFadeOut(frame, delay, base, target)
+                return
+            else
+                target = 0
+                UIFrameFadeOut(frame, delay, base, target)
+                return
+            end
+        --]]
+    --[[
+    function template:OnMinimalChatter(from)
+        if from == "MouseIn" then
+        elseif from == "MouseOut" then
+        elseif from == "FocusGained" then
+        elseif from == "FocusLost" then
+        else
+            ConsoleAddMessage("pepito")
+        end
+    end
+
+    function template:OnFocus(fade_type, amount, base, target, method)
+        IMMERSIVE_ON = false
+        if IMMERSIVE_ON then
+            self:OnMinimal(amount, base, target, method)
+        else
+            if fade_type == "FadeIn" then
+                self:FadeIn(nil, amount, base, target)
+            elseif fade_type == "FadeOut" then
+                self:FadeOut(nil, amount, base, target)
+            end
+        end
+    end
+
+    function template:OnMinimal(amount, base, target, method)
+        local hideAll = function(frame)
+            -- ChatFrame#
+            local chatFrame = string.match(frame:GetName(), "^ChatFrame%d+$")
+            if chatFrame and frame:GetName() == chatFrame then
+                for i = 1, select("#", frame:GetRegions()) do
+                    local region = select(i, frame:GetRegions())
+                    if region:GetObjectType() == "Texture" then
+                        if string.find(region:GetName(), "Background") then
+                            region:SetColorTexture(0, 0, 0, 0)
+                        else
+                            region:SetColorTexture(0, 0, 0, 0)
+                        end
+                    end
+                end
+
+                return
+            end
+
+            -- Editboxes
+            if string.find(frame:GetName(), "EditBox") then
+                if not frame:IsShown() then return end
+                UIFrameFadeOut(frame, amount, self.focusAlpha * 0.92, 0)
+                C_Timer.After(amount, function()
+                    frame:Hide()
+                end)
+
+                return
+            end
+
+            -- ButtonFrame (Buttons + CombatLog)
+            if string.find(frame:GetName(), "ButtonFrame") then
+                for i = 1, select("#", frame:GetRegions()) do
+                    local region = select(i, frame:GetRegions())
+                    if region:GetObjectType() == "Texture" then
+                        if string.find(region:GetName(), "Background") then
+                            region:SetColorTexture(0, 0, 0, 0)
+                        else
+                            region:SetColorTexture(0, 0, 0, 0)
+                        end
+                    end
+                end
+
+                return
+            end
+
+            -- Tabs
+            if string.find(frame:GetName(), "Tab") then
+                if not frame:IsShown() then return end
+
+                if not frame.old_show then
+                    frame.old_show = frame.Show
+                    frame.Show = function() end
+                end
+
+                UIFrameFadeOut(frame, amount, base , 0)
+                C_Timer.After(amount, function()
+                    frame:Hide()
+                end)
+
+                return
+            end
+        end
+
+        local showAll = function(frame)
+            -- if string.find(frame:GetName(), "ButtonFrame") then
+            --     if self:IsVisible(frame) then
+            --         frame:Show()
+            --     end
+            --     return
+            -- end
+
+            -- if string.find(frame:GetName(), "ButtonFrame") then
+            --     for i = 1, select("#", frame:GetRegions()) do
+            --         local region = select(i, frame:GetRegions())
+            --         if region:GetObjectType() == "Texture" then
+            --             if string.find(region:GetName(), "Background") then
+            --                 region:SetColorTexture(0, 0, 0, 1)
+            --             else
+            --                 region:SetColorTexture(0, 0, 0, 0.5)
+            --             end
+            --         end
+            --     end
+
+            --     return
+            -- end
+
+            if string.find(frame:GetName(), "Tab") then
+                if frame.old_show then
+                    frame.Show = frame.old_show
+                    frame.old_show = nil
+                end
+
+                UIFrameFadeIn(frame, amount, 0, self.mouseoverAlpha * 0.6)
+                frame:Show()
+                return
+            end
+
+
+        end
+
+        local getFrame = function(frame)
+            if frame then
+                if method == "FocusGained" then
+                    if string.find(frame:GetName(), "EditBox") then
+                        UIFrameFadeIn(frame, amount, 0, self.focusAlpha * 0.92)
+                    end
+                elseif method == "FocusLost" then
+                    if string.find(frame:GetName(), "EditBox") then
+                        UIFrameFadeOut(frame, amount,self.focusAlpha * 0.92, 0)
+                    end
+                elseif method == "MouseIn" then
+                    showAll(frame)
+
+                    UIFrameFadeIn(self.frameChannel, amount, 0, self.mouseoverAlpha)
+                    self.frameChannel:Show()
+
+                    UIFrameFadeIn(self.frameMenu, amount, 0, self.mouseoverAlpha)
+                    self.frameMenu:Show()
+
+                    UIFrameFadeIn(self.socialFrame, amount, 0, self.mouseoverAlpha)
+                    self.socialFrame:Show()
+                elseif method == "MouseOut" then
+                    hideAll(frame)
+
+                    UIFrameFadeOut(self.frameChannel, amount, self.mouseoverAlpha, 0)
+                    C_Timer.After(amount, function()
+                        self.frameChannel:Hide()
+                    end)
+
+                    UIFrameFadeOut(self.frameMenu, amount, self.mouseoverAlpha, 0)
+                    C_Timer.After(amount, function()
+                        self.frameMenu:Hide()
+                    end)
+
+                    UIFrameFadeOut(self.socialFrame, amount, self.mouseoverAlpha, 0)
+                    C_Timer.After(amount, function()
+                        self.socialFrame:Hide()
+                    end)
+                end
+            end
+        end
+        self:BatchBoxes(getFrame)
+    end
+    ]]
+
+    function template:OnImmersive(frame, delay, base, target)
+        local chatFrame = string.match(frame:GetName(), "^ChatFrame%d+$")
+
+        if string.find(frame:GetName(), "Tab") then
+            frame.noMouseAlpha = 0
+        end
+        
+        UIFrameFadeRemoveFrame(frame)
+        if chatFrame and frame:GetName() == chatFrame then
+
+
+
+            --[[
+            local topGradient = ChatFrame1:CreateTexture(nil, "BACKGROUND")
+            topGradient:SetTexture("Interface\\Buttons\\WHITE8X8") -- Usa una textura blanca
+            topGradient:SetPoint("TOPLEFT", ChatFrame1, "TOPLEFT")
+            topGradient:SetPoint("TOPRIGHT", ChatFrame1, "TOPRIGHT")
+            topGradient:SetHeight(100) -- Ajusta la altura del degradado
+
+            -- Aplica un degradado al color de la textura
+            topGradient:SetGradient("VERTICAL", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 0)) -- De negro a transparente
+
+            -- Asegúrate de que el texto del ChatFrame1 se vea afectado por el degradado
+            for _, region in ipairs({ChatFrame1:GetRegions()}) do
+                if region:GetObjectType() == "FontString" then
+                    region:SetDrawLayer("OVERLAY")
+                end
+            end
+            ]]
+            UIFrameFadeOut(frame, delay, base, target)
+        else
+            UIFrameFadeOut(frame, delay, base, target * 0)
         end
     end
 
@@ -160,6 +413,7 @@ function ChatFrame:Create(args, globals)
                     target = target * self.editBoxFactor
                     if self.isOnFocusGained then target = 1 end -- Previene editbox
                 end
+                base = frame:GetAlpha()
                 UIFrameFadeIn(frame, delay, base, target)
             end
         end
@@ -170,9 +424,18 @@ function ChatFrame:Create(args, globals)
         local getFrame = function(frame)
             if self:IsVisible(frame) then
                 if string.find(frame:GetName(), "EditBox") then
+                    base = base * self.editBoxFactor
                     target = target * self.editBoxFactor
                 end
-                UIFrameFadeOut(frame, delay, base, target)
+                if string.find(frame:GetName(), "Tab") then
+                    frame.noMouseAlpha = target
+                end
+
+                if IMMERSIVE_ON then
+                    self:OnImmersive(frame, delay, base, target)
+                else
+                    UIFrameFadeOut(frame, delay, base, target)
+                end
             end
         end
         self:BatchBoxes(getFrame)
@@ -197,6 +460,7 @@ function ChatFrame:Create(args, globals)
             func(chatbox.tab)
             func(chatbox.chatFrame)
             func(chatbox.editBox)
+            func(chatbox.buttonFrame)
         end
     end
 
@@ -204,7 +468,10 @@ function ChatFrame:Create(args, globals)
     template.chatboxes = template:GetChatFrames()
     template.socialFrame = _G["QuickJoinToastButton"]
     template.combatLogFrame = _G["CombatLogQuickButtonFrame_Custom"]
+    template.frameChannel = _G["ChatFrameChannelButton"]
+    template.frameMenu = _G["ChatFrameMenuButton"]
     template.editBoxFactor = 0.44
+    template.focusAlpha = 1
 
     return template
 end
