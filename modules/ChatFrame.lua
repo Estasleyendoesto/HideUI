@@ -19,6 +19,11 @@ function ChatFrame:Create(args, globals)
         self.ready = true
         self:OnReady()
         self:ChatFramesUpdate("hook")
+
+        local alpha = self.event_alpha or self:GetAlpha()
+        if self.props.isTextModeEnabled then
+            self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, alpha, alpha)
+        end
     end
 
     function template:OnDestroy()
