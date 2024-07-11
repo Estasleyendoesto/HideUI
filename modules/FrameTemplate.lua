@@ -169,6 +169,9 @@ function FrameTemplate:Create(frame, props, globals)
         end
     end
 
+    function template:OnExtraUpdate(field)
+    end
+
      -------------------------------------------------------------------------------->>>
     -- Calls
     function template:OnEvent(event, origin) --From FrameManager:EventReceiver()  
