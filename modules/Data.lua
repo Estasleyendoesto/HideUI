@@ -39,6 +39,10 @@ local defaults = {
     }
 }
 
+-- Extras
+defaults.profile.frames.Chatbox.isTextModeEnabled = false
+
+---
 function Data:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("HideUIDB", defaults, true)
     -- self.db:ResetProfile() --DEBUG

@@ -1,7 +1,7 @@
 local ChatFrame = HideUI:NewModule("ChatFrame")
 local FrameTemplate
 
-local IMMERSIVE_ON = false
+-- local IMMERSIVE_ON = true
 
 function ChatFrame:OnInitialize()
     FrameTemplate = HideUI:GetModule("FrameTemplate")
@@ -16,11 +16,13 @@ function ChatFrame:Create(args, globals)
     self:Embed(template)
 
     function template:OnChatReady()
+        self.ready = true
         self:OnReady()
         self:ChatFramesUpdate("hook")
     end
 
     function template:OnDestroy()
+        self.ready = nil
         local alpha = self:GetAlpha()
         self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, alpha, self.originalAlpha)
         self:ChatFramesUpdate("unhook")
@@ -38,9 +40,33 @@ function ChatFrame:Create(args, globals)
             "FCF_NewChatWindow",       --No se lo que hace pero igual lo pongo xD
         }
 
+        local InterceptEditBoxes = function()
+            for _, chatbox in ipairs(self.chatboxes) do
+                if chatbox.editBox then
+                    if operator == "hook" then
+                        if not self:IsHooked(chatbox.editBox, "OnEditFocusLost") then
+                            self:SecureHookScript(chatbox.editBox, "OnEditFocusLost", function() self:EditBoxHandler("FocusLost") end)
+                        end
+                        if not self:IsHooked(chatbox.editBox, "OnEditFocusGained") then
+                            self:SecureHookScript(chatbox.editBox, "OnEditFocusGained", function() self:EditBoxHandler("FocusGained") end)
+                        end
+                    elseif operator == "unhook" then
+                        if self:IsHooked(chatbox.editBox, "OnEditFocusLost") then
+                            self:Unhook(chatbox.editBox, "OnEditFocusLost")
+                        end
+                        if self:IsHooked(chatbox.editBox, "OnEditFocusGained") then
+                            self:Unhook(chatbox.editBox, "OnEditFocusGained")
+                        end
+                    end
+                end
+            end
+        end
+
         local OnIntercept = function()
             -- Actualiza chatboxes si hay cambios en las ventanas
             self.chatboxes = self:GetChatFrames()
+            -- Para los Editboxes
+            InterceptEditBoxes()
         end
 
         -- Window Hooks
@@ -53,25 +79,7 @@ function ChatFrame:Create(args, globals)
         end
 
         -- Para los Editboxes
-        for _, chatbox in ipairs(self.chatboxes) do
-            if chatbox.editBox then
-                if operator == "hook" then
-                    if not self:IsHooked(chatbox.editBox, "OnEditFocusLost") then
-                        self:SecureHookScript(chatbox.editBox, "OnEditFocusLost", function() self:EditBoxHandler("FocusLost") end)
-                    end
-                    if not self:IsHooked(chatbox.editBox, "OnEditFocusGained") then
-                        self:SecureHookScript(chatbox.editBox, "OnEditFocusGained", function() self:EditBoxHandler("FocusGained") end)
-                    end
-                elseif operator == "unhook" then
-                    if self:IsHooked(chatbox.editBox, "OnEditFocusLost") then
-                        self:Unhook(chatbox.editBox, "OnEditFocusLost")
-                    end
-                    if self:IsHooked(chatbox.editBox, "OnEditFocusGained") then
-                        self:Unhook(chatbox.editBox, "OnEditFocusGained")
-                    end
-                end
-            end
-        end
+        InterceptEditBoxes()
     end
 
     -------------------------------------------------------------------------------->>>
@@ -233,7 +241,7 @@ function ChatFrame:Create(args, globals)
                 base = frame:GetAlpha() -- Evita parpadeo
                 
                 -- Si modo immersivo activo, solo modifica ChatFrame#
-                if IMMERSIVE_ON then
+                if self.props.isTextModeEnabled then
                     self:OnImmersiveOff(frame, delay, base, target)
                 end
 
@@ -258,7 +266,7 @@ function ChatFrame:Create(args, globals)
 
                 -- Si modo immersivo está activo, sino default
                 -- Puesto separado para fácil desacoplamiento
-                if IMMERSIVE_ON then
+                if self.props.isTextModeEnabled and self.ready then
                     self:OnImmersive(frame, delay, base, target)
                     return
                 end

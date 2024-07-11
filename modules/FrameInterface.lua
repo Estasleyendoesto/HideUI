@@ -7,7 +7,7 @@ local FRAME_SETTINGS_PANEL
 
 local BINDINGS = {
     -- Chatbox
-    {name = "Chatbox", alias = "Chat"},
+    {name = "Chatbox", alias = "Chat", extras="1"},
     -- Misc
     {name = "MinimapCluster", alias = "Minimap"},
     {name = "ObjectiveTrackerFrame", alias = "Quests"},
@@ -59,6 +59,8 @@ function FrameInterface:UpdateUI()
         panel[frame.name].content.panel["isAFKEnabled_checkbox"]:SetChecked(frame.isAFKEnabled)
         panel[frame.name].content.panel["isInstanceEnabled_checkbox"]:SetChecked(frame.isInstanceEnabled)
 
+        self:UpdateExtra(frame)
+
         if frame.isEnabled then
             panel[frame.name]:SetBackdropBorderColor(1, 1, 0, 0.5)
         end
@@ -74,7 +76,8 @@ function FrameInterface:Menu_Build(panel)
 
     -- Frame Settings
     for _, frame in ipairs(BINDINGS) do
-        AmigableUI:Pool(frame.name, frame.alias, 270)
+        local offset = (frame.extras or 0) * 24 -- Altura adicional por cada extra
+        AmigableUI:Pool(frame.name, frame.alias, 270 + offset)
         self:AttachSettings(frame.name)
     end
 end
@@ -98,5 +101,20 @@ function FrameInterface:AttachSettings(frame)
     AmigableUI:Checkbox("isMountEnabled_checkbox", "Hide on Mount", false, function(e) Controller:HandleFrameSettings(frame, "isMountEnabled", e) end)
     AmigableUI:Checkbox("isInstanceEnabled_checkbox", "Reveal on Instance", false, function(e) Controller:HandleFrameSettings(frame, "isInstanceEnabled", e) end)
 
+    self:AttachExtra(frame)
+
     AmigableUI.lastElement = pool
+end
+
+function FrameInterface:UpdateExtra(frame)
+    local panel = FRAME_SETTINGS_PANEL
+    if frame.name == "Chatbox" then
+        panel[frame.name].content.panel["isTextModeEnabled_checkbox"]:SetChecked(frame.isTextModeEnabled)
+    end
+end
+
+function FrameInterface:AttachExtra(frame_name)
+    if frame_name == "Chatbox" then
+        AmigableUI:Checkbox("isTextModeEnabled_checkbox", "Text Mode", false, function(e) Controller:HandleFrameSettings(frame_name, "isTextModeEnabled", e) end)
+    end
 end

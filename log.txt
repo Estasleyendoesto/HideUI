@@ -11,4 +11,6 @@ Cambios en la versión 0.5:
 - Corregido fallo estetico de parpadeo al perder el foco en el chat
 - Corregido problema con los tabs que vuelven a aparecer tras perder el foco
 - Corregido fallo de opcidad tardía al desactivar el addon justo después de activarlo
+- Corregido no detección de focus en editbox con nuevas ventanas de chat
 - Añadido activación/ocultación del chat al pulsar la tecla "Enter" cuando se envía un mensaje
+- Añadido modo solo texto, activable desde edición del frame "Chatbox"
