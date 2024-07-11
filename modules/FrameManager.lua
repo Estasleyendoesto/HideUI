@@ -129,6 +129,8 @@ function FrameManager:FrameSettingsUpdate(msg, name, field) --From Controller
                 frame.HideUI:OnEventUpdate(field, "Custom")
             elseif field == "isEnabled" then
                 frame.HideUI:OnFrameToggle("Custom")
+            else
+                frame.HideUI:OnExtraUpdate(field)
             end
         else
             if field == "isEnabled" then

@@ -203,6 +203,19 @@ function ChatFrame:Create(args, globals)
     end
 
     -------------------------------------------------------------------------------->>>
+    -- Extra Updates
+    function template:OnExtraUpdate(field)
+        local alpha = self.event_alpha or self:GetAlpha()
+        if field == "isTextModeEnabled" then
+            if self.props.isTextModeEnabled then
+                self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, alpha, alpha)
+            else
+                self:FadeIn(nil, self.globals.mouseoverFadeInAmount, alpha, alpha)
+            end
+        end
+    end
+
+    -------------------------------------------------------------------------------->>>
     -- ...
     function template:GetChatFrames()
         --Busca y empaqueta los chatframes
