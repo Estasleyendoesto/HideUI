@@ -9,6 +9,7 @@ local frames_table = {}
 for _, frame in ipairs(frames) do
     frames_table[frame] = {
         name = frame,
+        source = "oficial",
         alphaAmount = 0.5,
         isEnabled = false,
         isAlphaEnabled = false,

@@ -1,8 +1,8 @@
 ## Interface: 100206
 ## Title: HideUI
-## Notes: HideUI for you!
+## Notes: Hide any frame
 ## Author: Estasleyendoesto
-## Version: 0.4
+## Version: 0.6
 
 ## SavedVariables: HideUIDB
 ## OptionalDeps: Ace3
@@ -26,4 +26,5 @@ modules\FrameManager.lua
 
 modules\Interface.lua
 modules\FrameInterface.lua
+modules\ThirdPartyInterface.lua
 modules\AmigableUI.lua

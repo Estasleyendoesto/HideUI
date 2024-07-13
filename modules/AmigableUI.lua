@@ -170,7 +170,7 @@ function AmigableUI:Separator(name, height, alpha)
     separator.type = "Separator"
     separator.parent = parent
     self.lastElement = separator
-    parent.panel[name] = separator
+    parent.parent.panel[name] = separator
 end
 
 function AmigableUI:Pool(name, title, height, active)
@@ -181,7 +181,7 @@ function AmigableUI:Pool(name, title, height, active)
     local frame = CreateFrame("Frame", "HideUIPool", parent, "BackdropTemplate")
     local offset = -3
     if before.type == "Title" or before.type == "Separator" then
-        offset = -24
+        offset = -16
     end
     frame:ClearAllPoints()
     frame:SetPoint("LEFT", parent.panel, 0, 0)
@@ -223,7 +223,7 @@ function AmigableUI:Pool(name, title, height, active)
     content:Hide()
 
     -- Función para expandir y contraer el panel
-    function ToggleAccordion()
+    content.ToggleAccordion = function()
         if content:IsShown() then
             content:Hide()
             icon:SetTexture("Interface\\Buttons\\UI-PlusButton-Up")
@@ -239,7 +239,7 @@ function AmigableUI:Pool(name, title, height, active)
         end
     end
     -- Evento al hacer clic en el marco
-    frame:SetScript("OnMouseDown", ToggleAccordion)
+    frame:SetScript("OnMouseDown", content.ToggleAccordion)
 
     -- Store
     content.type = "PoolContent"
@@ -248,6 +248,8 @@ function AmigableUI:Pool(name, title, height, active)
     frame.type = "Pool"
     frame.parent = parent
     frame.content = content
+    frame.header = header
+    frame.icon = icon
     parent.panel[name] = frame
     before.after = frame
     self.lastElement = frame
@@ -263,10 +265,60 @@ function AmigableUI:Tooltip(name, title, text)
     --Pues eso, al pasar el cursor por encima y el típico comentario
 end
 
-function AmigableUI:Button(name, text, state, func)
-    --Próximamente
-end
+function AmigableUI:ThirdPartyEditor(name, func)
+    local before = self.lastElement
+    local parent = before.parent
 
-function AmigableUI:EditBox(name, func)
-    --Próximamente (es un cuadro para introducir texto)
+    -- Contenedor
+    local container = CreateFrame("Frame", "HideUIEditor", parent)
+    
+    local offset = -3
+    if before.type == "Title" or before.type == "Separator" then
+        offset = -24
+    end
+    container:ClearAllPoints()
+    container:SetPoint("LEFT", parent.panel, 0, 0)
+    container:SetPoint("RIGHT", parent.panel, -38, 0)
+    container:SetPoint("TOPLEFT", before, "BOTTOMLEFT", 0, offset)
+    container:SetHeight(1)
+
+    -- Crear el EditBox para el nombre del frame
+    local frameName_editBox = CreateFrame("EditBox", nil, container, "InputBoxTemplate")
+    frameName_editBox:SetSize(320, 62)
+    frameName_editBox:SetPoint("LEFT", 8, 0)
+    frameName_editBox:SetAutoFocus(false)
+    frameName_editBox:SetFontObject(GameFontHighlightLarge)
+    frameName_editBox:SetText("")
+
+    -- Crear el botón "Añadir"
+    local addButton = CreateFrame("Button", nil, container, "GameMenuButtonTemplate")
+    addButton:SetSize(82, 30)
+    addButton:SetPoint("LEFT", frameName_editBox, "RIGHT", 10, 0)
+    addButton:SetText("Register")
+    addButton:SetScript("OnClick", function()
+        local frameName = frameName_editBox:GetText()
+        if func then
+            func("add", frameName)
+        end
+    end)
+
+    -- Crear el botón "Eliminar"
+    local deleteButton = CreateFrame("Button", nil, container, "GameMenuButtonTemplate")
+    deleteButton:SetSize(96, 30)
+    deleteButton:SetPoint("LEFT", addButton, "RIGHT", 2, 0)
+    deleteButton:SetText("Unregister")
+    deleteButton:SetScript("OnClick", function()
+        local frameName = frameName_editBox:GetText()
+        if func then
+            func("remove", frameName)
+        end
+    end)
+
+    -- Store
+    frameName_editBox.type = "EditBox"
+    frameName_editBox.parent = container
+    container.type = "ThirdPartyEditor"
+    container.parent = parent
+    parent.panel[name] = container
+    self.lastElement = container
 end

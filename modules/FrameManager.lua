@@ -89,6 +89,28 @@ function FrameManager:UnbindFrames()
     GAME_FRAMES = {}
 end
 
+function FrameManager:BindFrame(name)
+    local globals = Data:Find("globals")
+    local data  = Data:Find("frames")[name]
+    local frame = GAME_FRAMES[name] or _G[name]
+    if frame and data then
+        if not frame.HideUI then
+            frame.HideUI = FrameTemplate:Create(frame, data, globals)
+            frame.HideUI:OnReady()
+        end
+        GAME_FRAMES[name] = frame
+    end
+end
+
+function FrameManager:UnbindFrame(name)
+    local frame = GAME_FRAMES[name]
+    if frame and frame.HideUI then
+        frame.HideUI:OnDestroy()
+        frame.HideUI = nil
+    end
+    GAME_FRAMES[name] = nil
+end
+
 -------------------------------------------------------------------------------->>>
 -- Global and Frame settings
 function FrameManager:IsEventField(field)

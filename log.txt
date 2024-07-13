@@ -15,3 +15,12 @@ Cambios en la versión 0.5:
 - Añadido activación/ocultación del chat al pulsar la tecla "Enter" cuando se envía un mensaje
 - Añadido modo solo texto, activable desde edición del frame "Chatbox"
 - Añadido auto activación tras hacer check desde el menú
+
+Cambios en la versión 0.6:
+- Creado EditboxFrame en AmigableUI
+- Añadidas dos nuevas funciones para registrar y quitar el registro de los frames de terceros
+- Data modificado, ahora cada frame tiene un nuevo campo llamado "source"
+- FrameInterface modificado, cada frame filtrará si source es "oficial"
+- Interface modificado, se ha añadido ThirdPartyInterface
+- FrameManager modificado, se ha añadido funciones Bindframe y UnbindFrame
+- Se ha creado el módulo ThirdPartyInterface que maneja la lógica de los frames de terceros

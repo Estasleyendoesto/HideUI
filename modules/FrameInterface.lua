@@ -40,7 +40,7 @@ local BINDINGS = {
 }
 
 function FrameInterface:OnInitialize()
-    Data      = HideUI:GetModule("Data")
+    Data       = HideUI:GetModule("Data")
     Controller = HideUI:GetModule("Controller")
     AmigableUI = HideUI:GetModule("AmigableUI")
 end
@@ -50,6 +50,8 @@ function FrameInterface:UpdateUI()
     local data = Data:Find("frames")
 
     for _, frame in pairs(data) do
+        if frame.source ~= "oficial" then return end
+
         panel[frame.name].content.panel["isEnabled_checkbox"]:SetChecked(frame.isEnabled)
         panel[frame.name].content.panel["isAlphaEnabled_checkbox"]:SetChecked(frame.isAlphaEnabled)
         panel[frame.name].content.panel["alphaAmount_slider"]:SetValue(frame.alphaAmount)

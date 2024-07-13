@@ -4,15 +4,17 @@ local Data
 local Controller
 local AmigableUI
 local FrameInterface
+local ThirdPartyInterface
 
 local MAIN_MENU_PANEL
 local GENERAL_SETTINGS_PANEL
 
 function Interface:OnInitialize()
-    Data           = HideUI:GetModule("Data")
-    Controller     = HideUI:GetModule("Controller")
-    FrameInterface = HideUI:GetModule("FrameInterface")
-    AmigableUI     = HideUI:GetModule("AmigableUI")
+    Data                = HideUI:GetModule("Data")
+    Controller          = HideUI:GetModule("Controller")
+    FrameInterface      = HideUI:GetModule("FrameInterface")
+    ThirdPartyInterface = HideUI:GetModule("ThirdPartyInterface")
+    AmigableUI          = HideUI:GetModule("AmigableUI")
 end
 
 function Interface:OnEnable()
@@ -22,9 +24,12 @@ function Interface:OnEnable()
     self:GeneralSettingsMenu("General")
     --Submenu 2
     self:FrameSettingsMenu("Frames")
+    --Submenu 3
+    self:ThirdPartySettingsMenu("Third Party")
     --DB Update
     self:UpdateUI()
     FrameInterface:UpdateUI()
+    ThirdPartyInterface:UpdateUI()
 end
 
 -------------------------------------------------------------------------------->>>
@@ -81,10 +86,19 @@ function Interface:FrameSettingsMenu(submenu_name)
     FrameInterface:Menu_Build(panel)
 end
 
+function Interface:ThirdPartySettingsMenu(submenu_name)
+    local parent = MAIN_MENU_PANEL
+    local panel = CreateFrame("Frame", "HideUI" .. submenu_name .. "Panel", parent)
+    panel.name = submenu_name
+    panel.type = "Panel"
+    panel.parent = parent.name
+    InterfaceOptions_AddCategory(panel)
+    ThirdPartyInterface:Menu_Build(panel)
+end
+
 -------------------------------------------------------------------------------->>>
 -- Menu Options
 function Interface:GeneralSettingsMenu_Build()
-    local field
     -- Panel
     AmigableUI:ScrollBox("panel_scroll", GENERAL_SETTINGS_PANEL, true)
     AmigableUI:Header("panel_header", "General Settings")
