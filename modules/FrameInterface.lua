@@ -50,21 +50,21 @@ function FrameInterface:UpdateUI()
     local data = Data:Find("frames")
 
     for _, frame in pairs(data) do
-        if frame.source ~= "oficial" then return end
+        if frame.source == "oficial" then
+            panel[frame.name].content.panel["isEnabled_checkbox"]:SetChecked(frame.isEnabled)
+            panel[frame.name].content.panel["isAlphaEnabled_checkbox"]:SetChecked(frame.isAlphaEnabled)
+            panel[frame.name].content.panel["alphaAmount_slider"]:SetValue(frame.alphaAmount)
+            panel[frame.name].content.panel["isMouseoverEnabled_checkbox"]:SetChecked(frame.isMouseoverEnabled)
+            panel[frame.name].content.panel["isCombatEnabled_checkbox"]:SetChecked(frame.isCombatEnabled)
+            panel[frame.name].content.panel["isMountEnabled_checkbox"]:SetChecked(frame.isMountEnabled)
+            panel[frame.name].content.panel["isAFKEnabled_checkbox"]:SetChecked(frame.isAFKEnabled)
+            panel[frame.name].content.panel["isInstanceEnabled_checkbox"]:SetChecked(frame.isInstanceEnabled)
 
-        panel[frame.name].content.panel["isEnabled_checkbox"]:SetChecked(frame.isEnabled)
-        panel[frame.name].content.panel["isAlphaEnabled_checkbox"]:SetChecked(frame.isAlphaEnabled)
-        panel[frame.name].content.panel["alphaAmount_slider"]:SetValue(frame.alphaAmount)
-        panel[frame.name].content.panel["isMouseoverEnabled_checkbox"]:SetChecked(frame.isMouseoverEnabled)
-        panel[frame.name].content.panel["isCombatEnabled_checkbox"]:SetChecked(frame.isCombatEnabled)
-        panel[frame.name].content.panel["isMountEnabled_checkbox"]:SetChecked(frame.isMountEnabled)
-        panel[frame.name].content.panel["isAFKEnabled_checkbox"]:SetChecked(frame.isAFKEnabled)
-        panel[frame.name].content.panel["isInstanceEnabled_checkbox"]:SetChecked(frame.isInstanceEnabled)
+            self:UpdateExtra(frame)
 
-        self:UpdateExtra(frame)
-
-        if frame.isEnabled then
-            panel[frame.name]:SetBackdropBorderColor(1, 1, 0, 0.5)
+            if frame.isEnabled then
+                panel[frame.name]:SetBackdropBorderColor(1, 1, 0, 0.5)
+            end
         end
     end
 end
