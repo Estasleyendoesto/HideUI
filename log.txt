@@ -25,3 +25,4 @@ Cambios en la versión 0.6:
 - FrameManager modificado, se ha añadido funciones Bindframe y UnbindFrame
 - Se ha creado el módulo ThirdPartyInterface que maneja la lógica de los frames de terceros
 - Corregido problema con UpdateUI en FrameInterface
+- Corregido problema de carga con textMode al iniciar el juego por primera vez

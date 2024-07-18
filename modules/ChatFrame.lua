@@ -1,7 +1,7 @@
 local ChatFrame = HideUI:NewModule("ChatFrame")
 local FrameTemplate
 
--- local IMMERSIVE_ON = true
+local IS_LOADED
 
 function ChatFrame:OnInitialize()
     FrameTemplate = HideUI:GetModule("FrameTemplate")
@@ -21,8 +21,16 @@ function ChatFrame:Create(args, globals)
         self:ChatFramesUpdate("hook")
 
         local alpha = self.event_alpha or self:GetAlpha()
+
         if self.props.isTextModeEnabled then
-            self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, alpha, alpha)
+            if not IS_LOADED then
+                local delay = 1
+                C_Timer.After(delay, function()
+                    self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, alpha, alpha)
+                end)
+            else
+                self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, alpha, alpha)
+            end
         end
     end
 

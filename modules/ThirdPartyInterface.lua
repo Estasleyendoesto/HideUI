@@ -69,32 +69,10 @@ function ThirdPartyInterface:Menu_Build(panel)
 
         if action == "add" and not third then
             Controller:RegisterFrame(captured)
-            -- data[captured] = {
-            --     name = captured,
-            --     source = "third_party",
-            --     alphaAmount = 0.5,
-            --     isEnabled = false,
-            --     isAlphaEnabled = false,
-            --     isCombatEnabled = true,
-            --     isAFKEnabled = true,
-            --     isMountEnabled = true,
-            --     isMouseoverEnabled = true,
-            --     isInstanceEnabled = true,
-            -- }
-
             AmigableUI:Pool(captured, captured, 270)
             self:AttachSettings(captured)
             self:UpdateUI()
-
-            -- if not frame.HideUI then
-            --     local globals = Data:Find("globals")
-            --     frame.HideUI = FrameTemplate:Create(frame, data[captured], globals)
-            --     frame.HideUI:OnReady()
-            -- end
         elseif action == "remove" and third and third.source == "third_party" then
-            -- frame.HideUI:OnDestroy()
-            -- frame.HideUI = nil
-            -- data[captured] = nil
             Controller:UnregisterFrame(captured)
 
             local section = panel[captured]
