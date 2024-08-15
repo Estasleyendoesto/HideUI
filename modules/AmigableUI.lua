@@ -1,5 +1,8 @@
 local AmigableUI = HideUI:NewModule("AmigableUI")
 
+-- https://warcraft.wiki.gg/wiki/Patch_11.0.0/API_changes
+-- https://www.townlong-yak.com/framexml/latest/Blizzard_Menu/11_0_0_MenuImplementationGuide.lua
+
 -- AmigableUI
 ----------------------------------------------------------------------------
 function AmigableUI:ScrollBox(name, panel, isBarVisible)

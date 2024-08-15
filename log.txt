@@ -26,3 +26,10 @@ Cambios en la versión 0.6:
 - Se ha creado el módulo ThirdPartyInterface que maneja la lógica de los frames de terceros
 - Corregido problema con UpdateUI en FrameInterface
 - Corregido problema de carga con textMode al iniciar el juego por primera vez
+
+Cambios en la versión 0.7:
+- Reconstrucción completa del menú usando la nueva api
+- Tras muchos días después se ha conseguido crear la nueva base para la interfaz (puto blizzard sin documentación)
+
+Cambios en la versión 0.8:
+- 

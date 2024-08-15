@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 110000
 ## Title: HideUI
 ## Notes: Hide any frame
 ## Author: Estasleyendoesto
@@ -28,3 +28,11 @@ modules\Interface.lua
 modules\FrameInterface.lua
 modules\ThirdPartyInterface.lua
 modules\AmigableUI.lua
+
+Interface\Builder.lua
+Interface\Builder.xml
+Interface\Menu.lua
+Interface\Welcome.lua
+Interface\General.lua
+Interface\UIFrame.lua
+Interface\Community.lua
