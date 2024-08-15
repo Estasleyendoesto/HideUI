@@ -42,8 +42,8 @@ function Interface:UpdateUI()
     panel.globalAlphaAmount_slider:SetValue(globals.globalAlphaAmount)
     -- Mouseover
     panel.isMouseoverEnabled_checkbox:SetChecked(globals.isMouseoverEnabled)
-    panel.mouseoverFadeIn_slider:SetValue(globals.mouseoverFadeInAmount)
-    panel.mouseoverFadeOut_slider:SetValue(globals.mouseoverFadeOutAmount)
+    panel.mouseoverFadeIn_slider:SetValue(globals.mouseoverFadeInDuration)
+    panel.mouseoverFadeOut_slider:SetValue(globals.mouseoverFadeOutDuration)
     -- Combat
     panel.isCombatEnabled_checkbox:SetChecked(globals.isCombatEnabled)
     -- AFK

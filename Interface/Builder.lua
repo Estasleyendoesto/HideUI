@@ -175,6 +175,10 @@ function Builder:GetVariableData(tbl, var_name)
     return nil
 end
 
+function Builder:GetElementByVariable(tbl, variable)
+    return tbl[variable]
+end
+
 -----------------------------------------------------------------
 -- Subcategory
 -----------------------------------------------------------------
@@ -336,22 +340,49 @@ function Builder:AddElementToSection(section, settings, relativeTo, transform)
         unit = settings.unit
     }
     
-    local update = function(element, data)
-        self:SetVariableData(settings.data, settings.variable, data)
-        settings.update(nil, settings.variable, data) --nil -> evita el self
+    local checkbox_slider
+    if settings.type == "checkbox_slider" then
+        checkbox_slider = settings.variable:match("([^_]+)")
+        checkbox_slider = {checkbox_slider .. "_checkbox", checkbox_slider .. "_slider"}
     end
+    
+    local update = function(element, data)
+        if checkbox_slider then
+            local select
+            if type(data) == "boolean" then
+                select = checkbox_slider[1]
+            else
+                select = checkbox_slider[2]
+            end
+            self:SetVariableData(settings.data, select, data)
+            settings.update(nil, select, data)
+        else
+            self:SetVariableData(settings.data, settings.variable, data)
+            settings.update(nil, settings.variable, data) --nil -> evita el self
+        end
+    end
+
+    -- Offset extra
+    local yOffset = -5
+    transform = transform or {}
+    transform = {y = (transform.y or 0) + yOffset}
     
     if settings.type == "checkbox" then
         element = self:CreateCheckbox(settings.name, container, relativeTo, transform, update, settings.tooltip, settings.default)
     elseif settings.type == "slider" then
-        local default = settings.default or settings.slider_default
         element = self:CreateSlider(settings.name, container, relativeTo, transform, update, settings.tooltip, slider_settings)
     elseif settings.type == "checkbox_slider" then
         element = self:CreateCheckboxSlider(settings.name, container, relativeTo, transform, update, settings.tooltip, settings.default, slider_settings)
     end
 
     self:CalculateHeight(section)
-    self:RegisterVariable(settings.data, settings.variable, element)
+
+    if checkbox_slider then
+        self:RegisterVariable(settings.data, checkbox_slider[1], element)
+        self:RegisterVariable(settings.data, checkbox_slider[2], element)
+    else
+        self:RegisterVariable(settings.data, settings.variable, element)
+    end
 
     return element
 end
@@ -455,7 +486,14 @@ function Builder:CreateSliderbox(control, update, default, step, min, max, unit)
         slider:SetValueStep(step)
         slider:SetScript("OnValueChanged", function(slider, value)
             sliderbox.DefineText(unit, value)
-            update(slider, value)
+
+            local minimum = min + step
+            local maximum = max - step
+
+            if value > min and value < max then
+                value = tonumber(string.format("%.2f", value))
+                update(slider, value)
+            end
         end)
     end
 
@@ -558,4 +596,22 @@ function Builder:CreateCheckboxSlider(name, parent, relativeTo, transform, updat
 
     control.Sliderbox = sliderbox
     return control
+end
+
+-----------------------------------------------------------------
+-- Popup Dialog
+-----------------------------------------------------------------
+function Builder:CreatePopupDialog(func)
+    func = func or function() end
+    StaticPopupDialogs["HIDEUI_CONFIRM_DIALOG"] = {
+        text = "Are you sure you want to proceed?",
+        button1 = "Yes",
+        button2 = "No",
+        OnAccept = function() func(true) end,
+        OnCancel = function() func(false) end,
+        timeout = 0,
+        whileDead = false,
+        hideOnEscape = true,
+    }
+    StaticPopup_Show("HIDEUI_CONFIRM_DIALOG")
 end

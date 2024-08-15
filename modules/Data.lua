@@ -10,23 +10,35 @@ for _, frame in ipairs(frames) do
     frames_table[frame] = {
         name = frame,
         source = "oficial",
-        alphaAmount = 0.5,
         isEnabled = false,
+        isMouseoverEnabled = true,
         isAlphaEnabled = false,
+        --Alpha amount
+        alphaAmount = 0.5,
+        combatAlphaAmount = 1,
+        afkAlphaAmount = 1,
+        mountAlphaAmount = 1,
+        instanceAlphaAmount = 1,
+        --Events
         isCombatEnabled = true,
         isAFKEnabled = true,
         isMountEnabled = true,
-        isMouseoverEnabled = true,
         isInstanceEnabled = true,
     }
 end
 local globals = {
-    isAccountWide = true,
+    isCharacter = false,
     isEnabled = true,
-    globalAlphaAmount = 0.5,
     isMouseoverEnabled = true,
-    mouseoverFadeInAmount = 0.3,
-    mouseoverFadeOutAmount = 0.4,
+    mouseoverFadeInDuration = 0.3,
+    mouseoverFadeOutDuration = 0.4,
+    --Alpha amount
+    globalAlphaAmount = 0.5,
+    combatAlphaAmount = 1,
+    afkAlphaAmount = 1,
+    mountAlphaAmount = 1,
+    instanceAlphaAmount = 1,
+    --Events
     isCombatEnabled = true,
     isAFKEnabled = true,
     isMountEnabled = true,
@@ -39,6 +51,21 @@ local defaults = {
         frames  = frames_table,
     }
 }
+
+-- Defaults
+local default_globals = {}
+for k, v in pairs(globals) do
+    default_globals[k] = v
+end
+
+local default_frames = {}
+for frame_name, frame_tbl in pairs(frames_table) do
+    local frame = {}
+    for k, v in pairs(frame_tbl) do
+        frame[k] = v
+    end
+    default_frames[frame_name] = frame
+end
 
 -- Extras
 defaults.profile.frames.Chatbox.isTextModeEnabled = false
@@ -70,5 +97,26 @@ function Data:UpdateFrame(frame, field, input)
         self.db.profile.frames[frame][field] = input
     else
         print("HideUI: No puede actualizar ".. frame ..", ".. field .." en el registro.")
+    end
+end
+
+function Data:ResetGlobals()
+    self.db.profile.globals = {}
+    for k, v in pairs(default_globals) do
+        self.db.profile.globals[k] = v
+    end
+end
+
+function Data:ResetDefaultFrames()
+end
+
+function Data:ResetCommunityFrames()
+end
+
+function Data:ChangeProfile(default)
+    if default then
+        -- Change to default global profile
+    else
+        -- Change to specific character profile
     end
 end

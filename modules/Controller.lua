@@ -1,10 +1,10 @@
 local Controller = HideUI:NewModule("Controller", "AceEvent-3.0")
-local Interface
 local Data
+local Menu
 
 function Controller:OnInitialize()
-    Interface = HideUI:GetModule("Interface")
     Data = HideUI:GetModule("Data")
+    Menu = HideUI:GetModule("Menu")
 end
 
 function Controller:OnEnable()
@@ -31,7 +31,7 @@ end
 function HideUI_Enable_Keydown()
     local isEnabled = Data:Find("globals").isEnabled
     Controller:HandleEnabledChange(not isEnabled)
-    Interface:UpdateUI()
+    Menu:UpdateUI()
 end
 
 -------------------------------------------------------------------------------->>>

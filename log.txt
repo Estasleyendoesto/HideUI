@@ -28,8 +28,17 @@ Cambios en la versión 0.6:
 - Corregido problema de carga con textMode al iniciar el juego por primera vez
 
 Cambios en la versión 0.7:
-- Reconstrucción completa del menú usando la nueva api
-- Tras muchos días después se ha conseguido crear la nueva base para la interfaz (puto blizzard sin documentación)
+- Reconstrucción completa del menú usando la nueva api del wow
+- Tras casi un mes a prueba y error se ha conseguido crear la nueva base para la interfaz (blizzard, mamón, por la documentación)
 
 Cambios en la versión 0.8:
-- 
+- Se ha reemplazado los fadeAmount a fadeDuration, más correcto
+- Se han añadido nuevas variables en Data (alpha para cada evento)
+- Se ha creado la función GetDefaults() en Data
+- Se ha definido las bases de OnUpdate() y UpdateUI()
+- Creado cuadro de confirmación
+- Se ha corregido mala implementación de checkbox_slider
+- Se ha actualizado Data ahora almacenando los defaults de globals y frames
+- La función OnDefault() ahora puede reestablecer la configuración a la inicial
+- Se ha añadido el slider de Combat End Delay
+- Se ha implementado un tope al slider para evitar llamadas redundandes al alcanzar el mínimo o el máximo

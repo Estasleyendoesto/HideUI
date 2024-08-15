@@ -54,7 +54,7 @@ function FrameTemplate:Create(frame, props, globals)
             end
 
             local alpha = self.event_alpha or self:GetAlpha()
-            self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.originalAlpha, alpha)
+            self:FadeIn(self.frame, self.globals.mouseoverFadeInDuration, self.originalAlpha, alpha)
         end
 
         if not IS_LOADED then
@@ -76,7 +76,7 @@ function FrameTemplate:Create(frame, props, globals)
 
     function template:OnDestroy()
         local alpha = self:GetAlpha()
-        self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, alpha, 1)
+        self:FadeOut(self.frame, self.globals.mouseoverFadeOutDuration, alpha, 1)
 
         if self.frame then
             if self:IsHooked(self.frame, "OnShow") then self:Unhook(self.frame, "OnShow") end
@@ -103,9 +103,9 @@ function FrameTemplate:Create(frame, props, globals)
             elseif field == "isAlphaEnabled" then
                 if self.event_alpha then return end -- Si en evento, no hay fade
                 if self.props.isAlphaEnabled then
-                    self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.globals.globalAlphaAmount, self.props.alphaAmount)
+                    self:FadeIn(self.frame, self.globals.mouseoverFadeInDuration, self.globals.globalAlphaAmount, self.props.alphaAmount)
                 else
-                    self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.props.alphaAmount, self.globals.globalAlphaAmount)
+                    self:FadeOut(self.frame, self.globals.mouseoverFadeOutDuration, self.props.alphaAmount, self.globals.globalAlphaAmount)
                 end
             end
         end
@@ -121,7 +121,7 @@ function FrameTemplate:Create(frame, props, globals)
             --Alpha
             if self.event_alpha then return end
             if self.props.isAlphaEnabled then
-                self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, self.globals.globalAlphaAmount, self.props.alphaAmount)
+                self:FadeIn(self.frame, self.globals.mouseoverFadeInDuration, self.globals.globalAlphaAmount, self.props.alphaAmount)
             end
         elseif origin == "Global" then
             --Event
@@ -130,7 +130,7 @@ function FrameTemplate:Create(frame, props, globals)
             end
             --Alpha
             if self.event_alpha then return end
-            self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.props.alphaAmount, self.globals.globalAlphaAmount)
+            self:FadeOut(self.frame, self.globals.mouseoverFadeOutDuration, self.props.alphaAmount, self.globals.globalAlphaAmount)
         end
     end
 
@@ -204,7 +204,7 @@ function FrameTemplate:Create(frame, props, globals)
 
     function template:OnEventExit(msg, alpha, event_alpha)
         local SetFadeOut = function()
-            self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, event_alpha, alpha)
+            self:FadeOut(self.frame, self.globals.mouseoverFadeOutDuration, event_alpha, alpha)
             self.event_alpha = nil
         end
 
@@ -234,7 +234,7 @@ function FrameTemplate:Create(frame, props, globals)
             if string.find(msg, "_EXIT") then
                 self:OnEventExit(msg, alpha, self.event_alpha)
             else
-                self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, alpha, self.event_alpha)
+                self:FadeIn(self.frame, self.globals.mouseoverFadeInDuration, alpha, self.event_alpha)
             end
         end
     end
@@ -252,12 +252,12 @@ function FrameTemplate:Create(frame, props, globals)
 
         if isEnabled and isMouseover then
             if not self.fadedIn then
-                self:FadeIn(self.frame, self.globals.mouseoverFadeInAmount, alpha, self.mouseoverAlpha)
+                self:FadeIn(self.frame, self.globals.mouseoverFadeInDuration, alpha, self.mouseoverAlpha)
                 self.fadedIn = true
             end
         else
             if self.fadedIn then
-                self:FadeOut(self.frame, self.globals.mouseoverFadeOutAmount, self.mouseoverAlpha, alpha)
+                self:FadeOut(self.frame, self.globals.mouseoverFadeOutDuration, self.mouseoverAlpha, alpha)
                 self.fadedIn = false
             end
         end

@@ -1,15 +1,23 @@
 local Menu = HideUI:NewModule("Menu")
-
+local General
 
 local MENU_NAME = "HideUI"
 
+function Menu:OnInitialize()
+    General = HideUI:GetModule("General")
+end
+
 function Menu:OnEnable()
     self:Create()
- 
+    
     -- HideUI:EnableModule("Welcome")
     HideUI:EnableModule("General")
     -- HideUI:EnableModule("UIFrame")
     -- HideUI:EnableModule("Community")
+end
+
+function Menu:UpdateUI()
+    General:UpdateUI()
 end
 
 function Menu:Create()

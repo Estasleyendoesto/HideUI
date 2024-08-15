@@ -26,10 +26,10 @@ function ChatFrame:Create(args, globals)
             if not IS_LOADED then
                 local delay = 1
                 C_Timer.After(delay, function()
-                    self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, alpha, alpha)
+                    self:FadeOut(nil, self.globals.mouseoverFadeOutDuration, alpha, alpha)
                 end)
             else
-                self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, alpha, alpha)
+                self:FadeOut(nil, self.globals.mouseoverFadeOutDuration, alpha, alpha)
             end
         end
     end
@@ -37,7 +37,7 @@ function ChatFrame:Create(args, globals)
     function template:OnDestroy()
         self.ready = nil
         local alpha = self:GetAlpha()
-        self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, alpha, self.originalAlpha)
+        self:FadeOut(nil, self.globals.mouseoverFadeOutDuration, alpha, self.originalAlpha)
         self:ChatFramesUpdate("unhook")
     end
 
@@ -126,12 +126,12 @@ function ChatFrame:Create(args, globals)
         if isMouseover then
             if not self.fadedIn then
                 self.fadedIn = true
-                self:FadeIn(nil, self.globals.mouseoverFadeInAmount, alpha, self.mouseoverAlpha)
+                self:FadeIn(nil, self.globals.mouseoverFadeInDuration, alpha, self.mouseoverAlpha)
             end
         else
             if self.fadedIn then
                 self.fadedIn = false
-                self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, self.mouseoverAlpha, alpha)
+                self:FadeOut(nil, self.globals.mouseoverFadeOutDuration, self.mouseoverAlpha, alpha)
             end
         end
     end
@@ -142,10 +142,10 @@ function ChatFrame:Create(args, globals)
         local alpha = self.event_alpha or self:GetAlpha()
         if action == "FocusLost" then
             self.isOnFocusGained = false
-            self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, self.focusAlpha, alpha)
+            self:FadeOut(nil, self.globals.mouseoverFadeOutDuration, self.focusAlpha, alpha)
         elseif action == "FocusGained" then
             self.isOnFocusGained = true
-            self:FadeIn(nil, self.globals.mouseoverFadeInAmount, alpha, self.focusAlpha)
+            self:FadeIn(nil, self.globals.mouseoverFadeInDuration, alpha, self.focusAlpha)
         end
     end
 
@@ -221,9 +221,9 @@ function ChatFrame:Create(args, globals)
         local alpha = self.event_alpha or self:GetAlpha()
         if field == "isTextModeEnabled" then
             if self.props.isTextModeEnabled then
-                self:FadeOut(nil, self.globals.mouseoverFadeOutAmount, alpha, alpha)
+                self:FadeOut(nil, self.globals.mouseoverFadeOutDuration, alpha, alpha)
             else
-                self:FadeIn(nil, self.globals.mouseoverFadeInAmount, alpha, alpha)
+                self:FadeIn(nil, self.globals.mouseoverFadeInDuration, alpha, alpha)
             end
         end
     end
