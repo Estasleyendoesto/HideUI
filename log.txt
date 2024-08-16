@@ -42,3 +42,11 @@ Cambios en la versión 0.8:
 - La función OnDefault() ahora puede reestablecer la configuración a la inicial
 - Se ha añadido el slider de Combat End Delay
 - Se ha implementado un tope al slider para evitar llamadas redundandes al alcanzar el mínimo o el máximo
+- Se ha refactorizado Data para permitir el cambio de perfil entre profile y char
+- Se ha optimizado General ahora delegando responsabilidades de Data a Controller
+- Se ha añadido la función Refresh() a Controller que refresca los módulos y la interfaz
+- Ahora Controller comprueba y/o cambia de perfil al habilitar/deshabilitar el addon
+- Ya se puede cambiar de perfil al hacer clic en el checkbox
+
+Cambios en la versión 0.9:
+- 

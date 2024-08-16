@@ -152,6 +152,11 @@ function Builder:SetVariableData(tbl, variable_name, data)
             frame.Sliderbox.Slider:SetValue(data)
         elseif type(data) == "boolean" then
             frame.Checkbox:SetChecked(data)
+            if data then
+                frame.Sliderbox:SetEnable()
+            else
+                frame.Sliderbox:SetDisable()
+            end
         end
     elseif name == "HideUICheckbox" then
         frame.Checkbox:SetChecked(data)

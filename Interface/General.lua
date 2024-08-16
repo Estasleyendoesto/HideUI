@@ -26,8 +26,8 @@ local MAPPINGS = {
 function General:OnInitialize()
     Controller = HideUI:GetModule("Controller")
     Builder = HideUI:GetModule("Builder")
-    Menu = HideUI:GetModule("Menu")
     Data = HideUI:GetModule("Data")
+    Menu = HideUI:GetModule("Menu")
 end
 
 function General:OnEnable()
@@ -42,25 +42,25 @@ end
 
 function General:UpdateUI()
     local globals = Data:Find("globals")
-    local element
     for variable, data in pairs(MAPPINGS) do
         Builder:SetVariableData(self.registry, variable, globals[data])
-
-        element = Builder:GetElementByVariable(self.registry, variable)
-        if element:GetName() == "HideUICheckboxSlider" then
-            if globals[data] then
-                element.Sliderbox:SetEnable()
-            else
-                element.Sliderbox:SetDisable()
-            end
-        end
     end
 end
 
 function General:OnUpdate(variable, data)
     local mapping = MAPPINGS[variable]
-    if variable == "enable_checkbox" then
+    local is_enable = variable == "enable_checkbox"
+    local is_character = variable == "character_checkbox"
+    if is_enable then
         Controller:HandleEnabledChange(data)
+    elseif is_character then
+        Builder:CreatePopupDialog(function(confirm)
+            if confirm then
+                Controller:HandleProfileChange(data)
+            else
+                Builder:SetVariableData(General.registry, "character_checkbox", not data)
+            end
+        end)
     else
         Controller:HandleGlobalSettings(mapping, data)
     end
@@ -69,8 +69,7 @@ end
 function General:OnDefault()
     Builder:CreatePopupDialog(function(confirm)
         if confirm then
-            Data:ResetGlobals()
-            General:UpdateUI()
+            Controller:HandleRestoreGlobals()
         end
     end)
 end

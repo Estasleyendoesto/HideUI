@@ -14,6 +14,8 @@ function Menu:OnEnable()
     HideUI:EnableModule("General")
     -- HideUI:EnableModule("UIFrame")
     -- HideUI:EnableModule("Community")
+
+    self:UpdateUI()
 end
 
 function Menu:UpdateUI()

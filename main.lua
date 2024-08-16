@@ -4,7 +4,6 @@ HideUI:SetDefaultModuleState(false)
 function HideUI:OnEnable()
     self:EnableModule("Data")
     self:EnableModule("Controller")
-    -- self:EnableModule("Interface")
     self:EnableModule("Menu")
 end
 

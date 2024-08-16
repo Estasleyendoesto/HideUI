@@ -8,6 +8,7 @@ function Controller:OnInitialize()
 end
 
 function Controller:OnEnable()
+    Data:ChangeProfile() --Asigna el perfil seleccionado
     self:ModulesHandler()
 end
 
@@ -26,6 +27,18 @@ function Controller:ModulesHandler()
     end
 end
 
+function Controller:Refresh()
+    HideUI:DisableModule("EventManager")
+    HideUI:DisableModule("FrameManager")
+
+    C_Timer.After(0.5, function()
+        self:ModulesHandler()
+    end)
+    C_Timer.After(0.225, function()
+        Menu:UpdateUI()
+    end)
+end
+
 -------------------------------------------------------------------------------->>>
 -- Bindings.xml
 function HideUI_Enable_Keydown()
@@ -35,10 +48,26 @@ function HideUI_Enable_Keydown()
 end
 
 -------------------------------------------------------------------------------->>>
--- Interface.lua - Globals
-function Controller:HandleEnabledChange(checked) --Toggle All
-    Data:UpdateGlobals("isEnabled", checked)
+-- General.lua
+function Controller:HandleEnabledChange(choice) --Toggle All
+    Data:UpdateGlobals("isEnabled", choice)
     self:ModulesHandler()
+end
+
+function Controller:HandleProfileChange(choice) --Profile
+    local wasEnabled = Data:Find("globals").isEnabled
+
+    self:HandleEnabledChange(false)
+    Data:SetCharacterProfile(choice)
+    Data:ChangeProfile()
+    self:HandleEnabledChange(wasEnabled)
+
+    self:Refresh()
+end
+
+function Controller:HandleRestoreGlobals()
+    Data:RestoreGlobals()
+    self:Refresh()
 end
 
 function Controller:HandleGlobalSettings(field, input)
@@ -47,15 +76,12 @@ function Controller:HandleGlobalSettings(field, input)
 end
 
 -------------------------------------------------------------------------------->>>
--- FrameInterface.lua - For Frames
--- ThirdPartyInterface.lua - For Third Parties
 function Controller:HandleFrameSettings(frame, field, input)
     Data:UpdateFrame(frame, field, input)
     self:SendMessage("FRAME_SETTINGS_CHANGED", frame, field)
 end
 
 -------------------------------------------------------------------------------->>>
--- ThirdPartyInterface.lua
 function Controller:RegisterFrame(name)
     local data = Data:Find("frames")
     data[name] = {

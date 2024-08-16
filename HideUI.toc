@@ -24,11 +24,6 @@ modules\FrameTemplate.lua
 modules\ChatFrame.lua
 modules\FrameManager.lua
 
-modules\Interface.lua
-modules\FrameInterface.lua
-modules\ThirdPartyInterface.lua
-modules\AmigableUI.lua
-
 Interface\Builder.lua
 Interface\Builder.xml
 Interface\Menu.lua

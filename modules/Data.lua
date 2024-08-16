@@ -3,7 +3,7 @@ local Data = HideUI:NewModule("Data")
 local frames = { "PlayerFrame", "TargetFrame", "FocusFrame", "PetFrame", "PetActionBar", "MinimapCluster", "ObjectiveTrackerFrame",
 "BuffFrame", "MicroMenuContainer", "BagsBar", "MainMenuBar", "BattlefieldMapFrame", "MultiBarBottomLeft", "MultiBarBottomRight",
 "MultiBarRight", "MultiBarLeft", "Multibar5", "Multibar6", "Multibar7", "PlayerCastingBarFrame", "MainStatusTrackingBarContainer",
-"EncounterBar", "StanceBar", "ZoneAbilityFrame", "PartyFrame", "WorldFrame", "Chatbox"
+"EncounterBar", "StanceBar", "ZoneAbilityFrame", "PartyFrame", "Chatbox"
 }
 local frames_table = {}
 for _, frame in ipairs(frames) do
@@ -27,8 +27,8 @@ for _, frame in ipairs(frames) do
     }
 end
 local globals = {
-    isCharacter = false,
     isEnabled = true,
+    isCharacter = false,
     isMouseoverEnabled = true,
     mouseoverFadeInDuration = 0.3,
     mouseoverFadeOutDuration = 0.4,
@@ -45,78 +45,139 @@ local globals = {
     isInstanceEnabled = true,
     combatEndDelay = 1,
 }
+-- Unique parameters
+do
+    frames_table.Chatbox.isTextModeEnabled = false
+end
+
+-- Initial values
+local INITIAL_GLOBALS
+local INITIAL_FRAMES
+do
+    INITIAL_GLOBALS = {}
+    for k, v in pairs(globals) do
+        INITIAL_GLOBALS[k] = v
+    end
+
+    INITIAL_FRAMES = {}
+    for frame_name, frame_tbl in pairs(frames_table) do
+        local frame = {}
+        for k, v in pairs(frame_tbl) do
+            frame[k] = v
+        end
+        INITIAL_FRAMES[frame_name] = frame
+    end
+end
+
+-- Defaults
 local defaults = {
     profile = {
         globals = globals,
         frames  = frames_table,
-    }
+    },
+    char = nil,
 }
-
--- Defaults
-local default_globals = {}
-for k, v in pairs(globals) do
-    default_globals[k] = v
-end
-
-local default_frames = {}
-for frame_name, frame_tbl in pairs(frames_table) do
-    local frame = {}
-    for k, v in pairs(frame_tbl) do
-        frame[k] = v
-    end
-    default_frames[frame_name] = frame
-end
-
--- Extras
-defaults.profile.frames.Chatbox.isTextModeEnabled = false
 
 ---
 function Data:OnInitialize()
-    self.db = LibStub("AceDB-3.0"):New("HideUIDB", defaults, true)
+    self.db = LibStub("AceDB-3.0"):New("HideUIDB", defaults, "Default")
+    -- self.db:ResetDB("Default") --DEBUG
     -- self.db:ResetProfile() --DEBUG
 end
 
 function Data:Find(field)
     if field then
-        return self.db.profile[field]
-    else
-        print("HideUI: No se encuentra" .. field .. "en el registro.")
+        if self:IsCharacterProfile() then
+            return self.db.char[field]
+        else
+            return self.db.profile[field]
+        end
     end
 end
 
 function Data:UpdateGlobals(field, input)
     if field then
-        self.db.profile.globals[field] = input
-    else
-        print("HideUI: No puede actualizar " .. field .. " en el registro.")
+        if self:IsCharacterProfile() then
+            self.db.char.globals[field] = input
+        else
+            self.db.profile.globals[field] = input
+        end
     end
 end
 
 function Data:UpdateFrame(frame, field, input)
     if frame and field then
-        self.db.profile.frames[frame][field] = input
+        if self:IsCharacterProfile() then
+            self.db.char.frames[frame][field] = input
+        else
+            self.db.profile.frames[frame][field] = input
+        end
+    end
+end
+
+function Data:IsCharacterProfile()
+    local empty = next(self.db.char) == nil
+    if empty then
+        return false
     else
-        print("HideUI: No puede actualizar ".. frame ..", ".. field .." en el registro.")
+        return self.db.char.globals.isCharacter
     end
 end
 
-function Data:ResetGlobals()
-    self.db.profile.globals = {}
-    for k, v in pairs(default_globals) do
-        self.db.profile.globals[k] = v
+function Data:SetCharacterProfile(choice)
+    local empty = next(self.db.char) == nil
+    if empty then
+        self:ChangeProfile(true)
     end
+    self.db.char.globals.isCharacter = choice
 end
 
-function Data:ResetDefaultFrames()
-end
-
-function Data:ResetCommunityFrames()
-end
-
-function Data:ChangeProfile(default)
-    if default then
-        -- Change to default global profile
+function Data:RestoreGlobals()
+    local clean_globals = self:CopyGlobals(INITIAL_GLOBALS)
+    if self:IsCharacterProfile() then
+        self.db.char.globals = clean_globals
     else
-        -- Change to specific character profile
+        self.db.profile.globals = clean_globals
     end
+end
+
+function Data:RestoreDefaultFrames()
+end
+
+function Data:RestoreCommunityFrames()
+end
+
+function Data:ChangeProfile(force)
+    local profile_name
+    if self:IsCharacterProfile() or force then
+        local empty = next(self.db.char) == nil
+        if empty then
+            self.db.char.globals = self:CopyGlobals(self.db.profile.globals)
+            self.db.char.frames = self:CopyFrames(self.db.profile.frames)
+        end
+        profile_name = UnitName("player") .. "@" .. GetRealmName()
+    else
+        profile_name = "Default"
+    end
+    self.db:SetProfile(profile_name)
+end
+
+function Data:CopyGlobals(globals_table)
+    local new_globals = {}
+    for k, v in pairs(globals_table) do
+        new_globals[k] = v
+    end
+    return new_globals
+end
+
+function Data:CopyFrames(frame_table)
+    local new_frames = {}
+    for frame_name, frame_tbl in pairs(frame_table) do
+        local frame = {}
+        for k, v in pairs(frame_tbl) do
+            frame[k] = v
+        end
+        new_frames[frame_name] = frame
+    end
+    return new_frames
 end
