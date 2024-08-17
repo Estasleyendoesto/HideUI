@@ -1,4 +1,4 @@
-local FrameTemplate = HideUI:NewModule("FrameTemplate")
+local BaseFrame = HideUI:NewModule("BaseFrame")
 local EventManager
 
 local IS_LOADED = false
@@ -60,20 +60,20 @@ local CopyStateBindings = function()
     return copy
 end
 
-function FrameTemplate:OnInitialize()
+function BaseFrame:OnInitialize()
     EventManager = HideUI:GetModule("EventManager")
 end
 
-function FrameTemplate:Embed(target)
+function BaseFrame:Embed(target)
     LibStub("AceEvent-3.0"):Embed(target)
     LibStub("AceHook-3.0"):Embed(target)
 end
 
-function FrameTemplate:Create(frame, props, globals)
-    local template = {}
-    self:Embed(template)
+function BaseFrame:Create(frame, props, globals)
+    local Initial = {}
+    self:Embed(Initial)
 
-    function template:OnReady()
+    function Initial:OnReady()
         local SetOpacity = function()
             if not self.frame then
                 self.originalAlpha = 1
@@ -109,7 +109,7 @@ function FrameTemplate:Create(frame, props, globals)
         end
     end
 
-    function template:OnDestroy()
+    function Initial:OnDestroy()
         local alpha = self:GetAlpha()
         -- self:FadeOut(self.frame, self.globals.mouseoverFadeOutDuration, alpha, 1)
         self:SelectFade(self.frame, nil, alpha, 1)
@@ -121,14 +121,14 @@ function FrameTemplate:Create(frame, props, globals)
 
     -------------------------------------------------------------------------------->>>
     -- Hooks
-    function template:OnShowHandler()
+    function Initial:OnShowHandler()
         local alpha = self:GetAlpha()
         self:SetAlpha(self.frame, self.event_alpha or alpha)
     end
 
     -- Toggles (From Interface)
     -------------------------------------------------------------------------------->>>
-    function template:OnAlphaUpdate(field, origin) --From FrameManager:FrameSettingsUpdate(), :GlobalSettingsUpdate()
+    function Initial:OnAlphaUpdate(field, origin) --From FrameManager:FrameSettingsUpdate(), :GlobalSettingsUpdate()
         if origin == "Global" then
             local IsAlphaModifiable = function(isGlobalEvent, isFrameEnabled, isFrameEvent)
                 local function tonumber(bool)
@@ -180,7 +180,7 @@ function FrameTemplate:Create(frame, props, globals)
         end
     end
 
-    function template:OnFrameToggle(origin) --From FrameManager:FrameSettingsUpdate()
+    function Initial:OnFrameToggle(origin) --From FrameManager:FrameSettingsUpdate()
         if origin == "Custom" then
             --Event
             for _, field in ipairs(MAPPINGS.fields) do
@@ -204,7 +204,7 @@ function FrameTemplate:Create(frame, props, globals)
         end
     end
 
-    function template:OnEventUpdate(field, origin) --From FrameManager:FrameSettingsUpdate(), :GlobalSettingsUpdate()
+    function Initial:OnEventUpdate(field, origin) --From FrameManager:FrameSettingsUpdate(), :GlobalSettingsUpdate()
         local EventHandler = function(field_name, isEnabled)
             local eventLog = EventManager:GetLog()
             local event
@@ -233,14 +233,14 @@ function FrameTemplate:Create(frame, props, globals)
         end
     end
 
-    function template:OnExtraUpdate(field) --From FrameManager:FrameSettingsUpdate()
+    function Initial:OnExtraUpdate(field) --From FrameManager:FrameSettingsUpdate()
         -- Aquí llegan todos los fields actualizados desde la interfaz
         -- Solo para aquellos frames con fields adicionales y únicos, ejemplo: ChatFrame.lua
     end
 
     -- Calls
     -------------------------------------------------------------------------------->>>
-    function template:OnEvent(event, origin) --From FrameManager:EventReceiver()  
+    function Initial:OnEvent(event, origin) --From FrameManager:EventReceiver()  
         local field = MAPPINGS[event.enabled]
         local isEnabled
 
@@ -262,7 +262,7 @@ function FrameTemplate:Create(frame, props, globals)
         EventManager:EventHandler(copy, self.registry, function(e) self:OnEventEnter(e) end)
     end
 
-    function template:OnEventExit(msg, current_alpha)
+    function Initial:OnEventExit(msg, current_alpha)
         local SetFadeOut = function()
             local target_alpha = self:GetAlpha()
             self:SelectFade(self.frame, nil, current_alpha, target_alpha)
@@ -291,7 +291,7 @@ function FrameTemplate:Create(frame, props, globals)
         end
     end
 
-    function template:OnEventEnter(msg) --From EventManager:EventSender()
+    function Initial:OnEventEnter(msg) --From EventManager:EventSender()
         local binding = self.state_bindings[msg]
         if binding then
             local current_alpha = self.event_alpha or self:GetAlpha()
@@ -307,7 +307,7 @@ function FrameTemplate:Create(frame, props, globals)
         end
     end
 
-    function template:OnMouseover(origin) --From FrameManager:OnLoop()
+    function Initial:OnMouseover(origin) --From FrameManager:OnLoop()
         local alpha = self.event_alpha or self:GetAlpha()
         local isEnabled = false
         local isMouseover = self:IsOnMouseover()
@@ -333,11 +333,11 @@ function FrameTemplate:Create(frame, props, globals)
 
     -------------------------------------------------------------------------------->>>
     -- Utils
-    function template:IsActive()
+    function Initial:IsActive()
         return self.props.isEnabled
     end
 
-    function template:GetAlpha()
+    function Initial:GetAlpha()
         if self.props.isEnabled then
             return self.props.alphaAmount
         else
@@ -345,7 +345,7 @@ function FrameTemplate:Create(frame, props, globals)
         end
     end
 
-    function template:IsVisible(frame)
+    function Initial:IsVisible(frame)
         frame = frame or self.frame
         if frame and frame:IsVisible() and frame:IsShown() then
             return true
@@ -354,7 +354,7 @@ function FrameTemplate:Create(frame, props, globals)
         end
     end
 
-    function template:IsOnMouseover(frame)
+    function Initial:IsOnMouseover(frame)
         frame = frame or self.frame
         if frame and frame:IsVisible() and frame:IsShown() and frame:IsMouseOver() then
             return true
@@ -363,19 +363,19 @@ function FrameTemplate:Create(frame, props, globals)
         end
     end
 
-    function template:FadeIn(frame, delay, base, target)
+    function Initial:FadeIn(frame, delay, base, target)
         if self:IsVisible(frame) then
             UIFrameFadeIn(frame, delay, base, target)
         end
     end
 
-    function template:FadeOut(frame, delay, base, target)
+    function Initial:FadeOut(frame, delay, base, target)
         if self:IsVisible(frame) then
             UIFrameFadeOut(frame, delay, base, target)
         end
     end
 
-    function template:SelectFade(frame, delay, base, target)
+    function Initial:SelectFade(frame, delay, base, target)
         UIFrameFadeRemoveFrame(frame)
         if base > target then
             delay = delay or self.globals.mouseoverFadeOutDuration
@@ -388,13 +388,13 @@ function FrameTemplate:Create(frame, props, globals)
         end
     end
 
-    function template:SetAlpha(frame, amount)
+    function Initial:SetAlpha(frame, amount)
         if self:IsVisible(frame) then
             frame:SetAlpha(amount)
         end
     end
 
-    function template:UpdateStateBindings(event, input, update_all)
+    function Initial:UpdateStateBindings(event, input, update_all)
         local Bind = function(event_name, amount)
             local patterns = {"_EXIT", "_NEXT", "_HOLD", "_ENTER"}
             for _, pattern in ipairs(patterns) do
@@ -420,19 +420,19 @@ function FrameTemplate:Create(frame, props, globals)
         end
     end
 
-    template.registry = {}
-    template.globals  = globals
-    template.props    = props
-    template.mouseoverAlpha = MOUSEOVER_REVEAL_ALPHA
-    template.originalAlpha  = nil
-    template.event_alpha    = nil
-    template.enableFirstOut = false
-    template.current_event_name = "NO_STATE"
-    template.state_bindings = CopyStateBindings()
-    template:UpdateStateBindings(nil, nil, true)
+    Initial.registry = {}
+    Initial.globals  = globals
+    Initial.props    = props
+    Initial.mouseoverAlpha = MOUSEOVER_REVEAL_ALPHA
+    Initial.originalAlpha  = nil
+    Initial.event_alpha    = nil
+    Initial.enableFirstOut = false
+    Initial.current_event_name = "NO_STATE"
+    Initial.state_bindings = CopyStateBindings()
+    Initial:UpdateStateBindings(nil, nil, true)
     if frame and type(frame) == "table" then
-        template.frame = frame
-        template.name  = frame:GetName()
+        Initial.frame = frame
+        Initial.name  = frame:GetName()
     end
-    return template
+    return Initial
 end

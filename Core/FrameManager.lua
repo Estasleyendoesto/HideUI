@@ -1,5 +1,5 @@
 local FrameManager = HideUI:NewModule("FrameManager", "AceEvent-3.0")
-local FrameTemplate
+local BaseFrame
 local ChatFrame
 local Data
 
@@ -11,7 +11,7 @@ local C_TIMER
 
 function FrameManager:OnInitialize()
     Data          = HideUI:GetModule("Data")
-    FrameTemplate = HideUI:GetModule("FrameTemplate")
+    BaseFrame = HideUI:GetModule("BaseFrame")
     ChatFrame  = HideUI:GetModule("ChatFrame")
 end
 
@@ -63,7 +63,7 @@ function FrameManager:BindFrames()
         local frame = GAME_FRAMES[data.name] or _G[data.name]
         if frame then
             if not frame.HideUI then
-                frame.HideUI = FrameTemplate:Create(frame, data, globals)
+                frame.HideUI = BaseFrame:Create(frame, data, globals)
                 frame.HideUI:OnReady()
             end
             temp[data.name] = frame
@@ -95,7 +95,7 @@ function FrameManager:BindFrame(name)
     local frame = GAME_FRAMES[name] or _G[name]
     if frame and data then
         if not frame.HideUI then
-            frame.HideUI = FrameTemplate:Create(frame, data, globals)
+            frame.HideUI = BaseFrame:Create(frame, data, globals)
             frame.HideUI:OnReady()
         end
         GAME_FRAMES[name] = frame
@@ -125,7 +125,7 @@ function FrameManager:IsEventField(field)
     end
 end
 
-function FrameManager:GlobalSettingsUpdate(msg, field) --From Controller
+function FrameManager:GlobalSettingsUpdate(msg, field) --From Dispatcher
     if string.find(field, "AlphaAmount") or field == "alphaAmount" then
         for _, frame in pairs(GAME_FRAMES) do
             if frame and frame.HideUI then
@@ -141,7 +141,7 @@ function FrameManager:GlobalSettingsUpdate(msg, field) --From Controller
     end
 end
 
-function FrameManager:FrameSettingsUpdate(msg, name, field) --From Controller
+function FrameManager:FrameSettingsUpdate(msg, name, field) --From Dispatcher
     local frame = GAME_FRAMES[name]
     if frame and frame.HideUI then
         if frame.HideUI:IsActive() then

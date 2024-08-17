@@ -1,22 +1,22 @@
-local Controller = HideUI:NewModule("Controller", "AceEvent-3.0")
+local Dispatcher = HideUI:NewModule("Dispatcher", "AceEvent-3.0")
 local Data
 local Menu
 
-function Controller:OnInitialize()
+function Dispatcher:OnInitialize()
     Data = HideUI:GetModule("Data")
     Menu = HideUI:GetModule("Menu")
 end
 
-function Controller:OnEnable()
+function Dispatcher:OnEnable()
     Data:ChangeProfile() --Asigna el perfil seleccionado
     self:ModulesHandler()
 end
 
-function Controller:OnDisable()
+function Dispatcher:OnDisable()
     self:ModulesHandler()
 end
 
-function Controller:ModulesHandler()
+function Dispatcher:ModulesHandler()
     local isEnabled = Data:Find("globals").isEnabled
     if isEnabled then
         HideUI:EnableModule("FrameManager")
@@ -27,7 +27,7 @@ function Controller:ModulesHandler()
     end
 end
 
-function Controller:Refresh()
+function Dispatcher:Refresh()
     HideUI:DisableModule("EventManager")
     HideUI:DisableModule("FrameManager")
 
@@ -43,18 +43,18 @@ end
 -- Bindings.xml
 function HideUI_Enable_Keydown()
     local isEnabled = Data:Find("globals").isEnabled
-    Controller:HandleEnabledChange(not isEnabled)
+    Dispatcher:HandleEnabledChange(not isEnabled)
     Menu:UpdateUI()
 end
 
 -------------------------------------------------------------------------------->>>
 -- General.lua
-function Controller:HandleEnabledChange(choice) --Toggle All
+function Dispatcher:HandleEnabledChange(choice) --Toggle All
     Data:UpdateGlobals("isEnabled", choice)
     self:ModulesHandler()
 end
 
-function Controller:HandleProfileChange(choice) --Profile
+function Dispatcher:HandleProfileChange(choice) --Profile
     local wasEnabled = Data:Find("globals").isEnabled
 
     self:HandleEnabledChange(false)
@@ -65,24 +65,24 @@ function Controller:HandleProfileChange(choice) --Profile
     self:Refresh()
 end
 
-function Controller:HandleRestoreGlobals()
+function Dispatcher:HandleRestoreGlobals()
     Data:RestoreGlobals()
     self:Refresh()
 end
 
-function Controller:HandleGlobalSettings(field, input)
+function Dispatcher:HandleGlobalSettings(field, input)
     Data:UpdateGlobals(field, input)
     self:SendMessage("GLOBAL_SETTINGS_CHANGED", field, input)
 end
 
 -------------------------------------------------------------------------------->>>
-function Controller:HandleFrameSettings(frame, field, input)
+function Dispatcher:HandleFrameSettings(frame, field, input)
     Data:UpdateFrame(frame, field, input)
     self:SendMessage("FRAME_SETTINGS_CHANGED", frame, field)
 end
 
 -------------------------------------------------------------------------------->>>
-function Controller:RegisterFrame(name)
+function Dispatcher:RegisterFrame(name)
     local data = Data:Find("frames")
     data[name] = {
         name = name,
@@ -101,7 +101,7 @@ function Controller:RegisterFrame(name)
     mod:BindFrame(name)
 end
 
-function Controller:UnregisterFrame(name)
+function Dispatcher:UnregisterFrame(name)
     local data = Data:Find("frames")
     data[name] = nil
 

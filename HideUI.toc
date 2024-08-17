@@ -16,13 +16,13 @@ libs\AceDB-3.0\AceDB-3.0.lua
 ## Modulos
 main.lua
 
-modules\Data.lua
+Core\Data.lua
 
-modules\Controller.lua
-modules\EventManager.lua
-modules\FrameTemplate.lua
-modules\ChatFrame.lua
-modules\FrameManager.lua
+Core\Dispatcher.lua
+Core\EventManager.lua
+Core\BaseFrame.lua
+Core\ChatFrame.lua
+Core\FrameManager.lua
 
 Interface\Builder.lua
 Interface\Builder.xml

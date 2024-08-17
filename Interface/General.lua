@@ -1,5 +1,5 @@
 local General = HideUI:NewModule("General")
-local Controller
+local Dispatcher
 local Builder
 local Menu
 local Data
@@ -24,7 +24,7 @@ local MAPPINGS = {
 }
 
 function General:OnInitialize()
-    Controller = HideUI:GetModule("Controller")
+    Dispatcher = HideUI:GetModule("Dispatcher")
     Builder = HideUI:GetModule("Builder")
     Data = HideUI:GetModule("Data")
     Menu = HideUI:GetModule("Menu")
@@ -52,24 +52,24 @@ function General:OnUpdate(variable, data)
     local is_enable = variable == "enable_checkbox"
     local is_character = variable == "character_checkbox"
     if is_enable then
-        Controller:HandleEnabledChange(data)
+        Dispatcher:HandleEnabledChange(data)
     elseif is_character then
         Builder:CreatePopupDialog(function(confirm)
             if confirm then
-                Controller:HandleProfileChange(data)
+                Dispatcher:HandleProfileChange(data)
             else
                 Builder:SetVariableData(General.registry, "character_checkbox", not data)
             end
         end)
     else
-        Controller:HandleGlobalSettings(mapping, data)
+        Dispatcher:HandleGlobalSettings(mapping, data)
     end
 end
 
 function General:OnDefault()
     Builder:CreatePopupDialog(function(confirm)
         if confirm then
-            Controller:HandleRestoreGlobals()
+            Dispatcher:HandleRestoreGlobals()
         end
     end)
 end

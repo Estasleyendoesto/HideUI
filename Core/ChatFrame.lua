@@ -1,10 +1,10 @@
 local ChatFrame = HideUI:NewModule("ChatFrame")
-local FrameTemplate
+local BaseFrame
 
 local IS_LOADED
 
 function ChatFrame:OnInitialize()
-    FrameTemplate = HideUI:GetModule("FrameTemplate")
+    BaseFrame = HideUI:GetModule("BaseFrame")
 end
 
 function ChatFrame:Embed(target)
@@ -12,10 +12,10 @@ function ChatFrame:Embed(target)
 end
 
 function ChatFrame:Create(args, globals)
-    local template = FrameTemplate:Create(nil, args, globals)
-    self:Embed(template)
+    local Initial = BaseFrame:Create(nil, args, globals)
+    self:Embed(Initial)
 
-    function template:OnChatReady()
+    function Initial:OnChatReady()
         self.ready = true
         self:OnReady()
         self:ChatFramesUpdate("hook")
@@ -34,7 +34,7 @@ function ChatFrame:Create(args, globals)
         end
     end
 
-    function template:OnDestroy()
+    function Initial:OnDestroy()
         self.ready = nil
         local alpha = self:GetAlpha()
         self:FadeOut(nil, self.globals.mouseoverFadeOutDuration, alpha, self.originalAlpha)
@@ -43,7 +43,7 @@ function ChatFrame:Create(args, globals)
 
     -------------------------------------------------------------------------------->>>
     -- Hooks
-    function template:ChatFramesUpdate(operator)
+    function Initial:ChatFramesUpdate(operator)
         -- Para la detección de nuevas ventanas de chat
         local methods = {
             "FCF_Close",               --Al cerrar una ventana
@@ -97,7 +97,7 @@ function ChatFrame:Create(args, globals)
 
     -------------------------------------------------------------------------------->>>
     -- Mouseover
-    function template:OnMouseover(origin)
+    function Initial:OnMouseover(origin)
         local alpha = self.event_alpha or self:GetAlpha()
         local isEnabled = false
         local isMouseover = false
@@ -138,7 +138,7 @@ function ChatFrame:Create(args, globals)
 
     -------------------------------------------------------------------------------->>>
     -- Editbox
-    function template:EditBoxHandler(action)
+    function Initial:EditBoxHandler(action)
         local alpha = self.event_alpha or self:GetAlpha()
         if action == "FocusLost" then
             self.isOnFocusGained = false
@@ -151,7 +151,7 @@ function ChatFrame:Create(args, globals)
 
     -------------------------------------------------------------------------------->>>
     -- Inmersive Mode
-    function template:OnImmersive(frame, delay, base, target)
+    function Initial:OnImmersive(frame, delay, base, target)
         local chatFrame = string.match(frame:GetName(), "^ChatFrame%d+$")
 
         if string.find(frame:GetName(), "Tab") then
@@ -196,7 +196,7 @@ function ChatFrame:Create(args, globals)
         UIFrameFadeOut(frame, delay, base, target * 0)
     end
 
-    function template:OnImmersiveOff(frame, delay, base, target)
+    function Initial:OnImmersiveOff(frame, delay, base, target)
         local chatFrame = string.match(frame:GetName(), "^ChatFrame%d+$")
         UIFrameFadeRemoveFrame(frame)
         if chatFrame and frame:GetName() == chatFrame then
@@ -217,7 +217,7 @@ function ChatFrame:Create(args, globals)
 
     -------------------------------------------------------------------------------->>>
     -- Extra Updates
-    function template:OnExtraUpdate(field)
+    function Initial:OnExtraUpdate(field)
         local alpha = self.event_alpha or self:GetAlpha()
         if field == "isTextModeEnabled" then
             if self.props.isTextModeEnabled then
@@ -230,7 +230,7 @@ function ChatFrame:Create(args, globals)
 
     -------------------------------------------------------------------------------->>>
     -- ...
-    function template:GetChatFrames()
+    function Initial:GetChatFrames()
         --Busca y empaqueta los chatframes
         local activeChats = {}
         local i = 1
@@ -257,7 +257,7 @@ function ChatFrame:Create(args, globals)
         return activeChats
     end
 
-    function template:FadeIn(empty, delay, base, target)
+    function Initial:FadeIn(empty, delay, base, target)
         local getFrame = function(frame)
             if self:IsVisible(frame) then
                 if string.find(frame:GetName(), "EditBox") then
@@ -277,7 +277,7 @@ function ChatFrame:Create(args, globals)
         self:BatchBoxes(getFrame)
     end
 
-    function template:FadeOut(empty, delay, base, target)
+    function Initial:FadeOut(empty, delay, base, target)
         local getFrame = function(frame)
             if self:IsVisible(frame) then
                 if string.find(frame:GetName(), "EditBox") then
@@ -303,7 +303,7 @@ function ChatFrame:Create(args, globals)
         self:BatchBoxes(getFrame)
     end
 
-    function template:SetAlpha(empty, amount)
+    function Initial:SetAlpha(empty, amount)
         local getFrame = function(frame)
             if self:IsVisible(frame) then
                 if string.find(frame:GetName(), "EditBox") then
@@ -315,7 +315,7 @@ function ChatFrame:Create(args, globals)
         self:BatchBoxes(getFrame)
     end
 
-    function template:BatchBoxes(func)
+    function Initial:BatchBoxes(func)
         func(self.socialFrame)
         func(self.combatLogFrame)
         for _, chatbox in ipairs(self.chatboxes) do
@@ -326,14 +326,14 @@ function ChatFrame:Create(args, globals)
         end
     end
 
-    template.name = "Chatbox"
-    template.chatboxes = template:GetChatFrames()
-    template.socialFrame = _G["QuickJoinToastButton"]
-    template.combatLogFrame = _G["CombatLogQuickButtonFrame_Custom"]
-    template.frameChannel = _G["ChatFrameChannelButton"]
-    template.frameMenu = _G["ChatFrameMenuButton"]
-    template.editBoxFactor = 0.44
-    template.focusAlpha = 1
+    Initial.name = "Chatbox"
+    Initial.chatboxes = Initial:GetChatFrames()
+    Initial.socialFrame = _G["QuickJoinToastButton"]
+    Initial.combatLogFrame = _G["CombatLogQuickButtonFrame_Custom"]
+    Initial.frameChannel = _G["ChatFrameChannelButton"]
+    Initial.frameMenu = _G["ChatFrameMenuButton"]
+    Initial.editBoxFactor = 0.44
+    Initial.focusAlpha = 1
 
-    return template
+    return Initial
 end
