@@ -16,8 +16,8 @@ for _, frame in ipairs(frames) do
         --Alpha amount
         alphaAmount = 0.5,
         combatAlphaAmount = 1,
-        afkAlphaAmount = 1,
-        mountAlphaAmount = 1,
+        afkAlphaAmount = 0,
+        mountAlphaAmount = 0,
         instanceAlphaAmount = 1,
         --Events
         isCombatEnabled = true,
@@ -33,10 +33,10 @@ local globals = {
     mouseoverFadeInDuration = 0.3,
     mouseoverFadeOutDuration = 0.4,
     --Alpha amount
-    globalAlphaAmount = 0.5,
+    alphaAmount = 0.5,
     combatAlphaAmount = 1,
-    afkAlphaAmount = 1,
-    mountAlphaAmount = 1,
+    afkAlphaAmount = 0,
+    mountAlphaAmount = 0,
     instanceAlphaAmount = 1,
     --Events
     isCombatEnabled = true,
@@ -45,7 +45,7 @@ local globals = {
     isInstanceEnabled = true,
     combatEndDelay = 1,
 }
--- Unique parameters
+-- Unique additional parameters
 do
     frames_table.Chatbox.isTextModeEnabled = false
 end

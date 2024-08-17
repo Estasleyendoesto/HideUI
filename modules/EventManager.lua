@@ -80,6 +80,10 @@ function EventManager:ExitStates()
     self:NotifyEvent("PLAYER_INSTANCE_STATE", false)
 end
 
+function EventManager:GetPriority(state)
+    return PRIORITIES[state]
+end
+
 function EventManager:GetLog()
     return EVENT_LOG
 end

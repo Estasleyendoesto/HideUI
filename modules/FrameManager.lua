@@ -5,7 +5,7 @@ local Data
 
 local GAME_FRAMES = {}
 local FINDING_FRAMES_INTERVAL = 1.7
-local FINDING_FRAMES_REPEATS = 3
+local FINDING_FRAMES_REPEATS  = 3
 local MOUSEOVER_TIME_INTERVAL = 0.2
 local C_TIMER
 
@@ -38,8 +38,8 @@ function FrameManager:OnDisable()
     end
 end
 
--------------------------------------------------------------------------------->>>
 -- Builder
+-------------------------------------------------------------------------------->>>
 function FrameManager:OnInstance()
     C_TIMER = C_Timer.NewTicker(FINDING_FRAMES_INTERVAL, function()
         self.BindFrames(self)
@@ -53,8 +53,8 @@ function FrameManager:OnLoader()
     self:TimeHandler(true)
 end
 
--------------------------------------------------------------------------------->>>
 -- Binding Frames
+-------------------------------------------------------------------------------->>>
 function FrameManager:BindFrames()
     local globals = Data:Find("globals")
     local frames  = Data:Find("frames")
@@ -111,8 +111,8 @@ function FrameManager:UnbindFrame(name)
     GAME_FRAMES[name] = nil
 end
 
--------------------------------------------------------------------------------->>>
 -- Global and Frame settings
+-------------------------------------------------------------------------------->>>
 function FrameManager:IsEventField(field)
     if field == "isAFKEnabled" or
        field == "isMountEnabled" or
@@ -126,7 +126,7 @@ function FrameManager:IsEventField(field)
 end
 
 function FrameManager:GlobalSettingsUpdate(msg, field) --From Controller
-    if field == "globalAlphaAmount" then
+    if string.find(field, "AlphaAmount") or field == "alphaAmount" then
         for _, frame in pairs(GAME_FRAMES) do
             if frame and frame.HideUI then
                 frame.HideUI:OnAlphaUpdate(field, "Global")
@@ -162,8 +162,8 @@ function FrameManager:FrameSettingsUpdate(msg, name, field) --From Controller
     end
 end
 
--------------------------------------------------------------------------------->>>
 -- Event Receiver
+-------------------------------------------------------------------------------->>>
 function FrameManager:EventReceiver(msg, event) --From EventManager
     for _, frame in pairs(GAME_FRAMES) do
         if frame and frame.HideUI then
@@ -176,8 +176,8 @@ function FrameManager:EventReceiver(msg, event) --From EventManager
     end
 end
 
--------------------------------------------------------------------------------->>>
 -- Mouseover
+-------------------------------------------------------------------------------->>>
 function FrameManager:TimeHandler(enabled)
     if enabled then
         if not self.timer then

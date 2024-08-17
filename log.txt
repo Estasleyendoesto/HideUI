@@ -28,8 +28,10 @@ Cambios en la versión 0.6:
 - Corregido problema de carga con textMode al iniciar el juego por primera vez
 
 Cambios en la versión 0.7:
-- Reconstrucción completa del menú usando la nueva api del wow
-- Tras casi un mes a prueba y error se ha conseguido crear la nueva base para la interfaz (blizzard, mamón, por la documentación)
+- Tras casi un mes a prueba y error se ha conseguido crear la nueva base para la interfaz (blizzard, mamón, no hay documentación)
+- Creado Builder.lua y Builder.xml aportando una interfaz moderna, completamente independiente de la interfaz de blizzard, y mil veces mejor, optimizado, y comprensible que AmigableUI
+- Se han separado los módulos de la interfaz de los módulos de la lógica
+- Se han creado nuevos módulos para la interfaz y se han eliminado los antiguos
 
 Cambios en la versión 0.8:
 - Se ha reemplazado los fadeAmount a fadeDuration, más correcto
@@ -49,4 +51,24 @@ Cambios en la versión 0.8:
 - Ya se puede cambiar de perfil al hacer clic en el checkbox
 
 Cambios en la versión 0.9:
+- Los sliders de los event alphas ahora funcionan y se actualizan
+- Problemas a resolver:
+    x Demasiada redundancia en FrameTemplate con los nombres de eventos y los bindings de estados
+    x En OnEventExit() de FrameTemplate, necesario crear la función descrita allí
+    - El filtro para OnAlphaUpdate() intentar refactorizarlo o hacerlo también compatible para los frames y no solo para el global
+    x La nueva función UpdateStteEfents() requiere refactorizar
+    x Todos los cambios son respecto a FrameTemplate, en general requiere refactorizar, simplificar la lógica, y de ser posible...
+    x NO TOCAR LAS FUNCIONES RELACIONADAS CON LOS EVENTOS, todo lo demás si
+    - Otro problema persistente con los sliders de Builder, el tope nunca es el máximo ni el mínimo, requiere arreglar
+    (*) x -> hecho
+- Se ha creado la función SelectFade() en FrameTemplate() que elige el Fade correcto según base y target
+- Se ha conglomerado todos los nombres de eventos, fields, y amounts en una sola tabla MAPPINGS del que todos hacen uso
+- Se ha corregido un problema de lógica con las funciones OnEventEnter() y OnEventExit(), solucionado con SelectFade(), y logica simplificada
+- Implementado GetPriority() en EventManager
+- Recodificado UpdateStateBindings() para hacer uso de la nueva tabla MAPPINGS
+- Renombrado CanModifyAlpha() a IsAlphaModifiable()
+- Elimintado COMBAT_END_DELAY de FrameTemplate
+- Ahora cada frame tendrá una copia de STATE_BINDINGS, se estima futuro conflicto al compartir la misma tabla
+
+Cambios en la versión 1.0:
 - 
