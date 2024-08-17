@@ -1,10 +1,10 @@
 local Dispatcher = HideUI:NewModule("Dispatcher", "AceEvent-3.0")
 local Data
-local Menu
+local UIManager
 
 function Dispatcher:OnInitialize()
-    Data = HideUI:GetModule("Data")
-    Menu = HideUI:GetModule("Menu")
+    Data      = HideUI:GetModule("Data")
+    UIManager = HideUI:GetModule("UIManager")
 end
 
 function Dispatcher:OnEnable()
@@ -35,7 +35,7 @@ function Dispatcher:Refresh()
         self:ModulesHandler()
     end)
     C_Timer.After(0.225, function()
-        Menu:UpdateUI()
+        UIManager:UpdateUI()
     end)
 end
 
@@ -44,7 +44,7 @@ end
 function HideUI_Enable_Keydown()
     local isEnabled = Data:Find("globals").isEnabled
     Dispatcher:HandleEnabledChange(not isEnabled)
-    Menu:UpdateUI()
+    UIManager:UpdateUI()
 end
 
 -------------------------------------------------------------------------------->>>

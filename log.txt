@@ -74,3 +74,8 @@ Cambios en la versión 1.0:
 - Se renombrado FrameTemplate por BaseFrame
 - Se ha renombrado Controller por Dispatcher
 - Se ha renombrado la carpeta modules por Core
+- Se ha renombrado Menu por UIManager
+- Se ha renombrado UIFrame por BlizzardFrames
+- Se ha creado la carpeta Presets, en un futuro albergará presets que los usuarios podrán compartir para cambiar el comportamiento de algún frame 
+de otros addons, bajo dos enfoques: 1. seguimiento y control de un único frame, 2. seguimiento y control de muchos frames agrupados como uno solo.
+- 

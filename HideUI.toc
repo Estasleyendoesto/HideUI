@@ -26,8 +26,8 @@ Core\FrameManager.lua
 
 Interface\Builder.lua
 Interface\Builder.xml
-Interface\Menu.lua
+Interface\UIManager.lua
 Interface\Welcome.lua
 Interface\General.lua
-Interface\UIFrame.lua
+Interface\BlizzardFrames.lua
 Interface\Community.lua

@@ -1,7 +1,7 @@
 local General = HideUI:NewModule("General")
 local Dispatcher
 local Builder
-local Menu
+local UIManager
 local Data
 
 local MENU_NAME = "General"
@@ -27,7 +27,7 @@ function General:OnInitialize()
     Dispatcher = HideUI:GetModule("Dispatcher")
     Builder = HideUI:GetModule("Builder")
     Data = HideUI:GetModule("Data")
-    Menu = HideUI:GetModule("Menu")
+    UIManager = HideUI:GetModule("UIManager")
 end
 
 function General:OnEnable()
@@ -75,7 +75,7 @@ function General:OnDefault()
 end
 
 function General:Draw()
-    self.subcategory, self.layout, self.frame = Builder:CreateLayoutSubcategory(Menu.category, MENU_NAME)
+    self.subcategory, self.layout, self.frame = Builder:CreateLayoutSubcategory(UIManager.category, MENU_NAME)
     self.categoryHeader = Builder:CreateCategoryHeader(MENU_NAME, self.frame, self.OnDefault)
     self.scrollContainer = Builder:CreateScrollContainer(self.frame, {y = -50})
 

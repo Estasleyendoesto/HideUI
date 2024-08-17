@@ -4,7 +4,7 @@ HideUI:SetDefaultModuleState(false)
 function HideUI:OnEnable()
     self:EnableModule("Data")
     self:EnableModule("Dispatcher")
-    self:EnableModule("Menu")
+    self:EnableModule("UIManager")
 end
 
 function HideUI:FindModule(name)

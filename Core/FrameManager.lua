@@ -11,8 +11,8 @@ local C_TIMER
 
 function FrameManager:OnInitialize()
     Data          = HideUI:GetModule("Data")
-    BaseFrame = HideUI:GetModule("BaseFrame")
-    ChatFrame  = HideUI:GetModule("ChatFrame")
+    BaseFrame     = HideUI:GetModule("BaseFrame")
+    ChatFrame     = HideUI:GetModule("ChatFrame")
 end
 
 function FrameManager:OnEnable()

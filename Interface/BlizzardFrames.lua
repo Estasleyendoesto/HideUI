@@ -1,18 +1,18 @@
-local UIFrame = HideUI:NewModule("UIFrame")
-local Menu
+local BlizzardFrames = HideUI:NewModule("BlizzardFrames")
+local UIManager
 
 local MENU_NAME = "Frames"
 
-function UIFrame:OnInitialize()
-    Menu = HideUI:GetModule("Menu")
+function BlizzardFrames:OnInitialize()
+    UIManager = HideUI:GetModule("UIManager")
 end
 
-function UIFrame:OnEnable()
+function BlizzardFrames:OnEnable()
     self:Create()
 end
 
-function UIFrame:Create()
-    local parent = Menu
+function BlizzardFrames:Create()
+    local parent = UIManager
     local frame = CreateFrame("Frame", "HideUI" .. MENU_NAME .. "Frame", parent.frame)
     frame.name = MENU_NAME
     frame.parent = parent.name

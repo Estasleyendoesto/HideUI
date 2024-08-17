@@ -1,28 +1,28 @@
-local Menu = HideUI:NewModule("Menu")
+local UIManager = HideUI:NewModule("UIManager")
 local General
 
 local MENU_NAME = "HideUI"
 
-function Menu:OnInitialize()
+function UIManager:OnInitialize()
     General = HideUI:GetModule("General")
 end
 
-function Menu:OnEnable()
+function UIManager:OnEnable()
     self:Create()
     
     -- HideUI:EnableModule("Welcome")
     HideUI:EnableModule("General")
-    -- HideUI:EnableModule("UIFrame")
+    -- HideUI:EnableModule("BlizzardFrames")
     -- HideUI:EnableModule("Community")
 
     self:UpdateUI()
 end
 
-function Menu:UpdateUI()
+function UIManager:UpdateUI()
     General:UpdateUI()
 end
 
-function Menu:Create()
+function UIManager:Create()
     local parent = UIParent
     local frame = CreateFrame("Frame", "HideUI" .. MENU_NAME .. "Frame", parent)
     frame.name = MENU_NAME

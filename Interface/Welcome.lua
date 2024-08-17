@@ -1,10 +1,10 @@
 local Welcome = HideUI:NewModule("Welcome")
-local Menu
+local UIManager
 
 
 
 function Welcome:OnInitialize()
-    Menu = HideUI:GetModule("Menu")
+    UIManager = HideUI:GetModule("UIManager")
 end
 
 function Welcome:OnEnable()
@@ -12,7 +12,7 @@ function Welcome:OnEnable()
 end
 
 function Welcome:Draw()
-    local parent = Menu
+    local parent = UIManager
     -- Bienvenida del addon, su versión, autor, fecha, breve descripción y tutorial.
     -- Si hay patreon o donaciones, los nombres y reino de todos los colaboradores.
 end
