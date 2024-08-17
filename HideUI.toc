@@ -29,5 +29,5 @@ Interface\Builder.xml
 Interface\UIManager.lua
 Interface\Welcome.lua
 Interface\General.lua
-Interface\BlizzardFrames.lua
+Interface\Blizzard.lua
 Interface\Community.lua

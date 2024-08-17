@@ -1,39 +1,39 @@
-local Community = HideUI:NewModule("Community")
+local Blizzard = HideUI:NewModule("Blizzard")
 local Dispatcher
 local Builder
 local UIManager
 local Data
 
-local MENU_NAME = "Community"
+local MENU_NAME = "Frames"
 local MAPPINGS = {
 
 }
 
-function Community:OnInitialize()
+function Blizzard:OnInitialize()
     Dispatcher = HideUI:GetModule("Dispatcher")
     Builder = HideUI:GetModule("Builder")
     Data = HideUI:GetModule("Data")
     UIManager = HideUI:GetModule("UIManager")
 end
 
-function Community:OnEnable()
+function Blizzard:OnEnable()
     self.registry = {}
     self:Draw()
     self:UpdateUI()
 end
 
-function Community:OnDisable()
+function Blizzard:OnDisable()
     self.registry = nil
 end
 
-function Community:UpdateUI()
+function Blizzard:UpdateUI()
 end
 
-function Community:OnUpdate(variable, data)
+function Blizzard:OnUpdate(variable, data)
 end
 
-function Community:OnDefault()
+function Blizzard:OnDefault()
 end
 
-function Community:Draw()
+function Blizzard:Draw()
 end

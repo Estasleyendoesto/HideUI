@@ -1,8 +1,6 @@
 local Welcome = HideUI:NewModule("Welcome")
 local UIManager
 
-
-
 function Welcome:OnInitialize()
     UIManager = HideUI:GetModule("UIManager")
 end

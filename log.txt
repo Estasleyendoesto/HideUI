@@ -78,4 +78,5 @@ Cambios en la versión 1.0:
 - Se ha renombrado UIFrame por BlizzardFrames
 - Se ha creado la carpeta Presets, en un futuro albergará presets que los usuarios podrán compartir para cambiar el comportamiento de algún frame 
 de otros addons, bajo dos enfoques: 1. seguimiento y control de un único frame, 2. seguimiento y control de muchos frames agrupados como uno solo.
-- 
+- Renombrado BlizzardFrames a Blizzard
+- Definido plantilla base para Community y Blizzard
