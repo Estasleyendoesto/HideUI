@@ -80,6 +80,17 @@ function EventManager:ExitStates()
     self:NotifyEvent("PLAYER_INSTANCE_STATE", false)
 end
 
+function EventManager:StripEventSuffix(event)
+    if event == "NO_STATE" then
+        return "NO_STATE"
+    end
+    local patterns = {"_EXIT$", "_NEXT$", "_HOLD$", "_ENTER$"}
+    for _, pattern in ipairs(patterns) do
+        event = string.gsub(event, pattern, "")
+    end
+    return event
+end
+
 function EventManager:GetPriority(state)
     return PRIORITIES[state]
 end

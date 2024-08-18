@@ -80,3 +80,23 @@ Cambios en la versión 1.0:
 de otros addons, bajo dos enfoques: 1. seguimiento y control de un único frame, 2. seguimiento y control de muchos frames agrupados como uno solo.
 - Renombrado BlizzardFrames a Blizzard
 - Definido plantilla base para Community y Blizzard
+- Añadido a Builder auto esconder de ExpandableSection para AddElementToSection
+- Actualizado ExpandableSection y ahora tiene las funciones Shutdown() y SwitchOn()
+- Creado la plantilla de creación al interar los frames en Blizzard.lua
+- Creado función AttachExtras() para añadir campos específicos adicionales de un frame
+- Ya se puede establecer a defaults los frames de blizzard
+- Terminado la categoría Frames, los frames se representan en ExpandableSection(), y ajustan su visibilidad y disponibilidad según Data
+- OBSERVACIONES:
+    [-] Desde FrameManager, en BindFrames y BindFrame, hay un filtro para Chatbox. Con la intención de hacerlo "para todos los contenedores de frames"
+        Se plantea añadir un nuevo campo en Data como "cluster=true", en lugar de evaluar Chatbox, evaluar si cluster=true.
+        En lugar de ChatFrame:Create(), usar una plantilla base como Cluster.lua y ChatFrame se definirá en su interior.
+- Se ha eliminado STATE_BINDINGS y UpdateStateBindings
+- Simplificada la lógica de actualización del slider amount para los frames
+- FormatEventName() ahora es una función de EventManager
+- FrameSettingsUpdate() ahora filtra los amount slider de los eventos
+- Se ha cambiado de Blizzard.lua, alpha_checkbox_slider a alpha_slider
+- Se ha eliminado en BaseFrame todo lo referente a isAlphaEnabled de frame, desde ahora la reponsabilidad de opacidad es completa del frame
+- FrameToggle() de BaseFrame terminado. Básicamente, se ha terminado todo lo más importante
+- Correccion con checkbox_slider y SetExpandableEnabled al habilitar erróneamente el slider estando el chekbox en false
+- Corregido problema con FrameToggle() que al deshabilitar el frame, no reiniciaba los eventos y daba comportamientos erráticos
+- 

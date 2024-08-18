@@ -140,7 +140,9 @@ function Builder:Unpack(tbl)
 end
 
 function Builder:RegisterVariable(tbl, variable_name, element)
-    tbl[variable_name] = element
+    if tbl and variable_name and element then
+        tbl[variable_name] = element
+    end
 end
 
 function Builder:SetVariableData(tbl, variable_name, data)
@@ -297,6 +299,15 @@ function Builder:CreateExpandableSection(name, parent, relativeTo, transform)
     end
 
     section.Button.Text:SetText(name)
+    -- Text Flag
+    section.Shutdown = function()
+        section.Button.Text:SetTextColor(1, 1, 1, 0.7)
+        section:SetAlpha(0.8)
+    end
+    section.SwitchOn = function()
+        section.Button.Text:SetTextColor(1, 0.84, 0, 1)
+        section:SetAlpha(1)
+    end
 
     -- Expanded function
     section.Button.expanded = false
@@ -316,6 +327,29 @@ function Builder:OnExpandedChange(section, expanded)
     else
         section:HideContainer()
         button.Right:SetAtlas("Options_ListExpand_Right", TextureKitConstants.UseAtlasSize)
+    end
+end
+
+function Builder:SetExpandableState(registry, variable, enabled)
+    local element = self:GetElementByVariable(registry, variable)
+    local container = element:GetParent()
+    local section = container:GetParent()
+
+    if enabled then
+        section:SwitchOn()
+    else
+        section:Shutdown()
+    end
+
+    local elements = {container:GetChildren()}
+    for _, child_element in ipairs(elements) do
+        if child_element ~= element then
+            if enabled then
+                child_element:SetEnable()
+            else
+                child_element:SetDisable()
+            end
+        end
     end
 end
 
@@ -378,6 +412,8 @@ function Builder:AddElementToSection(section, settings, relativeTo, transform)
         element = self:CreateSlider(settings.name, container, relativeTo, transform, update, settings.tooltip, slider_settings)
     elseif settings.type == "checkbox_slider" then
         element = self:CreateCheckboxSlider(settings.name, container, relativeTo, transform, update, settings.tooltip, settings.default, slider_settings)
+    elseif settings.type == "separator" then
+        element = self:CreateSeparator(container, relativeTo, transform)
     end
 
     self:CalculateHeight(section)
@@ -387,6 +423,10 @@ function Builder:AddElementToSection(section, settings, relativeTo, transform)
         self:RegisterVariable(settings.data, checkbox_slider[2], element)
     else
         self:RegisterVariable(settings.data, settings.variable, element)
+    end
+
+    if section:GetName() == "HideUIExpandableSection" then
+        Builder:OnExpandedChange(section, expanded)
     end
 
     return element
@@ -427,7 +467,7 @@ function Builder:CreateCheckbox(name, parent, relativeTo, transform, update, too
     -- Checkbox text
     control.Text:SetText(name)
     control.Text:SetPoint("LEFT", control, "LEFT", 45, 0)
-    control.Text:SetWidth(200)
+    control.Text:SetWidth(180)
     control.Text:SetMaxLines(1)
     control.Text:SetNonSpaceWrap(false)
 
@@ -437,6 +477,17 @@ function Builder:CreateCheckbox(name, parent, relativeTo, transform, update, too
     checkbox:SetPoint("TOP", control, "TOP", 0, 0)
     checkbox:SetChecked(default)
     checkbox:SetScript("OnClick", function() update(checkbox, checkbox:GetChecked()) end)
+
+    control.SetEnable = function()
+        control:SetAlpha(1)
+        control.Checkbox:SetAlpha(1)
+        control.Checkbox:Enable()
+    end
+    control.SetDisable = function()
+        control:SetAlpha(0.4)
+        control.Checkbox:SetAlpha(0.4)
+        control.Checkbox:Disable()
+    end
 
     -- Tooltip
     self:CreateTooltip(control.Text, name, tooltip)
@@ -521,6 +572,19 @@ function Builder:CreateSliderbox(control, update, default, step, min, max, unit)
         end)
     end
 
+    sliderbox.SetEnable = function()
+        sliderbox:SetAlpha(1)
+        sliderbox.Slider:Enable()
+        sliderbox.Back:Enable()
+        sliderbox.Forward:Enable()
+    end
+    sliderbox.SetDisable = function()
+        sliderbox:SetAlpha(0.4)
+        sliderbox.Slider:Disable()
+        sliderbox.Back:Disable()
+        sliderbox.Forward:Disable()
+    end
+
     return sliderbox
 end
 
@@ -546,6 +610,15 @@ function Builder:CreateSlider(name, parent, relativeTo, transform, update, toolt
         update,
         self:Unpack(slider_settings)
     )
+
+    control.SetEnable = function()
+        control:SetAlpha(1)
+        control.Sliderbox.SetEnable()
+    end
+    control.SetDisable = function()
+        control:SetAlpha(0.4)
+        control.Sliderbox.SetDisable()
+    end
 
     -- Tooltip
     self:CreateTooltip(control.Text, name, tooltip)
@@ -581,16 +654,20 @@ function Builder:CreateCheckboxSlider(name, parent, relativeTo, transform, updat
     sliderbox:SetPoint("TOP", control, "TOP", 0, 0)
     sliderbox:SetWidth(215)
 
-    sliderbox.SetEnable = function(self)
-        self:SetAlpha(1)
-        self.Slider:Enable()
-        self.Slider:SetAlpha(1)
-    end
+    local originalEnable = control.SetEnable
+    local originalDisable = control.SetDisable
+    control.SetEnable = function()
+        originalEnable()
 
-    sliderbox.SetDisable = function(self)
-        self:SetAlpha(0.4)
-        self.Slider:Disable()
-        self.Slider:SetAlpha(0.4)
+        if control.Checkbox:GetChecked() then
+            control.Sliderbox:SetEnable()
+        end
+    end
+    control.SetDisable = function()
+        originalDisable()
+        if control.Checkbox:GetChecked() then
+            control.Sliderbox:SetDisable()
+        end
     end
 
     if checkbox_default then
@@ -619,4 +696,25 @@ function Builder:CreatePopupDialog(func)
         hideOnEscape = true,
     }
     StaticPopup_Show("HIDEUI_CONFIRM_DIALOG")
+end
+
+-----------------------------------------------------------------
+-- Separator
+-----------------------------------------------------------------
+function Builder:CreateSeparator(parent, relativeTo, transform)
+    local separator = CreateFrame("Frame", "HideUISeparator", parent)
+    self:CalculateWidth(separator, true)
+    self:SetIndex(separator)
+    self:FixTo(separator, relativeTo, transform)
+
+    if transform and transform.h then
+        separator:SetHeight(transform.h)
+    else
+        separator:SetHeight(1)
+    end
+
+    separator.SetEnable = function() end
+    separator.SetDisable = function() end
+
+    return separator
 end

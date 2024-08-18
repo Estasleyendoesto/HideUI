@@ -54,7 +54,7 @@ function Dispatcher:HandleEnabledChange(choice) --Toggle All
     self:ModulesHandler()
 end
 
-function Dispatcher:HandleProfileChange(choice) --Profile
+function Dispatcher:HandleProfileChange(choice) --ChangeProfile
     local wasEnabled = Data:Find("globals").isEnabled
 
     self:HandleEnabledChange(false)
@@ -65,18 +65,23 @@ function Dispatcher:HandleProfileChange(choice) --Profile
     self:Refresh()
 end
 
-function Dispatcher:HandleRestoreGlobals()
+function Dispatcher:HandleRestoreGlobals() --From General
     Data:RestoreGlobals()
     self:Refresh()
 end
 
-function Dispatcher:HandleGlobalSettings(field, input)
+function Dispatcher:HandleRestoreBlizzardFrames() --From Blizzard
+    Data:RestoreBlizzardFrames()
+    self:Refresh()
+end
+
+function Dispatcher:HandleGlobalSettings(field, input) --to FrameManager
     Data:UpdateGlobals(field, input)
     self:SendMessage("GLOBAL_SETTINGS_CHANGED", field, input)
 end
 
 -------------------------------------------------------------------------------->>>
-function Dispatcher:HandleFrameSettings(frame, field, input)
+function Dispatcher:HandleFrameSettings(frame, field, input) --to FrameManager
     Data:UpdateFrame(frame, field, input)
     self:SendMessage("FRAME_SETTINGS_CHANGED", frame, field)
 end
@@ -89,7 +94,6 @@ function Dispatcher:RegisterFrame(name)
         source = "third_party",
         alphaAmount = 0.5,
         isEnabled = false,
-        isAlphaEnabled = false,
         isCombatEnabled = true,
         isAFKEnabled = true,
         isMountEnabled = true,

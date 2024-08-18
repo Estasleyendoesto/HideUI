@@ -9,6 +9,13 @@ local FINDING_FRAMES_REPEATS  = 3
 local MOUSEOVER_TIME_INTERVAL = 0.2
 local C_TIMER
 
+local EVENT_FIELDS = {
+    isAFKEnabled = true,
+    isMountEnabled = true,
+    isCombatEnabled = true,
+    isInstanceEnabled = true
+}
+
 function FrameManager:OnInitialize()
     Data          = HideUI:GetModule("Data")
     BaseFrame     = HideUI:GetModule("BaseFrame")
@@ -113,18 +120,6 @@ end
 
 -- Global and Frame settings
 -------------------------------------------------------------------------------->>>
-function FrameManager:IsEventField(field)
-    if field == "isAFKEnabled" or
-       field == "isMountEnabled" or
-       field == "isCombatEnabled" or
-       field == "isInstanceEnabled"
-    then
-        return true
-    else
-        return false
-    end
-end
-
 function FrameManager:GlobalSettingsUpdate(msg, field) --From Dispatcher
     if string.find(field, "AlphaAmount") or field == "alphaAmount" then
         for _, frame in pairs(GAME_FRAMES) do
@@ -132,7 +127,7 @@ function FrameManager:GlobalSettingsUpdate(msg, field) --From Dispatcher
                 frame.HideUI:OnAlphaUpdate(field, "Global")
             end
         end
-    elseif self:IsEventField(field) then
+    elseif EVENT_FIELDS[field] then
         for _, frame in pairs(GAME_FRAMES) do
             if frame and frame.HideUI and not frame.HideUI:IsActive() then
                 frame.HideUI:OnEventUpdate(field, "Global")
@@ -145,9 +140,9 @@ function FrameManager:FrameSettingsUpdate(msg, name, field) --From Dispatcher
     local frame = GAME_FRAMES[name]
     if frame and frame.HideUI then
         if frame.HideUI:IsActive() then
-            if field == "alphaAmount" or field == "isAlphaEnabled" then
+            if string.find(field, "AlphaAmount") or field == "alphaAmount" then
                 frame.HideUI:OnAlphaUpdate(field, "Custom")
-            elseif self:IsEventField(field) then
+            elseif EVENT_FIELDS[field] then
                 frame.HideUI:OnEventUpdate(field, "Custom")
             elseif field == "isEnabled" then
                 frame.HideUI:OnFrameToggle("Custom")

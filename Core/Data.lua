@@ -9,10 +9,10 @@ local frames_table = {}
 for _, frame in ipairs(frames) do
     frames_table[frame] = {
         name = frame,
-        source = "oficial",
+        source = "blizzard", --blizzard, community
         isEnabled = false,
         isMouseoverEnabled = true,
-        isAlphaEnabled = false,
+        isAlphaEnabled = true,
         --Alpha amount
         alphaAmount = 0.5,
         combatAlphaAmount = 1,
@@ -133,15 +133,29 @@ function Data:SetCharacterProfile(choice)
 end
 
 function Data:RestoreGlobals()
-    local clean_globals = self:CopyGlobals(INITIAL_GLOBALS)
+    local fresh_globals = self:CopyGlobals(INITIAL_GLOBALS)
     if self:IsCharacterProfile() then
-        self.db.char.globals = clean_globals
+        self.db.char.globals = fresh_globals
     else
-        self.db.profile.globals = clean_globals
+        self.db.profile.globals = fresh_globals
     end
 end
 
-function Data:RestoreDefaultFrames()
+function Data:RestoreBlizzardFrames()
+    local database
+    if self:IsCharacterProfile() then
+        database = self.db.char.frames
+    else
+        database = self.db.profile.frames
+    end
+
+    local fresh_frames = self:CopyFrames(INITIAL_FRAMES)
+    for frame, fields in pairs(fresh_frames) do
+        local source = fields.source
+        if source == "blizzard" then
+            database[frame] = fresh_frames[frame]
+        end
+    end
 end
 
 function Data:RestoreCommunityFrames()

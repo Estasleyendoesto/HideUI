@@ -4,28 +4,6 @@ local EventManager
 local IS_LOADED = false
 local FIRST_LOAD_DELAY = 1
 local MOUSEOVER_REVEAL_ALPHA = 1
-local STATE_BINDINGS = {
-    --AFK
-    PLAYER_AFK_STATE_ENTER = {alphaAmount = 0},
-    PLAYER_AFK_STATE_HOLD  = {alphaAmount = 0},
-    PLAYER_AFK_STATE_NEXT  = {alphaAmount = 0},
-    PLAYER_AFK_STATE_EXIT  = {alphaAmount = 0},
-    --Mount
-    PLAYER_MOUNT_STATE_ENTER = {alphaAmount = 0},
-    PLAYER_MOUNT_STATE_HOLD  = {alphaAmount = 0},
-    PLAYER_MOUNT_STATE_NEXT  = {alphaAmount = 0},
-    PLAYER_MOUNT_STATE_EXIT  = {alphaAmount = 0},
-    --Combat
-    PLAYER_COMBAT_STATE_ENTER = {alphaAmount = 1},
-    PLAYER_COMBAT_STATE_HOLD  = {alphaAmount = 1},
-    PLAYER_COMBAT_STATE_NEXT  = {alphaAmount = 1},
-    PLAYER_COMBAT_STATE_EXIT  = {alphaAmount = 1},
-    --Instance
-    PLAYER_INSTANCE_STATE_ENTER = {alphaAmount = 1},
-    PLAYER_INSTANCE_STATE_HOLD  = {alphaAmount = 1},
-    PLAYER_INSTANCE_STATE_NEXT  = {alphaAmount = 1},
-    PLAYER_INSTANCE_STATE_EXIT  = {alphaAmount = 1},
-}
 local MAPPINGS = {
     fields = {}
 }
@@ -50,14 +28,6 @@ do
             table.insert(MAPPINGS.fields, entry.enabled)
         end
     end
-end
-
-local CopyStateBindings = function()
-    local copy = {}
-    for k, v in pairs(STATE_BINDINGS) do
-        copy[k] = {alphaAmount = v.alphaAmount}
-    end
-    return copy
 end
 
 function BaseFrame:OnInitialize()
@@ -87,8 +57,6 @@ function BaseFrame:Create(frame, props, globals)
             end
 
             local alpha = self.event_alpha or self:GetAlpha()
-
-            -- self:FadeIn(self.frame, self.globals.mouseoverFadeInDuration, self.originalAlpha, alpha)
             self:SelectFade(self.frame, nil, self.originalAlpha, alpha)
         end
 
@@ -130,78 +98,54 @@ function BaseFrame:Create(frame, props, globals)
     -------------------------------------------------------------------------------->>>
     function Initial:OnAlphaUpdate(field, origin) --From FrameManager:FrameSettingsUpdate(), :GlobalSettingsUpdate()
         if origin == "Global" then
-            local IsAlphaModifiable = function(isGlobalEvent, isFrameEnabled, isFrameEvent)
-                local function tonumber(bool)
-                    return bool == true and 1 or 0
-                end
-            
-                local globalEvent = tonumber(isGlobalEvent)
-                local enabledFrame = tonumber(isFrameEnabled)
-                local frameEvent = tonumber(isFrameEvent)
-            
-                local result = enabledFrame * (1 - frameEvent)
-                result = globalEvent * result + globalEvent * (1 - result)
-            
-                return result
-            end
-
-            local FormatEventName = function(event)
-                if event == "NO_STATE" then
-                    return "NO_STATE"
-                end
-                local patterns = {"_EXIT$", "_NEXT$", "_HOLD$", "_ENTER$"}
-                for _, pattern in ipairs(patterns) do
-                    event = string.gsub(event, pattern, "")
-                end
-                return event
-            end
-
             local args = MAPPINGS[field]
-            local global_alpha  = (args.event == "NO_STATE")
-            local alpha_enabled = global_alpha or self.globals[args.enabled]
-            if IsAlphaModifiable(alpha_enabled, self.props.isEnabled, self.props[args.enabled]) then
-                local formatted = FormatEventName(self.current_event_name)
+            local formatted = EventManager:StripEventSuffix(self.current_event_name)
+            if not self.props.isEnabled then
                 if formatted == args.event then
                     self:SetAlpha(self.frame, self.globals[field])
-                    self:UpdateStateBindings(args.event, self.globals[field])
                 end
             end
         elseif origin == "Custom" then
-            if field == "alphaAmount" and self.props.isAlphaEnabled then
-                self:SetAlpha(self.frame, self.event_alpha or self.props.alphaAmount)
-            elseif field == "isAlphaEnabled" then
-                if self.event_alpha then return end -- Si en evento, no hay fade
-                if self.props.isAlphaEnabled then
-                    self:FadeIn(self.frame, self.globals.mouseoverFadeInDuration, self.globals.alphaAmount, self.props.alphaAmount)
-                else
-                    self:FadeOut(self.frame, self.globals.mouseoverFadeOutDuration, self.props.alphaAmount, self.globals.alphaAmount)
+            if field == "alphaAmount" then
+                if self.event_alpha then return end
+                self:SetAlpha(self.frame, self.props.alphaAmount)
+            else
+                local args = MAPPINGS[field]
+                local formatted = EventManager:StripEventSuffix(self.current_event_name)
+                if self.props[args.enabled] then
+                    if args.event == formatted then
+                        self:SetAlpha(self.frame, self.props[field])
+                    end
                 end
             end
         end
     end
 
-    function Initial:OnFrameToggle(origin) --From FrameManager:FrameSettingsUpdate()
-        if origin == "Custom" then
-            --Event
+    function Initial:OnFrameToggle(change_to) --From FrameManager:FrameSettingsUpdate()
+        local base_alpha
+        local target_alpha
+        self.registry = {}
+        self.event_alpha = nil
+        if change_to == "Custom" then
             for _, field in ipairs(MAPPINGS.fields) do
-                self:OnEventUpdate(field, "Custom")
+                if self.props[field] then
+                    self:OnEventUpdate(field, "Custom")
+                end
             end
-            --Alpha
-            if self.event_alpha then return end
-            if self.props.isAlphaEnabled then
-                -- self:FadeIn(self.frame, self.globals.mouseoverFadeInDuration, self.globals.alphaAmount, self.props.alphaAmount)
-                self:SelectFade(self.frame, nil, self.globals.alphaAmount, self.props.alphaAmount)
-            end
-        elseif origin == "Global" then
-            --Event
+
+            base_alpha = self.globals.alphaAmount
+            target_alpha = self.props.alphaAmount
+        elseif change_to == "Global" then
             for _, field in ipairs(MAPPINGS.fields) do
                 self:OnEventUpdate(field, "Global")
             end
-            --Alpha
-            if self.event_alpha then return end
-            -- self:FadeOut(self.frame, self.globals.mouseoverFadeOutDuration, self.props.alphaAmount, self.globals.alphaAmount)
-            self:SelectFade(self.frame, nil, self.globals.alphaAmount, self.props.alphaAmount)
+
+            base_alpha = self.props.alphaAmount
+            target_alpha = self.globals.alphaAmount
         end
+
+        if self.event_alpha then return end
+        self:SelectFade(self.frame, nil, base_alpha, target_alpha)
     end
 
     function Initial:OnEventUpdate(field, origin) --From FrameManager:FrameSettingsUpdate(), :GlobalSettingsUpdate()
@@ -217,7 +161,7 @@ function BaseFrame:Create(frame, props, globals)
                     end
                 end
             else
-                event = EventManager:CreateEvent(MAPPINGS[field_name].event, isEnabled)
+                event = EventManager:CreateEvent(MAPPINGS[field_name].event, isEnabled) --false
             end
             if event ~= nil then
                 self:OnEvent(event, origin)
@@ -262,6 +206,29 @@ function BaseFrame:Create(frame, props, globals)
         EventManager:EventHandler(copy, self.registry, function(e) self:OnEventEnter(e) end)
     end
 
+    function Initial:OnEventEnter(msg) --From EventManager:EventSender()
+        local event = EventManager:StripEventSuffix(msg)
+        local mapping = MAPPINGS[event]
+
+        local current_alpha = self.event_alpha or self:GetAlpha()
+
+        local target_alpha
+        if self.props.isEnabled then
+            target_alpha = self.props[mapping.amount]
+        else
+            target_alpha = self.globals[mapping.amount]
+        end
+
+        self.event_alpha = target_alpha
+        self.current_event_name = msg
+
+        if string.find(msg, "_EXIT") then
+            self:OnEventExit(msg, target_alpha)
+        else
+            self:SelectFade(self.frame, nil, current_alpha, target_alpha)
+        end
+    end
+
     function Initial:OnEventExit(msg, current_alpha)
         local SetFadeOut = function()
             local target_alpha = self:GetAlpha()
@@ -288,22 +255,6 @@ function BaseFrame:Create(frame, props, globals)
         else
             -- Pueden definirse otros comportamientos aquí -> (elseif...)
             SetFadeOut()
-        end
-    end
-
-    function Initial:OnEventEnter(msg) --From EventManager:EventSender()
-        local binding = self.state_bindings[msg]
-        if binding then
-            local current_alpha = self.event_alpha or self:GetAlpha()
-            local target_alpha  = binding.alphaAmount
-
-            self.event_alpha = target_alpha
-            self.current_event_name = msg
-            if string.find(msg, "_EXIT") then
-                self:OnEventExit(msg, target_alpha)
-            else
-                self:SelectFade(self.frame, nil, current_alpha, target_alpha)
-            end
         end
     end
 
@@ -394,32 +345,6 @@ function BaseFrame:Create(frame, props, globals)
         end
     end
 
-    function Initial:UpdateStateBindings(event, input, update_all)
-        local Bind = function(event_name, amount)
-            local patterns = {"_EXIT", "_NEXT", "_HOLD", "_ENTER"}
-            for _, pattern in ipairs(patterns) do
-                local name = event_name .. pattern
-                self.state_bindings[name].alphaAmount = amount
-            end
-        end
-        if update_all then
-            local mapping
-            local alpha_amount
-            for _, field_name in ipairs(MAPPINGS.fields) do
-                mapping = MAPPINGS[field_name]
-                if self.props.isEnabled and self.props[field_name] then
-                    alpha_amount = self.props[mapping.amount]
-                else
-                    alpha_amount = self.globals[mapping.amount]
-                end
-                Bind(mapping.event, alpha_amount)
-            end
-        else
-            if event == "NO_STATE" then return end
-            Bind(event, input)
-        end
-    end
-
     Initial.registry = {}
     Initial.globals  = globals
     Initial.props    = props
@@ -428,8 +353,6 @@ function BaseFrame:Create(frame, props, globals)
     Initial.event_alpha    = nil
     Initial.enableFirstOut = false
     Initial.current_event_name = "NO_STATE"
-    Initial.state_bindings = CopyStateBindings()
-    Initial:UpdateStateBindings(nil, nil, true)
     if frame and type(frame) == "table" then
         Initial.frame = frame
         Initial.name  = frame:GetName()
