@@ -28,6 +28,22 @@ function UIManager:UpdateUI()
     Community:UpdateUI()
 end
 
+function UIManager:Rebuild()
+    Community:Rebuild()
+end
+
+function UIManager:Toggle(choice)
+    if choice then
+        General:TurnOn()
+        Blizzard:TurnOn()
+        Community:TurnOn()
+    else
+        General:TurnOff()
+        Blizzard:TurnOff()
+        Community:TurnOff()
+    end
+end
+
 function UIManager:Create()
     local parent = UIParent
     local frame = CreateFrame("Frame", "HideUI" .. MENU_NAME .. "Frame", parent)

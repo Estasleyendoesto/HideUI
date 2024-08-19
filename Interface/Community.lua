@@ -6,7 +6,6 @@ local Data
 
 local MENU_NAME = "Community"
 local HEADER = "Third-Party Frames"
-local FRAMES = {}
 local MAPPINGS = {
     enable_checkbox     = "isEnabled",
     mouseover_checkbox  = "isMouseoverEnabled",
@@ -31,13 +30,87 @@ end
 
 function Community:OnEnable()
     self.registry = {}
+    self.frames = {}
     self:LoadCommunityFrames()
     self:Draw()
     self:UpdateUI()
 end
 
 function Community:OnDisable()
+    self:Purge()
     self.registry = nil
+    self.frames = nil
+    self.before = nil
+end
+
+function Community:TurnOn()
+    self.categoryHeader:SetEnable()
+    local sections = {self.scrollContainer:GetChildren()}
+    for _, child_section in ipairs(sections) do
+        child_section:SetEnable()
+    end
+end
+
+function Community:TurnOff()
+    self.categoryHeader:SetDisable()
+    local sections = {self.scrollContainer:GetChildren()}
+    for _, child_section in ipairs(sections) do
+        child_section:SetDisable()
+    end
+end
+
+function Community:Rebuild()
+    self:Purge()
+    self.registry = {}
+    self.frames = nil
+    self.before = nil
+
+    self:LoadCommunityFrames()
+    self:Redraw()
+end
+
+function Community:Purge()
+    local sections = {self.scrollContainer:GetChildren()}
+    for _, child_section in ipairs(sections) do
+        Builder:ClearSection(child_section)
+        child_section:Hide()
+        child_section:SetParent(nil)
+        child_section = nil
+    end
+    self.searchbox:SetParent(nil)
+    self.scrollContainer:Hide()
+    self.categoryHeader:Hide()
+    self.searchbox = nil
+    self.scrollContainer = nil
+    self.categoryHeader = nil
+end
+
+function Community:Refresh()
+    self.registry = {}
+    self:LoadCommunityFrames()
+    local index
+    local sections = {self.scrollContainer:GetChildren()}
+    for _, child_section in ipairs(sections) do
+        index = Builder:GetIndex(child_section)
+        if index > 1 then
+            Builder:ClearSection(child_section)
+            child_section:Hide()
+            child_section:SetParent(nil)
+            child_section = nil
+        end
+    end
+    self:InsertSections()
+    self:UpdateUI()
+end
+
+function Community:LoadCommunityFrames()
+    self.frames = {}
+    local data = Data:Find("frames")
+    for _, frame in pairs(data) do
+        if frame.source == "community" then
+            table.insert(self.frames, {name = frame.name, alias = frame.alias or frame.name})
+        end
+    end
 end
 
 function Community:UpdateUI()
@@ -50,7 +123,7 @@ function Community:UpdateUI()
         field = MAPPINGS[setup]
         Builder:SetVariableData(self.registry, variable, data[frame][field])
     end
-    -- Segundo recorrido necesario para deshabilitar completamente los checkbox_slider
+    -- Segundo recorrido necesario para actualizar verdaderamente los checkbox_slider
     for variable, _ in pairs(self.registry) do
         frame, setup = strsplit(".", variable)
         field = MAPPINGS[setup]
@@ -78,33 +151,6 @@ function Community:OnDefault()
     end)
 end
 
-function Community:LoadCommunityFrames()
-    FRAMES = {}
-    local data = Data:Find("frames")
-    for _, frame in pairs(data) do
-        if frame.source == "community" then
-            table.insert(FRAMES, {name = frame.name, alias = frame.alias or frame.name})
-        end
-    end
-end
-
-function Community:Refresh()
-    self.registry = {}
-    self:LoadCommunityFrames()
-    local index
-    local sections = {self.scrollContainer:GetChildren()}
-    for _, child_section in ipairs(sections) do
-        index = Builder:GetIndex(child_section)
-        if index > 1 then
-            child_section:Hide()
-            child_section:SetParent(nil)
-            child_section = nil
-        end
-    end
-    self:InsertSections()
-    self:UpdateUI()
-end
-
 function Community:OnCommand(command, input, control)
     if command == "add" then
         local result = Dispatcher:OnFrameRegister(input)
@@ -127,6 +173,14 @@ end
 
 function Community:Draw()
     self.subcategory, self.layout, self.frame = Builder:CreateLayoutSubcategory(UIManager.category, MENU_NAME)
+    self:InitializeUI()
+end
+
+function Community:Redraw()
+    self:InitializeUI()
+end
+
+function Community:InitializeUI()
     self.categoryHeader = Builder:CreateCategoryHeader(HEADER, self.frame, self.OnDefault)
     self.scrollContainer = Builder:CreateScrollContainer(self.frame, {y = -50})
 
@@ -140,14 +194,14 @@ end
 
 function Community:InsertSections()
     self.before = nil
-    for k, frame in ipairs(FRAMES) do
-        self:BuildSection(frame.name, frame.alias)
+    for k, frame in ipairs(self.frames) do
+        self:ConstructSection(frame.name, frame.alias)
     end
 
-    local a =Builder:CreateSection(nil, "empty", self.scrollContainer, self.before, {h = 50})
+    local a = Builder:CreateSection(nil, "empty", self.scrollContainer, self.before, {h = 50})
 end
 
-function Community:BuildSection(frame, header)
+function Community:ConstructSection(frame, header)
     local section
     local element
     local settings

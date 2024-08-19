@@ -235,6 +235,15 @@ function Builder:CreateCategoryHeader(name, parent, func)
     headerFrame.Header.Title:SetText(name)
     headerFrame.Header.DefaultsButton:SetText("Defaults")
     headerFrame.Header.DefaultsButton:SetScript("OnClick", func)
+
+    headerFrame.SetEnable = function()
+        headerFrame.Header.DefaultsButton:Enable()
+    end
+    headerFrame.SetDisable = function()
+        headerFrame.Header.DefaultsButton:Disable()
+    end
+
+    return headerFrame
 end
 
 -----------------------------------------------------------------
@@ -265,6 +274,10 @@ function Builder:CreateEmptySection(parent, relativeTo, transform)
         section:SetHeight(transform.h)
     end
 
+    -- Toggle
+    section.SetEnable = function() end
+    section.SetDisable = function() end
+
     return section
 end
 
@@ -274,6 +287,10 @@ function Builder:CreateHeaderSection(name, parent, relativeTo, transform)
     self:CalculateHeight(section)
     self:SetIndex(section)
     self:FixTo(section, relativeTo, transform)
+
+    -- Toggle
+    section.SetEnable = function() end
+    section.SetDisable = function() end
 
     section.Header.Title:SetText(name)
 
@@ -297,6 +314,15 @@ function Builder:CreateExpandableSection(name, parent, relativeTo, transform)
     section.ShowContainer = function()
         self:CalculateHeight(section)
         section.Container:Show()
+    end
+
+    -- Toggle
+    section.SetEnable = function()
+        section.Button:Enable()
+    end
+    section.SetDisable = function()
+        section.Button:Disable()
+        Builder:OnExpandedChange(section, false)
     end
 
     section.Button.Text:SetText(name)
@@ -351,6 +377,15 @@ function Builder:SetExpandableState(registry, variable, enabled)
                 child_element:SetDisable()
             end
         end
+    end
+end
+
+function Builder:ClearSection(section)
+    local elements = {section:GetChildren()}
+    for _, child_element in ipairs(elements) do
+        child_element:Hide()
+        child_element:SetParent(nil)
+        child_element = nil
     end
 end
 
@@ -763,6 +798,20 @@ function Builder:CreateSearchBox(parent, transform, func, tooltip)
             func(nil, "remove", input, control)
         end
     end)
+
+    -- Toggle
+    control.SetEnable = function()
+        control.SearchBox:Enable()
+        control.InsertButton:Enable()
+        control.RemoveButton:Enable()
+    end
+    control.SetDisable = function()
+        control.RightText:Hide()
+        control.SearchBox:Disable()
+        control.SearchBox:SetText("")
+        control.InsertButton:Disable()
+        control.RemoveButton:Disable()
+    end
 
     -- Tooltip
     if tooltip then

@@ -111,6 +111,22 @@ function Blizzard:OnDefault()
     end)
 end
 
+function Blizzard:TurnOn()
+    self.categoryHeader:SetEnable()
+    local sections = {self.scrollContainer:GetChildren()}
+    for _, child_section in ipairs(sections) do
+        child_section:SetEnable()
+    end
+end
+
+function Blizzard:TurnOff()
+    self.categoryHeader:SetDisable()
+    local sections = {self.scrollContainer:GetChildren()}
+    for _, child_section in ipairs(sections) do
+        child_section:SetDisable()
+    end
+end
+
 function Blizzard:Draw()
     self.subcategory, self.layout, self.frame = Builder:CreateLayoutSubcategory(UIManager.category, MENU_NAME)
     self.categoryHeader = Builder:CreateCategoryHeader(HEADER, self.frame, self.OnDefault)

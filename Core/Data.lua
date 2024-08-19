@@ -81,7 +81,7 @@ local defaults = {
 ---
 function Data:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("HideUIDB", defaults, "Default")
-    -- self.db:ResetDB("Default") --DEBUG
+    self.db:ResetDB("Default") --DEBUG
     -- self.db:ResetProfile() --DEBUG
 end
 

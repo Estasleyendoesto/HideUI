@@ -31,7 +31,7 @@ function Dispatcher:Refresh()
     HideUI:DisableModule("EventManager")
     HideUI:DisableModule("FrameManager")
 
-    C_Timer.After(0.5, function()
+    C_Timer.After(0.42, function()
         self:ModulesHandler()
     end)
     C_Timer.After(0.225, function()
@@ -51,6 +51,7 @@ end
 -- General.lua
 function Dispatcher:HandleEnabledChange(choice) --Toggle All
     Data:UpdateGlobals("isEnabled", choice)
+    UIManager:Toggle(choice)
     self:ModulesHandler()
 end
 
@@ -62,6 +63,7 @@ function Dispatcher:HandleProfileChange(choice) --ChangeProfile
     Data:ChangeProfile()
     self:HandleEnabledChange(wasEnabled)
 
+    UIManager:Rebuild()
     self:Refresh()
 end
 

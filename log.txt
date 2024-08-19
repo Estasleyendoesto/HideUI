@@ -55,7 +55,7 @@ Cambios en la versión 0.9:
 - Problemas a resolver:
     x Demasiada redundancia en FrameTemplate con los nombres de eventos y los bindings de estados
     x En OnEventExit() de FrameTemplate, necesario crear la función descrita allí
-    - El filtro para OnAlphaUpdate() intentar refactorizarlo o hacerlo también compatible para los frames y no solo para el global
+    x El filtro para OnAlphaUpdate() intentar refactorizarlo o hacerlo también compatible para los frames y no solo para el global
     x La nueva función UpdateStteEfents() requiere refactorizar
     x Todos los cambios son respecto a FrameTemplate, en general requiere refactorizar, simplificar la lógica, y de ser posible...
     x NO TOCAR LAS FUNCIONES RELACIONADAS CON LOS EVENTOS, todo lo demás si
@@ -100,4 +100,5 @@ de otros addons, bajo dos enfoques: 1. seguimiento y control de un único frame,
 - Correccion con checkbox_slider y SetExpandableEnabled al habilitar erróneamente el slider estando el chekbox en false
 - Corregido problema con FrameToggle() que al deshabilitar el frame, no reiniciaba los eventos y daba comportamientos erráticos
 - Se ha creado en Builder.lua y Builder.xml el frame faltante SearchBox
-- 
+- Se ha creado Community.lua
+- Ahora desahabilitar el addon deshabilita todos los elementos, sections y buttons de todas las subcategorías
