@@ -218,7 +218,6 @@
     Slider Template
   **********************************************************************************
 -->
-  <!--name="MinimalSliderWithSteppersTemplate"-->
   <Frame name="HideUISliderTemplate" enableMouse="true" virtual="true">
     <Size x="250" y="29"/>
     <Frames>
@@ -262,9 +261,50 @@
     </Layers>
   </Frame>
 
-  <!--name="SettingsSliderControlTemplate"-->
   <Frame name="HideUISliderControlTemplate" inherits="HideUIElementTemplate" virtual="true">
     <Size x="545" y="29"/>
+  </Frame>
+  <!--
+    **********************************************************************************
+      Searchbox Template
+    **********************************************************************************
+  -->
+  <Frame name="HideUISearchBoxTemplate" virtual="true">
+    <Size x="1" y="80"/>
+    <Anchors>
+      <Anchor point="TOPLEFT"/>
+      <Anchor point="TOPRIGHT"/>
+    </Anchors>
+    <Frames>
+      <EditBox parentKey="SearchBox" inherits="SearchBoxTemplate" autoFocus="false" historyLines="1" bytes="64" frameLevel="5">
+        <Size x="320" y="25"/>
+        <Anchors>
+          <Anchor point="TOPLEFT" x="20" y="-18"/>
+        </Anchors>
+      </EditBox>
+      <Button parentKey="InsertButton" inherits="UIPanelButtonTemplate">
+        <Size x="96" y="24"/>
+        <Anchors>
+          <Anchor point="TOPLEFT" x="140" y="-50"/>
+        </Anchors>
+      </Button>
+      <Button parentKey="RemoveButton" inherits="UIPanelButtonTemplate">
+        <Size x="96" y="23"/>
+        <Anchors>
+          <Anchor point="TOPLEFT" x="246" y="-50"/>
+        </Anchors>
+      </Button>
+    </Frames>
+    <Layers>
+      <Layer level="OVERLAY">
+        <FontString parentKey="RightText" inherits="GameFontNormal" parentArray="Labels" hidden="true">
+          <Anchors>
+            <Anchor point="TOPLEFT" x="350" y="-25"/>
+            <!-- <Anchor point="LEFT" relativeKey="$parent.Slider" relativePoint="RIGHT" x="25" y="0.5"/> -->
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
   </Frame>
 
   <!--
@@ -278,4 +318,11 @@
       <OnLoad method="OnLoad"/>
     </Scripts>
   </Frame> -->
+
+  <!-- <EditBox parentKey="SearchBox" inherits="SearchBoxTemplate" autoFocus="false" historyLines="1" bytes="64" frameLevel="5">
+        <Size x="350" y="22"/>
+        <Anchors>
+          <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Container" relativePoint="TOPRIGHT" x="4" y="20"/>
+        </Anchors>
+      </EditBox> -->
 </Ui>

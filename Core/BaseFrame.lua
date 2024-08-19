@@ -3,6 +3,7 @@ local EventManager
 
 local IS_LOADED = false
 local FIRST_LOAD_DELAY = 1
+local ENABLE_FIRST_OUT = false
 local MOUSEOVER_REVEAL_ALPHA = 1
 local MAPPINGS = {
     fields = {}
@@ -126,24 +127,22 @@ function BaseFrame:Create(frame, props, globals)
         local target_alpha
         self.registry = {}
         self.event_alpha = nil
+        self.current_event_name = "NO_STATE"
         if change_to == "Custom" then
             for _, field in ipairs(MAPPINGS.fields) do
                 if self.props[field] then
                     self:OnEventUpdate(field, "Custom")
                 end
             end
-
             base_alpha = self.globals.alphaAmount
             target_alpha = self.props.alphaAmount
         elseif change_to == "Global" then
             for _, field in ipairs(MAPPINGS.fields) do
                 self:OnEventUpdate(field, "Global")
             end
-
             base_alpha = self.props.alphaAmount
             target_alpha = self.globals.alphaAmount
         end
-
         if self.event_alpha then return end
         self:SelectFade(self.frame, nil, base_alpha, target_alpha)
     end
@@ -351,7 +350,7 @@ function BaseFrame:Create(frame, props, globals)
     Initial.mouseoverAlpha = MOUSEOVER_REVEAL_ALPHA
     Initial.originalAlpha  = nil
     Initial.event_alpha    = nil
-    Initial.enableFirstOut = false
+    Initial.enableFirstOut = ENABLE_FIRST_OUT
     Initial.current_event_name = "NO_STATE"
     if frame and type(frame) == "table" then
         Initial.frame = frame

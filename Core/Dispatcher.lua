@@ -75,6 +75,11 @@ function Dispatcher:HandleRestoreBlizzardFrames() --From Blizzard
     self:Refresh()
 end
 
+function Dispatcher:HandleRestoreCommunityFrames()
+    Data:RestoreCommunityFrames()
+    self:Refresh()
+end
+
 function Dispatcher:HandleGlobalSettings(field, input) --to FrameManager
     Data:UpdateGlobals(field, input)
     self:SendMessage("GLOBAL_SETTINGS_CHANGED", field, input)
@@ -87,28 +92,30 @@ function Dispatcher:HandleFrameSettings(frame, field, input) --to FrameManager
 end
 
 -------------------------------------------------------------------------------->>>
-function Dispatcher:RegisterFrame(name)
+function Dispatcher:OnFrameRegister(name)
+    local input
+    local frame = _G[name]
     local data = Data:Find("frames")
-    data[name] = {
-        name = name,
-        source = "third_party",
-        alphaAmount = 0.5,
-        isEnabled = false,
-        isCombatEnabled = true,
-        isAFKEnabled = true,
-        isMountEnabled = true,
-        isMouseoverEnabled = true,
-        isInstanceEnabled = true,
-    }
-
-    local mod = HideUI:GetModule("FrameManager")
-    mod:BindFrame(name)
+    local manager = HideUI:GetModule("FrameManager")
+    if frame and not data[name] then
+        input = {
+            name = name
+        }
+        Data:RegisterFrame(input)
+        manager:BindFrame(name)
+        return true
+    end
+    return false
 end
 
-function Dispatcher:UnregisterFrame(name)
+function Dispatcher:OnFrameUnregister(name)
     local data = Data:Find("frames")
-    data[name] = nil
-
-    local mod = HideUI:GetModule("FrameManager")
-    mod:UnbindFrame(name)
+    local frame = data[name]
+    local manager = HideUI:GetModule("FrameManager")
+    if frame and frame.source == "community" then
+        Data:UnregisterFrame(name)
+        manager:UnbindFrame(name)
+        return true
+    end
+    return false
 end

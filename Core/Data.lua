@@ -159,6 +159,37 @@ function Data:RestoreBlizzardFrames()
 end
 
 function Data:RestoreCommunityFrames()
+    local database
+    if self:IsCharacterProfile() then
+        database = self.db.char.frames
+    else
+        database = self.db.profile.frames
+    end
+
+    for frame, field in pairs(database) do
+        local source = field.source
+        if source == "community" then
+            database[field.name] = {
+                name = field.name,
+                alias = field.alias,
+                source = "community",
+                isEnabled = false,
+                isMouseoverEnabled = true,
+                isAlphaEnabled = true,
+                --Alpha amount
+                alphaAmount = 0.5,
+                combatAlphaAmount = 1,
+                afkAlphaAmount = 0,
+                mountAlphaAmount = 0,
+                instanceAlphaAmount = 1,
+                --Events
+                isCombatEnabled = true,
+                isAFKEnabled = true,
+                isMountEnabled = true,
+                isInstanceEnabled = true,
+            }
+        end
+    end
 end
 
 function Data:ChangeProfile(force)
@@ -174,6 +205,39 @@ function Data:ChangeProfile(force)
         profile_name = "Default"
     end
     self.db:SetProfile(profile_name)
+end
+
+function Data:RegisterFrame(input)
+    local data = {
+        name = input.name,
+        source = input.source or "community",
+        isEnabled = input.isEnabled or false,
+        isMouseoverEnabled = input.isMouseoverEnabled or true,
+        alphaAmount = input.alphaAmount or 0.5,
+        isAFKEnabled = input.isAFKEnabled or true,
+        isMountEnabled = input.isMountEnabled or true,
+        isCombatEnabled = input.isCombatEnabled or true,
+        isInstanceEnabled = input.isInstanceEnabled or true,
+        combatAlphaAmount = input.combatAlphaAmount or 1,
+        afkAlphaAmount = input.afkAlphaAmount or 0,
+        mountAlphaAmount = input.mountAlphaAmount or 0,
+        instanceAlphaAmount = input.instanceAlphaAmount or 1,
+        isAlphaEnabled = true,
+    }
+    
+    if self:IsCharacterProfile() then
+        self.db.char.frames[input.name] = data
+    else
+        self.db.profile.frames[input.name] = data
+    end
+end
+
+function Data:UnregisterFrame(name)
+    if self:IsCharacterProfile() then
+        self.db.char.frames[name] = nil
+    else
+        self.db.profile.frames[name] = nil
+    end
 end
 
 function Data:CopyGlobals(globals_table)

@@ -166,28 +166,28 @@ function Blizzard:BuildSection(frame, header)
     -- AFK Event
     name      = "AFK Opacity"
     variable  = frame .. ".afk_checkbox_slider"
-    tooltip   = "Adjusts global opacity when the player is away from keyboard."
+    tooltip   = "Adjusts frame opacity when the player is away from keyboard."
     settings  = Builder:RegisterSettings({name=name, type="checkbox_slider", variable=variable, tooltip=tooltip}, defaults)
     element   = Builder:AddElementToSection(section, settings, element)
 
     -- Mount Event
     name      = "Mounted Opacity"
     variable  = frame .. ".mount_checkbox_slider"
-    tooltip   = "Adjusts global opacity when the player is on a mount."
+    tooltip   = "Adjusts frame opacity when the player is on a mount."
     settings  = Builder:RegisterSettings({name=name, type="checkbox_slider", variable=variable, tooltip=tooltip}, defaults)
     element   = Builder:AddElementToSection(section, settings, element)
 
     -- Combat Event
     name      = "In-Combat Opacity"
     variable  = frame .. ".combat_checkbox_slider"
-    tooltip   = "Customizes global opacity when entering combat."
+    tooltip   = "Customizes frame opacity when entering combat."
     settings  = Builder:RegisterSettings({name=name, type="checkbox_slider", variable=variable, tooltip=tooltip}, defaults)
     element   = Builder:AddElementToSection(section, settings, element)
 
     -- Instance Event
     name      = "In-Instance Opacity"
     variable  = frame .. ".instance_checkbox_slider"
-    tooltip   = "Adjusts global opacity when the player is inside an instance."
+    tooltip   = "Adjusts frame opacity when the player is inside an instance."
     settings  = Builder:RegisterSettings({name=name, type="checkbox_slider", variable=variable, tooltip=tooltip}, defaults)
     element   = Builder:AddElementToSection(section, settings, element)
 

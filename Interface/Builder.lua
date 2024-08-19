@@ -12,6 +12,7 @@ end
 -----------------------------------------------------------------
 -- https://www.townlong-yak.com/framexml/beta/Blizzard_Settings_Shared/Blizzard_SettingControls.xml
 -- https://www.townlong-yak.com/framexml/beta/Blizzard_Settings_Shared/Blizzard_SettingControls.lua
+-- https://www.townlong-yak.com/framexml/live/Blizzard_SharedXML/SharedUIPanelTemplates.xml#1489
 
 -----------------------------------------------------------------
 -- Utils
@@ -381,8 +382,10 @@ function Builder:AddElementToSection(section, settings, relativeTo, transform)
     
     local checkbox_slider
     if settings.type == "checkbox_slider" then
-        checkbox_slider = settings.variable:match("([^_]+)")
-        checkbox_slider = {checkbox_slider .. "_checkbox", checkbox_slider .. "_slider"}
+        local base_name = settings.variable:match("^(.+)_checkbox_slider$")
+        if base_name then
+            checkbox_slider = {base_name .. "_checkbox", base_name .. "_slider"}
+        end
     end
     
     local update = function(element, data)
@@ -703,18 +706,68 @@ end
 -----------------------------------------------------------------
 function Builder:CreateSeparator(parent, relativeTo, transform)
     local separator = CreateFrame("Frame", "HideUISeparator", parent)
+    separator:SetHeight(1)
     self:CalculateWidth(separator, true)
     self:SetIndex(separator)
     self:FixTo(separator, relativeTo, transform)
-
-    if transform and transform.h then
-        separator:SetHeight(transform.h)
-    else
-        separator:SetHeight(1)
-    end
 
     separator.SetEnable = function() end
     separator.SetDisable = function() end
 
     return separator
+end
+
+-----------------------------------------------------------------
+-- SearchBox
+-----------------------------------------------------------------
+function Builder:CreateSearchBox(parent, transform, func, tooltip)
+    local control = CreateFrame("Frame", "HideUISearchBox", parent, "HideUISearchBoxTemplate")
+    self:SetIndex(control)
+    self:FixTo(control, nil, transform)
+
+    Builder:CalculateWidth(control)
+
+    local rightTextDelay = 3
+
+    control.InsertButton:SetText("Insert")
+    control.RemoveButton:SetText("Remove")
+
+    control.SetTextError = function(text)
+        control.RightText:SetText(text)
+        control.RightText:SetTextColor(1, 0, 0)
+        control.RightText:Show()
+
+        C_Timer.After(rightTextDelay, function()
+            control.RightText:Hide()
+        end)
+    end
+    control.SetTextSuccessful = function(text)
+        control.RightText:SetText(text)
+        control.RightText:SetTextColor(1, 1, 1)
+        control.RightText:Show()
+
+        C_Timer.After(rightTextDelay, function()
+            control.RightText:Hide()
+        end)
+    end
+
+    control.InsertButton:SetScript("OnClick", function()
+        local input = control.SearchBox:GetText()
+        if func then
+            func(nil, "add", input, control)
+        end
+    end)
+    control.RemoveButton:SetScript("OnClick", function()
+        local input = control.SearchBox:GetText()
+        if func then
+            func(nil, "remove", input, control)
+        end
+    end)
+
+    -- Tooltip
+    if tooltip then
+        self:CreateTooltip(control.SearchBox, tooltip.name, tooltip.text)
+    end
+
+    return control
 end

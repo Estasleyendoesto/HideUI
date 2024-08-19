@@ -1,12 +1,14 @@
 local UIManager = HideUI:NewModule("UIManager")
 local General
 local Blizzard
+local Community
 
 local MENU_NAME = "HideUI"
 
 function UIManager:OnInitialize()
-    General = HideUI:GetModule("General")
-    Blizzard = HideUI:GetModule("Blizzard")
+    General   = HideUI:GetModule("General")
+    Blizzard  = HideUI:GetModule("Blizzard")
+    Community = HideUI:GetModule("Community")
 end
 
 function UIManager:OnEnable()
@@ -15,7 +17,7 @@ function UIManager:OnEnable()
     -- HideUI:EnableModule("Welcome")
     HideUI:EnableModule("General")
     HideUI:EnableModule("Blizzard")
-    -- HideUI:EnableModule("Community")
+    HideUI:EnableModule("Community")
 
     self:UpdateUI()
 end
@@ -23,6 +25,7 @@ end
 function UIManager:UpdateUI()
     General:UpdateUI()
     Blizzard:UpdateUI()
+    Community:UpdateUI()
 end
 
 function UIManager:Create()

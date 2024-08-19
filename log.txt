@@ -99,4 +99,5 @@ de otros addons, bajo dos enfoques: 1. seguimiento y control de un único frame,
 - FrameToggle() de BaseFrame terminado. Básicamente, se ha terminado todo lo más importante
 - Correccion con checkbox_slider y SetExpandableEnabled al habilitar erróneamente el slider estando el chekbox en false
 - Corregido problema con FrameToggle() que al deshabilitar el frame, no reiniciaba los eventos y daba comportamientos erráticos
+- Se ha creado en Builder.lua y Builder.xml el frame faltante SearchBox
 - 
