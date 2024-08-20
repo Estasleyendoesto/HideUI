@@ -81,37 +81,28 @@ local defaults = {
 ---
 function Data:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("HideUIDB", defaults, "Default")
-    self.db:ResetDB("Default") --DEBUG
+    -- self.db:ResetDB("Default") --DEBUG
     -- self.db:ResetProfile() --DEBUG
 end
 
 function Data:Find(field)
     if field then
-        if self:IsCharacterProfile() then
-            return self.db.char[field]
-        else
-            return self.db.profile[field]
-        end
+        local profile = self:GetProfile()
+        return profile[field]
     end
 end
 
 function Data:UpdateGlobals(field, input)
     if field then
-        if self:IsCharacterProfile() then
-            self.db.char.globals[field] = input
-        else
-            self.db.profile.globals[field] = input
-        end
+        local profile = self:GetProfile()
+        profile.globals[field] = input
     end
 end
 
 function Data:UpdateFrame(frame, field, input)
     if frame and field then
-        if self:IsCharacterProfile() then
-            self.db.char.frames[frame][field] = input
-        else
-            self.db.profile.frames[frame][field] = input
-        end
+        local profile = self:GetProfile()
+        profile.frames[frame][field] = input
     end
 end
 
@@ -132,23 +123,23 @@ function Data:SetCharacterProfile(choice)
     self.db.char.globals.isCharacter = choice
 end
 
-function Data:RestoreGlobals()
-    local fresh_globals = self:CopyGlobals(INITIAL_GLOBALS)
+function Data:GetProfile()
     if self:IsCharacterProfile() then
-        self.db.char.globals = fresh_globals
+        return self.db.char
     else
-        self.db.profile.globals = fresh_globals
+        return self.db.profile
     end
 end
 
-function Data:RestoreBlizzardFrames()
-    local database
-    if self:IsCharacterProfile() then
-        database = self.db.char.frames
-    else
-        database = self.db.profile.frames
-    end
+function Data:RestoreGlobals()
+    local fresh_globals = self:CopyGlobals(INITIAL_GLOBALS)
+    local profile = self:GetProfile()
+    profile.globals = fresh_globals
+end
 
+function Data:RestoreBlizzardFrames()
+    local profile = self:GetProfile()
+    local database = profile.frames
     local fresh_frames = self:CopyFrames(INITIAL_FRAMES)
     for frame, fields in pairs(fresh_frames) do
         local source = fields.source
@@ -159,19 +150,15 @@ function Data:RestoreBlizzardFrames()
 end
 
 function Data:RestoreCommunityFrames()
-    local database
-    if self:IsCharacterProfile() then
-        database = self.db.char.frames
-    else
-        database = self.db.profile.frames
-    end
+    local profile = self:GetProfile()
+    local database = profile.frames
 
     for frame, field in pairs(database) do
         local source = field.source
         if source == "community" then
             database[field.name] = {
                 name = field.name,
-                alias = field.alias,
+                alias = field.alias or nil,
                 source = "community",
                 isEnabled = false,
                 isMouseoverEnabled = true,
@@ -224,20 +211,14 @@ function Data:RegisterFrame(input)
         instanceAlphaAmount = input.instanceAlphaAmount or 1,
         isAlphaEnabled = true,
     }
-    
-    if self:IsCharacterProfile() then
-        self.db.char.frames[input.name] = data
-    else
-        self.db.profile.frames[input.name] = data
-    end
+
+    local profile = self:GetProfile()
+    profile.frames[input.name] = data
 end
 
 function Data:UnregisterFrame(name)
-    if self:IsCharacterProfile() then
-        self.db.char.frames[name] = nil
-    else
-        self.db.profile.frames[name] = nil
-    end
+    local profile = self:GetProfile()
+    profile.frames[name] = nil
 end
 
 function Data:CopyGlobals(globals_table)

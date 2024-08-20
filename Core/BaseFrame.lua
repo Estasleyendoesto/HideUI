@@ -166,7 +166,6 @@ function BaseFrame:Create(frame, props, globals)
                 self:OnEvent(event, origin)
             end
         end
-
         if origin == "Global" then
             local isEnabled = self.globals[field]
             EventHandler(field, isEnabled)
@@ -210,12 +209,14 @@ function BaseFrame:Create(frame, props, globals)
         local mapping = MAPPINGS[event]
 
         local current_alpha = self.event_alpha or self:GetAlpha()
+        local target_alpha = current_alpha
 
-        local target_alpha
-        if self.props.isEnabled then
-            target_alpha = self.props[mapping.amount]
-        else
-            target_alpha = self.globals[mapping.amount]
+        if self.props[mapping.enabled] then
+            if self.props.isEnabled then
+                target_alpha = self.props[mapping.amount]
+            else
+                target_alpha = self.globals[mapping.amount]
+            end
         end
 
         self.event_alpha = target_alpha
