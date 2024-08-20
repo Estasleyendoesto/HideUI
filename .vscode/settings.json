@@ -37,4 +37,59 @@
     "Lua.workspace.library": [
         "~\\.vscode\\extensions\\ketho.wow-api-0.17.4\\Annotations"
     ]
+
+    "workbench.colorCustomizations": {
+    "[GitHub Dark Default]": { // Especifica que estos ajustes solo se apliquen al tema GitHub Dark Default
+        "editor.background": "#0a0c0f", // Cambia el fondo a un color menos saturado
+        "editor.foreground": "#d4d4d4e5"  // Ajusta el color del texto para que sea menos brillante
+    }
+    },
+    "editor.tokenColorCustomizations": {
+        "[GitHub Dark Default]": {
+            "comments": "#676E95CC",
+            "keywords": "#F07178CC",
+            "strings": "#55a566cc",
+            "functions": "#4a6bb1cc",
+            "variables": "#C3E88DCC",
+            "types": "#82AAFFCC",
+
+            "textMateRules": [
+                {
+                    "scope": "constant",
+                    "settings": {
+                        "foreground": "#8e44cacc"
+                    }
+                },
+                {
+                    "scope": "variable.other",
+                    "settings": {
+                        "foreground": "#42c9c2cc"  // Verde claro para 'table'
+                    }
+                },
+                {
+                    "scope": "keyword.operator",
+                    "settings": {
+                        "foreground": "#b253ffcc"  // Verde claro para 'table'
+                    }
+                },
+
+                {
+                    "scope": "keyword.control",
+                    "settings": {
+                        "foreground": "#ec5960cc",  // Verde claro para 'table'
+                        "fontStyle": "bold",
+                    }
+                },
+                {
+                    "scope": "variable.language.self",
+                    "settings": {
+                        "foreground": "#479ac0cc",  // Verde claro para 'table'
+                        "fontStyle": "bold",
+                    }
+                },      
+            ]
+
+        }
+    }
+    */
 }

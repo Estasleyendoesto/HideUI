@@ -1,6 +1,7 @@
 local BaseFrame = HideUI:NewModule("BaseFrame")
 local EventManager
 
+local NO_STATE = "NO_STATE"
 local IS_LOADED = false
 local FIRST_LOAD_DELAY = 1
 local ENABLE_FIRST_OUT = false
@@ -10,7 +11,6 @@ local MAPPINGS = {
 }
 do
     local data = {
-        {event = "NO_STATE",              enabled = "isAlphaEnabled",    amount = "alphaAmount"        },
         {event = "PLAYER_AFK_STATE",      enabled = "isAFKEnabled",      amount = "afkAlphaAmount"     },
         {event = "PLAYER_MOUNT_STATE",    enabled = "isMountEnabled",    amount = "mountAlphaAmount"   },
         {event = "PLAYER_COMBAT_STATE",   enabled = "isCombatEnabled",   amount = "combatAlphaAmount"  },
@@ -24,8 +24,7 @@ do
         MAPPINGS[entry.amount]  = {enabled = entry.enabled,  event = entry.event }
     end
     for _, entry in ipairs(data) do
-        if entry.enabled ~= "isAlphaEnabled" then
-            --isAlphaEnabled no corresponde a ningún campo de estado, se omite
+        if entry.enabled then
             table.insert(MAPPINGS.fields, entry.enabled)
         end
     end
@@ -57,7 +56,7 @@ function BaseFrame:Create(frame, props, globals)
                 end
             end
 
-            local alpha = self.event_alpha or self:GetAlpha()
+            local alpha = self:GetAlpha()
             self:SelectFade(self.frame, nil, self.originalAlpha, alpha)
         end
 
@@ -65,10 +64,13 @@ function BaseFrame:Create(frame, props, globals)
             -- IS_LOADED solo se ejecuta una vez al iniciar el addon o al hacer /reload
             -- El temporizador de 1s es para aquellos frames que fijan su velocidad tarde
             local delay = FIRST_LOAD_DELAY
+
+            -- Porque la barrita de exp es muy lenta en cargar
             if self.name == "MainStatusTrackingBarContainer" then
-                delay = 2.5 --Porque la barrita de exp es muy lenta en cargar
+                delay = 2.5
             end
-        
+            ---
+
             C_Timer.After(delay, function()
                 SetOpacity()
                 IS_LOADED = true
@@ -80,8 +82,7 @@ function BaseFrame:Create(frame, props, globals)
 
     function Initial:OnDestroy()
         local alpha = self:GetAlpha()
-        -- self:FadeOut(self.frame, self.globals.mouseoverFadeOutDuration, alpha, 1)
-        self:SelectFade(self.frame, nil, alpha, 1)
+        self:SelectFade(self.frame, nil, alpha, self.originalAlpha)
 
         if self.frame then
             if self:IsHooked(self.frame, "OnShow") then self:Unhook(self.frame, "OnShow") end
@@ -92,182 +93,115 @@ function BaseFrame:Create(frame, props, globals)
     -- Hooks
     function Initial:OnShowHandler()
         local alpha = self:GetAlpha()
-        self:SetAlpha(self.frame, self.event_alpha or alpha)
+        self:SetAlpha(self.frame, alpha)
     end
 
-    -- Toggles (From Interface)
+    -- User settings (From Interface)
     -------------------------------------------------------------------------------->>>
-    function Initial:OnAlphaUpdate(field, origin) --From FrameManager:FrameSettingsUpdate(), :GlobalSettingsUpdate()
-        if origin == "Global" then
-            local args = MAPPINGS[field]
-            local formatted = EventManager:StripEventSuffix(self.current_event_name)
-            if not self.props.isEnabled then
-                if formatted == args.event then
-                    self:SetAlpha(self.frame, self.globals[field])
-                end
-            end
-        elseif origin == "Custom" then
-            if field == "alphaAmount" then
-                if self.event_alpha then return end
-                self:SetAlpha(self.frame, self.props.alphaAmount)
-            else
-                local args = MAPPINGS[field]
-                local formatted = EventManager:StripEventSuffix(self.current_event_name)
-                if self.props[args.enabled] then
-                    if args.event == formatted then
-                        self:SetAlpha(self.frame, self.props[field])
-                    end
-                end
-            end
+    function Initial:SetBaseAlpha()
+        -- Cambia .alphaAmount
+        local data = self:GetActiveData()
+        local active_event = self:GetActiveEvent()
+        if active_event.name == NO_STATE then
+            self:SetAlpha(self.frame, data.alphaAmount)
         end
     end
 
-    function Initial:OnFrameToggle(change_to) --From FrameManager:FrameSettingsUpdate()
-        local base_alpha
-        local target_alpha
-        self.registry = {}
-        self.event_alpha = nil
-        self.current_event_name = "NO_STATE"
-        if change_to == "Custom" then
-            for _, field in ipairs(MAPPINGS.fields) do
-                if self.props[field] then
-                    self:OnEventUpdate(field, "Custom")
-                end
-            end
-            base_alpha = self.globals.alphaAmount
-            target_alpha = self.props.alphaAmount
-        elseif change_to == "Global" then
-            for _, field in ipairs(MAPPINGS.fields) do
-                self:OnEventUpdate(field, "Global")
-            end
-            base_alpha = self.props.alphaAmount
-            target_alpha = self.globals.alphaAmount
+    function Initial:SetSelectedAlpha(field)
+        -- Cambia el alpha desde la interfaz (slider)
+        -- field = ejemplo: afkAlphaAmount
+        local mapping = MAPPINGS[field]
+        local data = self:GetActiveData()
+        local active_event = self:GetActiveEvent()
+        local result = data[mapping.enabled] and mapping.event == active_event.name
+
+        if result then
+            self:SetAlpha(self.frame, data[field])
         end
-        if self.event_alpha then return end
-        self:SelectFade(self.frame, nil, base_alpha, target_alpha)
     end
 
-    function Initial:OnEventUpdate(field, origin) --From FrameManager:FrameSettingsUpdate(), :GlobalSettingsUpdate()
-        local EventHandler = function(field_name, isEnabled)
+    function Initial:SetSelectedEvent(field)
+        -- Según orden del usuario, fuerza la salida o reincorporación del evento seleccionado
+        -- Si se reincorpora, primero comprueba si el evento se está ejecutando desde el log primario
+        -- field = ejemplo: isAlphaEnabled
+        local mapping = MAPPINGS[field]
+        local event = EventManager:CreateEvent(mapping.event, false)
+        local data = self:GetActiveData()
+
+        local isEnabled = data[field]
+        if isEnabled then
             local eventLog = EventManager:GetLog()
-            local event
-            if isEnabled then
-                for _, log in ipairs(eventLog) do
-                    if log.state == MAPPINGS[field_name].event then
-                        -- Para un evento reactivado, si está en log copia el evento a su registro
-                        event = EventManager:CreateEvent(log.state, log.isActive)
-                        break
-                    end
+            for _, log in ipairs(eventLog) do
+                if log.state == mapping.event then
+                    event.isActive = log.isActive
+                    break
                 end
-            else
-                event = EventManager:CreateEvent(MAPPINGS[field_name].event, isEnabled) --false
-            end
-            if event ~= nil then
-                self:OnEvent(event, origin)
             end
         end
-        if origin == "Global" then
-            local isEnabled = self.globals[field]
-            EventHandler(field, isEnabled)
-        elseif origin == "Custom" then
-            local isEnabled = self.props[field]
-            EventHandler(field, isEnabled)
-        end
+
+        self:EventListener(event)
     end
 
-    function Initial:OnExtraUpdate(field) --From FrameManager:FrameSettingsUpdate()
-        -- Aquí llegan todos los fields actualizados desde la interfaz
-        -- Solo para aquellos frames con fields adicionales y únicos, ejemplo: ChatFrame.lua
-    end
+    function Initial:EventListener(event)
+        -- Recibe el evento en crudo, comprueba si está habilitado en memoria
+        -- Según su estado en memoria, admite su registro u ordena su salida
 
-    -- Calls
-    -------------------------------------------------------------------------------->>>
-    function Initial:OnEvent(event, origin) --From FrameManager:EventReceiver()  
-        local field = MAPPINGS[event.enabled]
-        local isEnabled
+        -- Comprueba si es evento global o local
+        local mapping = MAPPINGS[event.state]
+        local field = mapping.enabled
 
-        if origin == "Custom" then
-            isEnabled = self.props[field]
-        elseif origin == "Global" then
-            isEnabled = self.globals[field]
-        end
+        local data = self:GetActiveData()
+        local isEnabled = data[field]
 
-        -- Copia evento compartido por todos los frames
+        -- Crea una nueva instancia del evento
         local copy = EventManager:CreateEvent(event.state, event.isActive)
 
+        -- Ordena entrada/salida del evento si está habilitado o no en memoria
         if isEnabled and event.isActive then
             copy.isActive = true
         elseif isEnabled == false then
             copy.isActive = false
         end
-
-        EventManager:EventHandler(copy, self.registry, function(e) self:OnEventEnter(e) end)
+        EventManager:EventHandler(copy, self.registry, function(e) self:EnterEvent(e) end)
     end
 
-    function Initial:OnEventEnter(msg) --From EventManager:EventSender()
-        local event = EventManager:StripEventSuffix(msg)
-        local mapping = MAPPINGS[event]
-
-        local current_alpha = self.event_alpha or self:GetAlpha()
-        local target_alpha = current_alpha
-
-        if self.props[mapping.enabled] then
-            if self.props.isEnabled then
-                target_alpha = self.props[mapping.amount]
-            else
-                target_alpha = self.globals[mapping.amount]
-            end
+    function Initial:EnterEvent(event)
+        -- Si es EXIT, vuelve a NO_STATE
+        local isExitEvent = event:match("_EXIT")
+        if isExitEvent then
+            self:ExitEvent()
+            return
         end
+        
+        -- Cambia al nuevo alpha
+        local formatted_event = EventManager:StripEventSuffix(event)
+        local mapping = MAPPINGS[formatted_event]
+        local data = self:GetActiveData()
 
-        self.event_alpha = target_alpha
-        self.current_event_name = msg
+        local base_alpha = self:GetAlpha()
+        local event_alpha = data[mapping.amount]
 
-        if string.find(msg, "_EXIT") then
-            self:OnEventExit(msg, target_alpha)
-        else
-            self:SelectFade(self.frame, nil, current_alpha, target_alpha)
-        end
+        self:SelectFade(self.frame, nil, base_alpha, event_alpha)
+
+        -- Actualiza active_event
+        self:SetActiveEvent(formatted_event, event_alpha)
     end
 
-    function Initial:OnEventExit(msg, current_alpha)
-        local SetFadeOut = function()
-            local target_alpha = self:GetAlpha()
-            self:SelectFade(self.frame, nil, current_alpha, target_alpha)
+    function Initial:ExitEvent()
+        -- Rescata el alpha del evento anterior y limpia active_event
+        local base_alpha = self:GetActiveEvent().alpha
+        self:SetActiveEvent(NO_STATE)
 
-            self.event_alpha = nil
-            self.current_event_name = "NO_STATE"
-        end
-        -- Comportamiento especial tras salir de combate
-        if msg == "PLAYER_COMBAT_STATE_EXIT" then
-            C_Timer.After(self.globals.combatEndDelay, function()
-                local combat_state = "PLAYER_COMBAT_STATE"
-                local combat_priority = EventManager:GetPriority(combat_state)
-                local max = EventManager:GetMaxEvent(self.registry)
-                for _, event in ipairs(self.registry) do
-                    if event.state == combat_state and event.isActive then
-                        return -- Si evento sigue activo tras COMBAT_END_DELAY, no llamar a fade
-                    elseif max.priority > combat_priority then
-                        return
-                    end
-                end
-                SetFadeOut()
-            end)
-        else
-            -- Pueden definirse otros comportamientos aquí -> (elseif...)
-            SetFadeOut()
-        end
+        -- Actualiza al alpha base
+        local target_alpha = self:GetAlpha()
+        self:SelectFade(self.frame, nil, base_alpha, target_alpha)
     end
 
-    function Initial:OnMouseover(origin) --From FrameManager:OnLoop()
-        local alpha = self.event_alpha or self:GetAlpha()
-        local isEnabled = false
+    function Initial:OnMouseover()
+        local data = self:GetActiveData()
+        local isEnabled = data.isMouseoverEnabled
         local isMouseover = self:IsOnMouseover()
-
-        if origin == "Custom" then
-            isEnabled = self.props.isMouseoverEnabled
-        elseif origin == "Global" then
-            isEnabled = self.globals.isMouseoverEnabled
-        end
+        local alpha = self:GetAlpha()
 
         if isEnabled and isMouseover then
             if not self.fadedIn then
@@ -282,18 +216,46 @@ function BaseFrame:Create(frame, props, globals)
         end
     end
 
+    function Initial:SetMode()
+        -- Cambia entre la configuración local o global
+        -- Se almacena el antiguo alpha
+        local old_alpha = self:GetAlpha()
+
+        -- Se reinician todos los eventos
+        self:SetActiveEvent(NO_STATE, nil)
+        self.registry = {}
+
+        local fields = MAPPINGS.fields
+        for _, field in ipairs(fields) do
+            self:SetSelectedEvent(field)
+        end
+
+        -- Se actualiza el alpha del antiguo al nuevo
+        local alpha = self:GetAlpha()
+        self:SelectFade(self.frame, nil, old_alpha, alpha)
+    end
+
+    function Initial:OnExtraUpdate(field)
+        -- Aquí llegan todos los fields actualizados desde la interfaz
+        -- Solo para aquellos frames con fields adicionales y únicos, ejemplo: ChatFrame.lua
+    end
+
     -------------------------------------------------------------------------------->>>
     -- Utils
-    function Initial:IsActive()
+    function Initial:IsLocalEnabled()
         return self.props.isEnabled
     end
 
     function Initial:GetAlpha()
-        if self.props.isEnabled then
-            return self.props.alphaAmount
-        else
-            return self.globals.alphaAmount
+        local data = self:GetActiveData()
+        local active_event = self:GetActiveEvent()
+
+        local alpha = data.alphaAmount
+        if active_event.name ~= NO_STATE then
+            alpha = active_event.alpha
         end
+
+        return alpha
     end
 
     function Initial:IsVisible(frame)
@@ -345,14 +307,35 @@ function BaseFrame:Create(frame, props, globals)
         end
     end
 
+    function Initial:GetActiveData()
+        if self.props.isEnabled then
+            return self.props
+        else
+            return self.globals
+        end
+    end
+
+    function Initial:SetActiveEvent(name, alpha)
+        self.activeEvent = {
+            name  = name,
+            alpha = alpha or nil
+        }
+    end
+
+    function Initial:GetActiveEvent()
+        return self.activeEvent
+    end
+
     Initial.registry = {}
     Initial.globals  = globals
     Initial.props    = props
     Initial.mouseoverAlpha = MOUSEOVER_REVEAL_ALPHA
-    Initial.originalAlpha  = nil
-    Initial.event_alpha    = nil
     Initial.enableFirstOut = ENABLE_FIRST_OUT
-    Initial.current_event_name = "NO_STATE"
+    Initial.originalAlpha  = nil
+    Initial.activeEvent = {
+        name  = NO_STATE,
+        alpha = nil,
+    }
     if frame and type(frame) == "table" then
         Initial.frame = frame
         Initial.name  = frame:GetName()

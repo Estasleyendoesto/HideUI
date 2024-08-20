@@ -20,7 +20,7 @@ function FrameManager:OnInitialize()
     Data          = HideUI:GetModule("Data")
     BaseFrame     = HideUI:GetModule("BaseFrame")
     ChatFrame     = HideUI:GetModule("ChatFrame")
-end
+end    
 
 function FrameManager:OnEnable()
     self:RegisterMessage("GLOBAL_SETTINGS_CHANGED", "GlobalSettingsUpdate")
@@ -45,7 +45,7 @@ function FrameManager:OnDisable()
     end
 end
 
--- Builder
+-- HideUI Inject
 -------------------------------------------------------------------------------->>>
 function FrameManager:OnInstance()
     C_TIMER = C_Timer.NewTicker(FINDING_FRAMES_INTERVAL, function()
@@ -120,53 +120,44 @@ end
 
 -- Global and Frame settings
 -------------------------------------------------------------------------------->>>
-function FrameManager:GlobalSettingsUpdate(msg, field) --From Dispatcher
-    if string.find(field, "AlphaAmount") or field == "alphaAmount" then
-        for _, frame in pairs(GAME_FRAMES) do
-            if frame and frame.HideUI then
-                frame.HideUI:OnAlphaUpdate(field, "Global")
-            end
-        end
-    elseif EVENT_FIELDS[field] then
-        for _, frame in pairs(GAME_FRAMES) do
-            if frame and frame.HideUI and not frame.HideUI:IsActive() then
-                frame.HideUI:OnEventUpdate(field, "Global")
-            end
+-- From Dispatcher
+function FrameManager:GlobalSettingsUpdate(msg, field)
+    for _, frame in pairs(GAME_FRAMES) do
+        if frame and frame.HideUI then
+            self:SendSettings(frame, field)
         end
     end
 end
 
-function FrameManager:FrameSettingsUpdate(msg, name, field) --From Dispatcher
-    local frame = GAME_FRAMES[name]
+-- From Dispatcher
+function FrameManager:FrameSettingsUpdate(msg, frame_name, field)
+    local frame = GAME_FRAMES[frame_name]
     if frame and frame.HideUI then
-        if frame.HideUI:IsActive() then
-            if string.find(field, "AlphaAmount") or field == "alphaAmount" then
-                frame.HideUI:OnAlphaUpdate(field, "Custom")
-            elseif EVENT_FIELDS[field] then
-                frame.HideUI:OnEventUpdate(field, "Custom")
-            elseif field == "isEnabled" then
-                frame.HideUI:OnFrameToggle("Custom")
-            else
-                frame.HideUI:OnExtraUpdate(field)
-            end
-        else
-            if field == "isEnabled" then
-                frame.HideUI:OnFrameToggle("Global")
-            end
-        end
+        self:SendSettings(frame, field)
+    end
+    if field == "isEnabled" then
+        frame.HideUI:SetMode()
+    end
+end
+
+function FrameManager:SendSettings(frame, field)
+    if field == "alphaAmount" then
+        frame.HideUI:SetBaseAlpha()
+    elseif string.find(field, "AlphaAmount") then
+        frame.HideUI:SetSelectedAlpha(field)
+    elseif EVENT_FIELDS[field] then
+        frame.HideUI:SetSelectedEvent(field)
     end
 end
 
 -- Event Receiver
 -------------------------------------------------------------------------------->>>
-function FrameManager:EventReceiver(msg, event) --From EventManager
+-- From EventManager
+function FrameManager:EventReceiver(msg, event)
+    -- Se encarga de comunicar a todos los frames todos los eventos detectados
     for _, frame in pairs(GAME_FRAMES) do
         if frame and frame.HideUI then
-            if frame.HideUI:IsActive() then
-                frame.HideUI:OnEvent(event, "Custom")
-            else
-                frame.HideUI:OnEvent(event, "Global")
-            end
+            frame.HideUI:EventListener(event)
         end
     end
 end
@@ -191,11 +182,7 @@ end
 function FrameManager:OnLoop()
     for _, frame in pairs(GAME_FRAMES) do
         if frame and frame.HideUI then
-            if frame.HideUI:IsActive() then
-                frame.HideUI:OnMouseover("Custom")
-            else
-                frame.HideUI:OnMouseover("Global")
-            end
+            frame.HideUI:OnMouseover()
         end
     end
 end

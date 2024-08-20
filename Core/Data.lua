@@ -12,7 +12,6 @@ for _, frame in ipairs(frames) do
         source = "blizzard", --blizzard, community
         isEnabled = false,
         isMouseoverEnabled = true,
-        isAlphaEnabled = true,
         --Alpha amount
         alphaAmount = 0.5,
         combatAlphaAmount = 1,
@@ -162,7 +161,6 @@ function Data:RestoreCommunityFrames()
                 source = "community",
                 isEnabled = false,
                 isMouseoverEnabled = true,
-                isAlphaEnabled = true,
                 --Alpha amount
                 alphaAmount = 0.5,
                 combatAlphaAmount = 1,
@@ -209,7 +207,6 @@ function Data:RegisterFrame(input)
         afkAlphaAmount = input.afkAlphaAmount or 0,
         mountAlphaAmount = input.mountAlphaAmount or 0,
         instanceAlphaAmount = input.instanceAlphaAmount or 1,
-        isAlphaEnabled = true,
     }
 
     local profile = self:GetProfile()
