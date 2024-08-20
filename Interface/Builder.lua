@@ -580,7 +580,9 @@ function Builder:CreateSliderbox(control, update, default, step, min, max, unit)
         slider:SetValueStep(step)
         slider:SetScript("OnValueChanged", function(slider, value)
             sliderbox.DefineText(unit, value)
-
+            value = tonumber(string.format("%.2f", value))
+            update(slider, value)
+            --[[
             local minimum = min + step
             local maximum = max - step
 
@@ -588,6 +590,7 @@ function Builder:CreateSliderbox(control, update, default, step, min, max, unit)
                 value = tonumber(string.format("%.2f", value))
                 update(slider, value)
             end
+            ]]
         end)
     end
 
