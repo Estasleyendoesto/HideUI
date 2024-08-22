@@ -109,3 +109,5 @@ Version 1.0:
 - Added a 0.18s delay for EventEnter, EventExit, and Refresh in Base to activate opacity change, improving smoothness and transition.
 - Added Chatbox.lua module that inherits from Cluster.
 - Programmed the extra "Set Text Mode" functionality for Chatbox.
+- Fixed "Text Mode" Issues with certain events
+- Fixed double call of the fade transition when enabling/disabling the addon.

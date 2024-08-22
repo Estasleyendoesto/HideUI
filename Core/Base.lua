@@ -95,17 +95,14 @@ function Base:Create(frame, props, globals)
     end
 
     function Initial:Destroyer()
-        local alpha = self:GetAlpha()
-        self:SelectFade(self.frame, nil, alpha, self.originalAlpha)
-
         if self.frame then
             if self:IsHooked(self.frame, "OnShow") then self:Unhook(self.frame, "OnShow") end
         end
 
-        self.registry = nil
-        self.activeEvent = nil
-        self.globals = nil
-        self.props = nil
+        C_Timer.After(ALPHA_CHANGE_DELAY, function()
+            local alpha = self:GetAlpha()
+            self:SelectFade(self.frame, nil, alpha, self.originalAlpha)
+        end)
     end
 
     -------------------------------------------------------------------------------->>>
@@ -181,14 +178,22 @@ function Base:Create(frame, props, globals)
         elseif isEnabled == false then
             copy.isActive = false
         end
-        EventManager:EventHandler(copy, self.registry, function(e) self:EnterEvent(e) end)
+        EventManager:EventHandler(copy, self.registry, function(e) self:OnEnterEvent(e) end)
+    end
+
+    function Initial:OnEnterEvent(event)
+        self:EnterEvent(event)
+    end
+
+    function Initial:OnExitEvent()
+        self:ExitEvent()
     end
 
     function Initial:EnterEvent(event)
         -- Si es EXIT, vuelve a NO_STATE
         local isExitEvent = event:match("_EXIT")
         if isExitEvent then
-            self:ExitEvent()
+            self:OnExitEvent()
             return
         end
 
@@ -209,6 +214,9 @@ function Base:Create(frame, props, globals)
     end
 
     function Initial:ExitEvent()
+        -- Corrige problema de doble llamada al encender/apagar el addon
+        if not self:IsGlobalEnabled() then return end
+
         -- Rescata el alpha del evento anterior y limpia active_event
         local base_alpha = self:GetActiveEvent().alpha
         self:SetActiveEvent(NO_STATE)
@@ -279,6 +287,10 @@ function Base:Create(frame, props, globals)
         return self.props.isEnabled
     end
 
+    function Initial:IsGlobalEnabled()
+        return self.globals.isEnabled
+    end
+
     function Initial:GetAlpha()
         local data = self:GetActiveData()
         local active_event = self:GetActiveEvent()
@@ -335,6 +347,7 @@ function Base:Create(frame, props, globals)
     end
 
     function Initial:SetAlpha(frame, amount)
+        UIFrameFadeRemoveFrame(frame)
         if self:IsVisible(frame) then
             frame:SetAlpha(amount)
         end

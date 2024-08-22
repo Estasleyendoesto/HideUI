@@ -24,6 +24,11 @@ function Chatbox:Create(initializer)
     function Initial:OnDestroy()
         self:Destroyer()
         self:ChatFramesUpdate("unhook")
+        if self:IsTextModeEnable() then
+            local alpha = self:GetAlpha()
+            self:SetAlpha(nil, self.originalAlpha)
+            self:UpdateRegionVisibility(true)
+        end
     end
 
     -------------------------------------------------------------------------------->>>
@@ -178,10 +183,10 @@ function Chatbox:Create(initializer)
         end
     end
 
-    function Initial:UpdateRegionVisibility()
+    function Initial:UpdateRegionVisibility(force_enable)
         self:BatchBoxes(function(frame)
             if self:IsVisible(frame) then
-                self:ModifyRegionVisibility(frame)
+                self:ModifyRegionVisibility(frame, force_enable)
             end
         end)
     end
@@ -229,9 +234,16 @@ function Chatbox:Create(initializer)
     function Initial:SetAlpha(_, amount)
         self:BatchBoxes(function(frame)
             if self:IsVisible(frame) then
-                UIFrameFadeRemoveFrame(frame)
                 -- Text Mode
                 local _amount = self:ModifyTargetAmount(frame, amount)
+
+                -- Text Mode - Corrección a comportamiento errático
+                local active_event = self:GetActiveEvent()
+                if active_event.name == "NO_STATE" then
+                    self:ModifyRegionVisibility(frame)
+                end
+                -- End
+
                 -- Filters
                 if string.find(frame:GetName(), "EditBox") then
                     _amount = _amount * self.editBoxFactor
@@ -244,18 +256,27 @@ function Chatbox:Create(initializer)
     function Initial:FadeIn(_, delay, base, target)
         self:BatchBoxes(function(frame)
             if self:IsVisible(frame) then
-                UIFrameFadeRemoveFrame(frame)
                 -- Text Mode
                 self:ModifyRegionVisibility(frame, true)
+
+                -- Text Mode - Corrección a comportamiento errático
+                local _target = target
+                local active_event = self:GetActiveEvent()
+                if active_event.name == "NO_STATE" then
+                    self:ModifyRegionVisibility(frame)
+                    _target = self:ModifyTargetAmount(frame, target)
+                end
+                -- End
+
                 -- Filters
                 if string.find(frame:GetName(), "EditBox") then
-                    target = target * self.editBoxFactor
+                    target = _target * self.editBoxFactor
                     if self.isOnFocusGained then
-                        target = 1 -- Previene editbox
+                        _target = 1 -- Previene editbox
                     end
                 end
                 base = frame:GetAlpha() -- Evita parpadeo
-                UIFrameFadeIn(frame, delay, base, target)
+                UIFrameFadeIn(frame, delay, base, _target)
             end
         end)
     end
@@ -264,8 +285,9 @@ function Chatbox:Create(initializer)
         self:BatchBoxes(function(frame)
             if self:IsVisible(frame) then
                 -- Text Mode
+                local _target = target
+                _target = self:ModifyTargetAmount(frame, target)
                 self:ModifyRegionVisibility(frame)
-                local _target = self:ModifyTargetAmount(frame, target)
 
                 -- Filters
                 if string.find(frame:GetName(), "EditBox") then
