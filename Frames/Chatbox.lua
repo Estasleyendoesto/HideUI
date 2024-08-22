@@ -239,7 +239,7 @@ function Chatbox:Create(initializer)
 
                 -- Text Mode - Corrección a comportamiento errático
                 local active_event = self:GetActiveEvent()
-                if active_event.name == "NO_STATE" then
+                if active_event.name == "NO_STATE" and self:IsGlobalEnabled() then
                     self:ModifyRegionVisibility(frame)
                 end
                 -- End
@@ -262,7 +262,7 @@ function Chatbox:Create(initializer)
                 -- Text Mode - Corrección a comportamiento errático
                 local _target = target
                 local active_event = self:GetActiveEvent()
-                if active_event.name == "NO_STATE" then
+                if active_event.name == "NO_STATE" and self:IsGlobalEnabled() then
                     self:ModifyRegionVisibility(frame)
                     _target = self:ModifyTargetAmount(frame, target)
                 end
@@ -270,7 +270,7 @@ function Chatbox:Create(initializer)
 
                 -- Filters
                 if string.find(frame:GetName(), "EditBox") then
-                    target = _target * self.editBoxFactor
+                    _target = _target * self.editBoxFactor
                     if self.isOnFocusGained then
                         _target = 1 -- Previene editbox
                     end
