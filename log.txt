@@ -59,7 +59,7 @@ Cambios en la versión 0.9:
     x La nueva función UpdateStteEfents() requiere refactorizar
     x Todos los cambios son respecto a FrameTemplate, en general requiere refactorizar, simplificar la lógica, y de ser posible...
     x NO TOCAR LAS FUNCIONES RELACIONADAS CON LOS EVENTOS, todo lo demás si
-    - Otro problema persistente con los sliders de Builder, el tope nunca es el máximo ni el mínimo, requiere arreglar
+    x Otro problema persistente con los sliders de Builder, el tope nunca es el máximo ni el mínimo, requiere arreglar
     (*) x -> hecho
 - Se ha creado la función SelectFade() en FrameTemplate() que elige el Fade correcto según base y target
 - Se ha conglomerado todos los nombres de eventos, fields, y amounts en una sola tabla MAPPINGS del que todos hacen uso
@@ -87,7 +87,7 @@ de otros addons, bajo dos enfoques: 1. seguimiento y control de un único frame,
 - Ya se puede establecer a defaults los frames de blizzard
 - Terminado la categoría Frames, los frames se representan en ExpandableSection(), y ajustan su visibilidad y disponibilidad según Data
 - OBSERVACIONES:
-    [-] Desde FrameManager, en BindFrames y BindFrame, hay un filtro para Chatbox. Con la intención de hacerlo "para todos los contenedores de frames"
+    [x] Desde FrameManager, en BindFrames y BindFrame, hay un filtro para Chatbox. Con la intención de hacerlo "para todos los contenedores de frames"
         Se plantea añadir un nuevo campo en Data como "cluster=true", en lugar de evaluar Chatbox, evaluar si cluster=true.
         En lugar de ChatFrame:Create(), usar una plantilla base como Cluster.lua y ChatFrame se definirá en su interior.
 - Se ha eliminado STATE_BINDINGS y UpdateStateBindings
@@ -102,3 +102,10 @@ de otros addons, bajo dos enfoques: 1. seguimiento y control de un único frame,
 - Se ha creado en Builder.lua y Builder.xml el frame faltante SearchBox
 - Se ha creado Community.lua
 - Ahora desahabilitar el addon deshabilita todos los elementos, sections y buttons de todas las subcategorías
+- Se ha reconstruido la logica de gestión del alpha, los eventos y todo lo relacionado en Baseframe, ahora es más simple de lógica y eficiencia
+- Se ha renombrado Baseframe a base
+- Se ha creado un nuevo modelo llamado Cluster, contendrá un grupo de frames que actuarán como uno solo
+- Se ha integrado cluster a FrameManager, y solventado nuevos problemas encontrados con Base:SetMode() 
+- Se ha añadido para EventEnter, EventExit y Refresh de Base un retardo de 0.18s para activar el cambio de opacidad, este cambio aporta suavidad y una mejor transición
+- Se ha añadido el modulo Chatbox.lua que hereda de Cluster
+- Se ha programado al funcionalidad extra "Set Text Mode" para Chatbox

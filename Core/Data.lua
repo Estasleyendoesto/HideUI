@@ -23,6 +23,8 @@ for _, frame in ipairs(frames) do
         isAFKEnabled = true,
         isMountEnabled = true,
         isInstanceEnabled = true,
+        --Cluster
+        cluster = false,
     }
 end
 local globals = {
@@ -47,6 +49,7 @@ local globals = {
 -- Unique additional parameters
 do
     frames_table.Chatbox.isTextModeEnabled = false
+    frames_table.Chatbox.cluster = true
 end
 
 -- Initial values
@@ -172,6 +175,8 @@ function Data:RestoreCommunityFrames()
                 isAFKEnabled = true,
                 isMountEnabled = true,
                 isInstanceEnabled = true,
+                --Cluster
+                cluster = false,
             }
         end
     end
@@ -207,6 +212,7 @@ function Data:RegisterFrame(input)
         afkAlphaAmount = input.afkAlphaAmount or 0,
         mountAlphaAmount = input.mountAlphaAmount or 0,
         instanceAlphaAmount = input.instanceAlphaAmount or 1,
+        cluster = input.cluster or false,
     }
 
     local profile = self:GetProfile()

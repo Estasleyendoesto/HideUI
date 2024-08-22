@@ -1,6 +1,6 @@
 local FrameManager = HideUI:NewModule("FrameManager", "AceEvent-3.0")
-local BaseFrame
-local ChatFrame
+local Base
+local Cluster
 local Data
 
 local GAME_FRAMES = {}
@@ -17,10 +17,10 @@ local EVENT_FIELDS = {
 }
 
 function FrameManager:OnInitialize()
-    Data          = HideUI:GetModule("Data")
-    BaseFrame     = HideUI:GetModule("BaseFrame")
-    ChatFrame     = HideUI:GetModule("ChatFrame")
-end    
+    Data      = HideUI:GetModule("Data")
+    Base      = HideUI:GetModule("Base")
+    Cluster   = HideUI:GetModule("Cluster")
+end
 
 function FrameManager:OnEnable()
     self:RegisterMessage("GLOBAL_SETTINGS_CHANGED", "GlobalSettingsUpdate")
@@ -62,28 +62,62 @@ end
 
 -- Binding Frames
 -------------------------------------------------------------------------------->>>
+function FrameManager:InitializeFrame(frame, data, globals)
+    -- Impide que vuelva a crearse y ejecutarse si ya ha sido creado
+    if frame and frame.HideUI then
+        return frame
+    end
+
+    -- Crea si no existe
+    if frame and not frame.HideUI then
+        frame.HideUI = Base:Create(frame, data, globals)
+    elseif not frame and data.cluster then
+        frame = {}
+        frame.HideUI = Cluster:Create(data, globals)
+    end
+
+    -- Si ha sido creado exitosamente, ejecuta
+    if frame and frame.HideUI then
+        frame.HideUI:OnReady()
+    end
+
+    return frame
+end
+
+function FrameManager:BindFrame(name)
+    local globals = Data:Find("globals")
+    local data  = Data:Find("frames")[name]
+    local frame = GAME_FRAMES[name] or _G[name]
+    if data then
+        frame = self:InitializeFrame(frame, data, globals)
+        if frame then
+            GAME_FRAMES[name] = frame
+        end
+    end
+end
+
 function FrameManager:BindFrames()
     local globals = Data:Find("globals")
     local frames  = Data:Find("frames")
     local temp = {}
+    local frame
     for _, data in pairs(frames) do
-        local frame = GAME_FRAMES[data.name] or _G[data.name]
+        frame = GAME_FRAMES[data.name] or _G[data.name]
+        frame = self:InitializeFrame(frame, data, globals)
         if frame then
-            if not frame.HideUI then
-                frame.HideUI = BaseFrame:Create(frame, data, globals)
-                frame.HideUI:OnReady()
-            end
             temp[data.name] = frame
-        else
-            if data.name == "Chatbox" then
-                frame = {}
-                frame.HideUI = ChatFrame:Create(data, globals)
-                frame.HideUI:OnChatReady()
-                temp[data.name] = frame
-            end
         end
     end
     GAME_FRAMES = temp
+end
+
+function FrameManager:UnbindFrame(name)
+    local frame = GAME_FRAMES[name]
+    if frame and frame.HideUI then
+        frame.HideUI:OnDestroy()
+        frame.HideUI = nil
+    end
+    GAME_FRAMES[name] = nil
 end
 
 function FrameManager:UnbindFrames()
@@ -94,28 +128,6 @@ function FrameManager:UnbindFrames()
         end
     end
     GAME_FRAMES = {}
-end
-
-function FrameManager:BindFrame(name)
-    local globals = Data:Find("globals")
-    local data  = Data:Find("frames")[name]
-    local frame = GAME_FRAMES[name] or _G[name]
-    if frame and data then
-        if not frame.HideUI then
-            frame.HideUI = BaseFrame:Create(frame, data, globals)
-            frame.HideUI:OnReady()
-        end
-        GAME_FRAMES[name] = frame
-    end
-end
-
-function FrameManager:UnbindFrame(name)
-    local frame = GAME_FRAMES[name]
-    if frame and frame.HideUI then
-        frame.HideUI:OnDestroy()
-        frame.HideUI = nil
-    end
-    GAME_FRAMES[name] = nil
 end
 
 -- Global and Frame settings
@@ -134,9 +146,11 @@ function FrameManager:FrameSettingsUpdate(msg, frame_name, field)
     local frame = GAME_FRAMES[frame_name]
     if frame and frame.HideUI then
         self:SendSettings(frame, field)
+        -- Envía todos los fields, necesario filtrar en su correspondiente.
+        frame.HideUI:SetExtra(field)
     end
     if field == "isEnabled" then
-        frame.HideUI:SetMode()
+        frame.HideUI:Refresh()
     end
 end
 

@@ -1,11 +1,13 @@
-local BaseFrame = HideUI:NewModule("BaseFrame")
+local Base = HideUI:NewModule("Base")
 local EventManager
 
 local NO_STATE = "NO_STATE"
 local IS_LOADED = false
-local FIRST_LOAD_DELAY = 1
 local ENABLE_FIRST_OUT = false
+local FIRST_LOAD_DELAY = 1
+local ORIGINAL_ALPHA = 1
 local MOUSEOVER_REVEAL_ALPHA = 1
+local ALPHA_CHANGE_DELAY = 0.18
 local MAPPINGS = {
     fields = {}
 }
@@ -30,36 +32,20 @@ do
     end
 end
 
-function BaseFrame:OnInitialize()
+function Base:OnInitialize()
     EventManager = HideUI:GetModule("EventManager")
 end
 
-function BaseFrame:Embed(target)
+function Base:Embed(target)
     LibStub("AceEvent-3.0"):Embed(target)
     LibStub("AceHook-3.0"):Embed(target)
 end
 
-function BaseFrame:Create(frame, props, globals)
+function Base:Create(frame, props, globals)
     local Initial = {}
     self:Embed(Initial)
 
     function Initial:OnReady()
-        local SetOpacity = function()
-            if not self.frame then
-                self.originalAlpha = 1
-            else
-                self.originalAlpha = self.frame:GetAlpha()
-
-                -- Solución a aquellos frames que se muestran/ocultan en medio del juego
-                if not self:IsHooked(self.frame, "OnShow") then
-                    self:SecureHookScript(self.frame, "OnShow", function() self:OnShowHandler() end)
-                end
-            end
-
-            local alpha = self:GetAlpha()
-            self:SelectFade(self.frame, nil, self.originalAlpha, alpha)
-        end
-
         if not IS_LOADED then
             -- IS_LOADED solo se ejecuta una vez al iniciar el addon o al hacer /reload
             -- El temporizador de 1s es para aquellos frames que fijan su velocidad tarde
@@ -72,21 +58,54 @@ function BaseFrame:Create(frame, props, globals)
             ---
 
             C_Timer.After(delay, function()
-                SetOpacity()
+                self:OnCreate()
                 IS_LOADED = true
             end)
         else
-            SetOpacity()
+            self:OnReload()
         end
     end
 
+    function Initial:OnCreate()
+        self:Initializer()
+    end
+
+    function Initial:OnReload()
+        self:Initializer()
+    end
+
     function Initial:OnDestroy()
+        self:Destroyer()
+    end
+
+    function Initial:Initializer()
+        -- Solo afecta a frames, no clusters
+        if not self.frame then
+            return
+        end
+
+        -- Solución a aquellos frames que se muestran/ocultan en medio del juego
+        if not self:IsHooked(self.frame, "OnShow") then
+            self:SecureHookScript(self.frame, "OnShow", function() self:OnShowHandler() end)
+        end
+         
+        -- En cualquier caso, actualiza su opacidad
+        local alpha = self:GetAlpha()
+        self:SelectFade(self.frame, nil, self.originalAlpha, alpha)
+    end
+
+    function Initial:Destroyer()
         local alpha = self:GetAlpha()
         self:SelectFade(self.frame, nil, alpha, self.originalAlpha)
 
         if self.frame then
             if self:IsHooked(self.frame, "OnShow") then self:Unhook(self.frame, "OnShow") end
         end
+
+        self.registry = nil
+        self.activeEvent = nil
+        self.globals = nil
+        self.props = nil
     end
 
     -------------------------------------------------------------------------------->>>
@@ -172,7 +191,7 @@ function BaseFrame:Create(frame, props, globals)
             self:ExitEvent()
             return
         end
-        
+
         -- Cambia al nuevo alpha
         local formatted_event = EventManager:StripEventSuffix(event)
         local mapping = MAPPINGS[formatted_event]
@@ -181,7 +200,9 @@ function BaseFrame:Create(frame, props, globals)
         local base_alpha = self:GetAlpha()
         local event_alpha = data[mapping.amount]
 
-        self:SelectFade(self.frame, nil, base_alpha, event_alpha)
+        C_Timer.After(ALPHA_CHANGE_DELAY, function()
+            self:SelectFade(self.frame, nil, base_alpha, event_alpha)
+        end)
 
         -- Actualiza active_event
         self:SetActiveEvent(formatted_event, event_alpha)
@@ -193,8 +214,10 @@ function BaseFrame:Create(frame, props, globals)
         self:SetActiveEvent(NO_STATE)
 
         -- Actualiza al alpha base
-        local target_alpha = self:GetAlpha()
-        self:SelectFade(self.frame, nil, base_alpha, target_alpha)
+        C_Timer.After(ALPHA_CHANGE_DELAY, function()
+            local target_alpha = self:GetAlpha()
+            self:SelectFade(self.frame, nil, base_alpha, target_alpha)
+        end)
     end
 
     function Initial:OnMouseover()
@@ -216,10 +239,16 @@ function BaseFrame:Create(frame, props, globals)
         end
     end
 
-    function Initial:SetMode()
+    function Initial:Refresh()
         -- Cambia entre la configuración local o global
         -- Se almacena el antiguo alpha
-        local old_alpha = self:GetAlpha()
+        local data
+        local active_event
+        local old_alpha
+
+        data = self:GetNoActiveData()
+        active_event = self:GetActiveEvent()
+        old_alpha = active_event.alpha or data.alphaAmount
 
         -- Se reinician todos los eventos
         self:SetActiveEvent(NO_STATE, nil)
@@ -230,12 +259,16 @@ function BaseFrame:Create(frame, props, globals)
             self:SetSelectedEvent(field)
         end
 
-        -- Se actualiza el alpha del antiguo al nuevo
-        local alpha = self:GetAlpha()
-        self:SelectFade(self.frame, nil, old_alpha, alpha)
+        -- Se actualiza el alpha del antiguo al nuevo si NO_STATE
+        C_Timer.After(ALPHA_CHANGE_DELAY, function()
+            active_event = self:GetActiveEvent()
+            if active_event.name == NO_STATE then
+                self:SelectFade(self.frame, nil, old_alpha, self:GetAlpha())
+            end
+        end)
     end
 
-    function Initial:OnExtraUpdate(field)
+    function Initial:SetExtra(field)
         -- Aquí llegan todos los fields actualizados desde la interfaz
         -- Solo para aquellos frames con fields adicionales y únicos, ejemplo: ChatFrame.lua
     end
@@ -315,6 +348,15 @@ function BaseFrame:Create(frame, props, globals)
         end
     end
 
+    function Initial:GetNoActiveData()
+        -- Para SetMode(), para recuperar el alpha anterior
+        if self.props.isEnabled then
+            return self.globals
+        else
+            return self.props
+        end
+    end
+
     function Initial:SetActiveEvent(name, alpha)
         self.activeEvent = {
             name  = name,
@@ -331,7 +373,7 @@ function BaseFrame:Create(frame, props, globals)
     Initial.props    = props
     Initial.mouseoverAlpha = MOUSEOVER_REVEAL_ALPHA
     Initial.enableFirstOut = ENABLE_FIRST_OUT
-    Initial.originalAlpha  = nil
+    Initial.originalAlpha  = ORIGINAL_ALPHA
     Initial.activeEvent = {
         name  = NO_STATE,
         alpha = nil,

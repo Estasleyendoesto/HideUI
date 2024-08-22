@@ -15,15 +15,17 @@ libs\AceDB-3.0\AceDB-3.0.lua
 
 ## Modulos
 main.lua
+mappings.lua
 
+## Core
 Core\Data.lua
-
 Core\Dispatcher.lua
 Core\EventManager.lua
-Core\BaseFrame.lua
-Core\ChatFrame.lua
+Core\Base.lua
+Core\Cluster.lua
 Core\FrameManager.lua
 
+## Interface
 Interface\Builder.lua
 Interface\Builder.xml
 Interface\UIManager.lua
@@ -31,3 +33,6 @@ Interface\Welcome.lua
 Interface\General.lua
 Interface\Blizzard.lua
 Interface\Community.lua
+
+## Custom Frames
+Frames\Chatbox.lua
