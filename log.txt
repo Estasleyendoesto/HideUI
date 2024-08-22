@@ -1,111 +1,111 @@
-Cambios en la versión 0.5:
-- Corregido problema con Combat End Delay, ahora el Fade Out asociado se invoca cuando realmente abandone el combate
-- Corregido problema al cambiar la opacidad tras iniciar el juego o hacer /reload donde algunos frames no se actualizaban cuando debían
-- Corregido problema cuando al hacer target/focus o invocar cualquier frame en medio del juego no aparezca con su opacidad asignada
-- Corregido problema al iniciar o /reload y estando dentro de un estado no se aplicaba la opacidad correspondiente
-- Corregido fallo de opacidad con los EditBox tras FadeOut pues su alpha original no es 1, sino 0.44
-- Corregido problema con los separator del Header que no seguían el scrollBox
-- Corregido fallo de opacidad con "MainStatusTrackingBarContainer" al iniciar o /reload
-- Corregido fallo de opacidad con EditBox al hacer FadeIn
-- Corregido fallo de opacidad con el focus en EditBox
-- Corregido fallo estetico de parpadeo al perder el foco en el chat
-- Corregido problema con los tabs que vuelven a aparecer tras perder el foco
-- Corregido fallo de opcidad tardía al desactivar el addon justo después de activarlo
-- Corregido no detección de focus en editbox con nuevas ventanas de chat
-- Añadido activación/ocultación del chat al pulsar la tecla "Enter" cuando se envía un mensaje
-- Añadido modo solo texto, activable desde edición del frame "Chatbox"
-- Añadido auto activación tras hacer check desde el menú
 
-Cambios en la versión 0.6:
-- Creado EditboxFrame en AmigableUI
-- Añadidas dos nuevas funciones para registrar y quitar el registro de los frames de terceros
-- Data modificado, ahora cada frame tiene un nuevo campo llamado "source"
-- FrameInterface modificado, cada frame filtrará si source es "oficial"
-- Interface modificado, se ha añadido ThirdPartyInterface
-- FrameManager modificado, se ha añadido funciones Bindframe y UnbindFrame
-- Se ha creado el módulo ThirdPartyInterface que maneja la lógica de los frames de terceros
-- Corregido problema con UpdateUI en FrameInterface
-- Corregido problema de carga con textMode al iniciar el juego por primera vez
+Version 0.5:
+- Fixed issue with Combat End Delay, now the associated Fade Out is triggered when exiting combat correctly.
+- Fixed issue with opacity change after starting the game or using /reload where some frames did not update as expected.
+- Fixed issue where targeting/focusing or invoking any frame mid-game did not appear with its assigned opacity.
+- Fixed issue where, after starting or /reload and being in a state, the corresponding opacity was not applied.
+- Fixed opacity bug with EditBox after FadeOut, as its original alpha is not 1, but 0.44.
+- Fixed issue with the Header separators not following the scrollBox.
+- Fixed opacity issue with "MainStatusTrackingBarContainer" when starting or /reload.
+- Fixed opacity issue with EditBox during FadeIn.
+- Fixed opacity issue with focus on EditBox.
+- Fixed aesthetic flicker issue when losing focus in chat.
+- Fixed issue with tabs reappearing after losing focus.
+- Fixed delayed opacity issue when disabling the addon right after enabling it.
+- Fixed focus detection issue in editbox with new chat windows.
+- Added chat activation/hide feature when pressing "Enter" after sending a message.
+- Added text-only mode, activatable from the "Chatbox" frame editing.
+- Added auto-activation after checking from the menu.
 
-Cambios en la versión 0.7:
-- Tras casi un mes a prueba y error se ha conseguido crear la nueva base para la interfaz (blizzard, mamón, no hay documentación)
-- Creado Builder.lua y Builder.xml aportando una interfaz moderna, completamente independiente de la interfaz de blizzard, y mil veces mejor, optimizado, y comprensible que AmigableUI
-- Se han separado los módulos de la interfaz de los módulos de la lógica
-- Se han creado nuevos módulos para la interfaz y se han eliminado los antiguos
+Version 0.6:
+- Created EditboxFrame in AmigableUI.
+- Added two new functions to register and unregister third-party frames.
+- Data modified; now each frame has a new field called "source."
+- FrameInterface modified; each frame will filter if the source is "official."
+- Interface modified; added ThirdPartyInterface.
+- FrameManager modified; added BindFrame and UnbindFrame functions.
+- Created the ThirdPartyInterface module to handle the logic of third-party frames.
+- Fixed issue with UpdateUI in FrameInterface.
+- Fixed loading issue with textMode on the first game startup.
 
-Cambios en la versión 0.8:
-- Se ha reemplazado los fadeAmount a fadeDuration, más correcto
-- Se han añadido nuevas variables en Data (alpha para cada evento)
-- Se ha creado la función GetDefaults() en Data
-- Se ha definido las bases de OnUpdate() y UpdateUI()
-- Creado cuadro de confirmación
-- Se ha corregido mala implementación de checkbox_slider
-- Se ha actualizado Data ahora almacenando los defaults de globals y frames
-- La función OnDefault() ahora puede reestablecer la configuración a la inicial
-- Se ha añadido el slider de Combat End Delay
-- Se ha implementado un tope al slider para evitar llamadas redundandes al alcanzar el mínimo o el máximo
-- Se ha refactorizado Data para permitir el cambio de perfil entre profile y char
-- Se ha optimizado General ahora delegando responsabilidades de Data a Controller
-- Se ha añadido la función Refresh() a Controller que refresca los módulos y la interfaz
-- Ahora Controller comprueba y/o cambia de perfil al habilitar/deshabilitar el addon
-- Ya se puede cambiar de perfil al hacer clic en el checkbox
+Version 0.7:
+- After almost a month of trial and error, the new base for the interface has been successfully created (Blizzard, you're a pain, no documentation).
+- Created Builder.lua and Builder.xml, providing a modern interface, completely independent of Blizzard's interface, and much better, optimized, and understandable than AmigableUI.
+- Separated interface modules from logic modules.
+- Created new modules for the interface and removed the old ones.
 
-Cambios en la versión 0.9:
-- Los sliders de los event alphas ahora funcionan y se actualizan
-- Problemas a resolver:
-    x Demasiada redundancia en FrameTemplate con los nombres de eventos y los bindings de estados
-    x En OnEventExit() de FrameTemplate, necesario crear la función descrita allí
-    x El filtro para OnAlphaUpdate() intentar refactorizarlo o hacerlo también compatible para los frames y no solo para el global
-    x La nueva función UpdateStteEfents() requiere refactorizar
-    x Todos los cambios son respecto a FrameTemplate, en general requiere refactorizar, simplificar la lógica, y de ser posible...
-    x NO TOCAR LAS FUNCIONES RELACIONADAS CON LOS EVENTOS, todo lo demás si
-    x Otro problema persistente con los sliders de Builder, el tope nunca es el máximo ni el mínimo, requiere arreglar
-    (*) x -> hecho
-- Se ha creado la función SelectFade() en FrameTemplate() que elige el Fade correcto según base y target
-- Se ha conglomerado todos los nombres de eventos, fields, y amounts en una sola tabla MAPPINGS del que todos hacen uso
-- Se ha corregido un problema de lógica con las funciones OnEventEnter() y OnEventExit(), solucionado con SelectFade(), y logica simplificada
-- Implementado GetPriority() en EventManager
-- Recodificado UpdateStateBindings() para hacer uso de la nueva tabla MAPPINGS
-- Renombrado CanModifyAlpha() a IsAlphaModifiable()
-- Elimintado COMBAT_END_DELAY de FrameTemplate
-- Ahora cada frame tendrá una copia de STATE_BINDINGS, se estima futuro conflicto al compartir la misma tabla
+Version 0.8:
+- Replaced fadeAmount with fadeDuration, which is more accurate.
+- Added new variables in Data (alpha for each event).
+- Created the GetDefaults() function in Data.
+- Defined the bases for OnUpdate() and UpdateUI().
+- Created a confirmation dialog.
+- Fixed a bad implementation of checkbox_slider.
+- Updated Data to now store the defaults of globals and frames.
+- The OnDefault() function can now reset the configuration to its initial state.
+- Added a slider for Combat End Delay.
+- Implemented a limit on the slider to avoid redundant calls when reaching the minimum or maximum.
+- Refactored Data to allow profile switching between profile and character.
+- Optimized General by delegating Data responsibilities to Controller.
+- Added the Refresh() function to Controller that refreshes modules and the interface.
+- Now Controller checks and/or switches profiles when enabling/disabling the addon.
+- You can now switch profiles by clicking the checkbox.
 
-Cambios en la versión 1.0:
-- Se renombrado FrameTemplate por BaseFrame
-- Se ha renombrado Controller por Dispatcher
-- Se ha renombrado la carpeta modules por Core
-- Se ha renombrado Menu por UIManager
-- Se ha renombrado UIFrame por BlizzardFrames
-- Se ha creado la carpeta Presets, en un futuro albergará presets que los usuarios podrán compartir para cambiar el comportamiento de algún frame 
-de otros addons, bajo dos enfoques: 1. seguimiento y control de un único frame, 2. seguimiento y control de muchos frames agrupados como uno solo.
-- Renombrado BlizzardFrames a Blizzard
-- Definido plantilla base para Community y Blizzard
-- Añadido a Builder auto esconder de ExpandableSection para AddElementToSection
-- Actualizado ExpandableSection y ahora tiene las funciones Shutdown() y SwitchOn()
-- Creado la plantilla de creación al interar los frames en Blizzard.lua
-- Creado función AttachExtras() para añadir campos específicos adicionales de un frame
-- Ya se puede establecer a defaults los frames de blizzard
-- Terminado la categoría Frames, los frames se representan en ExpandableSection(), y ajustan su visibilidad y disponibilidad según Data
-- OBSERVACIONES:
-    [x] Desde FrameManager, en BindFrames y BindFrame, hay un filtro para Chatbox. Con la intención de hacerlo "para todos los contenedores de frames"
-        Se plantea añadir un nuevo campo en Data como "cluster=true", en lugar de evaluar Chatbox, evaluar si cluster=true.
-        En lugar de ChatFrame:Create(), usar una plantilla base como Cluster.lua y ChatFrame se definirá en su interior.
-- Se ha eliminado STATE_BINDINGS y UpdateStateBindings
-- Simplificada la lógica de actualización del slider amount para los frames
-- FormatEventName() ahora es una función de EventManager
-- FrameSettingsUpdate() ahora filtra los amount slider de los eventos
-- Se ha cambiado de Blizzard.lua, alpha_checkbox_slider a alpha_slider
-- Se ha eliminado en BaseFrame todo lo referente a isAlphaEnabled de frame, desde ahora la reponsabilidad de opacidad es completa del frame
-- FrameToggle() de BaseFrame terminado. Básicamente, se ha terminado todo lo más importante
-- Correccion con checkbox_slider y SetExpandableEnabled al habilitar erróneamente el slider estando el chekbox en false
-- Corregido problema con FrameToggle() que al deshabilitar el frame, no reiniciaba los eventos y daba comportamientos erráticos
-- Se ha creado en Builder.lua y Builder.xml el frame faltante SearchBox
-- Se ha creado Community.lua
-- Ahora desahabilitar el addon deshabilita todos los elementos, sections y buttons de todas las subcategorías
-- Se ha reconstruido la logica de gestión del alpha, los eventos y todo lo relacionado en Baseframe, ahora es más simple de lógica y eficiencia
-- Se ha renombrado Baseframe a base
-- Se ha creado un nuevo modelo llamado Cluster, contendrá un grupo de frames que actuarán como uno solo
-- Se ha integrado cluster a FrameManager, y solventado nuevos problemas encontrados con Base:SetMode() 
-- Se ha añadido para EventEnter, EventExit y Refresh de Base un retardo de 0.18s para activar el cambio de opacidad, este cambio aporta suavidad y una mejor transición
-- Se ha añadido el modulo Chatbox.lua que hereda de Cluster
-- Se ha programado al funcionalidad extra "Set Text Mode" para Chatbox
+Version 0.9:
+- Event alphas sliders now work and update correctly.
+- Issues to resolve:
+    - Too much redundancy in FrameTemplate with event names and state bindings.
+    - In OnEventExit() of FrameTemplate, the described function needs to be created.
+    - The filter for OnAlphaUpdate() needs refactoring or making it compatible with frames, not just global.
+    - The new UpdateStateEvents() function requires refactoring.
+    - All changes are related to FrameTemplate, which generally requires refactoring, simplifying logic, and if possible...
+    - DO NOT TOUCH FUNCTIONS RELATED TO EVENTS, everything else is fair game.
+    - Another persistent issue with Builder sliders, the limit is never the maximum or minimum, needs fixing.
+    (*) x -> done
+- Created SelectFade() function in FrameTemplate() that chooses the correct Fade based on base and target.
+- Consolidated all event names, fields, and amounts into a single MAPPINGS table used by everyone.
+- Fixed logic issue with OnEventEnter() and OnEventExit() functions, solved with SelectFade(), and simplified logic.
+- Implemented GetPriority() in EventManager.
+- Recoded UpdateStateBindings() to use the new MAPPINGS table.
+- Renamed CanModifyAlpha() to IsAlphaModifiable().
+- Removed COMBAT_END_DELAY from FrameTemplate.
+- Now each frame will have a copy of STATE_BINDINGS; a future conflict is expected when sharing the same table.
+
+Version 1.0:
+- Renamed FrameTemplate to BaseFrame.
+- Renamed Controller to Dispatcher.
+- Renamed modules folder to Core.
+- Renamed Menu to UIManager.
+- Renamed UIFrame to BlizzardFrames.
+- Created the Presets folder, which will eventually house presets that users can share to change the behavior of a frame from other addons, under two approaches: 1. tracking and controlling a single frame, 2. tracking and controlling many frames grouped as one.
+- Renamed BlizzardFrames to Blizzard.
+- Defined base template for Community and Blizzard.
+- Added auto-hide feature for ExpandableSection in AddElementToSection in Builder.
+- Updated ExpandableSection now has Shutdown() and SwitchOn() functions.
+- Created frame creation template by iterating frames in Blizzard.lua.
+- Created AttachExtras() function to add additional specific fields to a frame.
+- You can now reset Blizzard frames to defaults.
+- Completed the Frames category, frames are represented in ExpandableSection(), and adjust their visibility and availability according to Data.
+- NOTES:
+    - From FrameManager, in BindFrames and BindFrame, there is a filter for Chatbox. The intention is to make it "for all frame containers."
+    - Consider adding a new field in Data like "cluster=true," instead of evaluating Chatbox, evaluate if cluster=true.
+    - Instead of ChatFrame:Create(), use a base template like Cluster.lua, and ChatFrame will be defined within it.
+- Removed STATE_BINDINGS and UpdateStateBindings.
+- Simplified logic for updating the amount slider for frames.
+- FormatEventName() is now a function of EventManager.
+- FrameSettingsUpdate() now filters the event amount slider.
+- Changed Blizzard.lua, alpha_checkbox_slider to alpha_slider.
+- Removed all references to isAlphaEnabled from frame in BaseFrame, from now on the opacity responsibility is entirely the frame's.
+- Completed FrameToggle() in BaseFrame. Basically, all the most important work is done.
+- Fixed issue with checkbox_slider and SetExpandableEnabled wrongly enabling the slider when the checkbox is false.
+- Fixed issue with FrameToggle() where disabling the frame did not reset events, causing erratic behavior.
+- Created the missing SearchBox frame in Builder.lua and Builder.xml.
+- Created Community.lua.
+- Now disabling the addon disables all elements, sections, and buttons in all subcategories.
+- Rebuilt alpha management logic, events, and everything related in BaseFrame, making it simpler in logic and efficiency.
+- Renamed BaseFrame to base.
+- Created a new model called Cluster, which will contain a group of frames that will act as one.
+- Integrated cluster into FrameManager, and resolved new issues found with Base:SetMode().
+- Added a 0.18s delay for EventEnter, EventExit, and Refresh in Base to activate opacity change, improving smoothness and transition.
+- Added Chatbox.lua module that inherits from Cluster.
+- Programmed the extra "Set Text Mode" functionality for Chatbox.
