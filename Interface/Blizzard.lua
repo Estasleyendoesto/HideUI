@@ -33,9 +33,9 @@ local BINDINGS = {
     {name = "MultiBarBottomRight",          alias = "Action Bar 3"},
     {name = "MultiBarRight",                alias = "Action Bar 4"},
     {name = "MultiBarLeft",                 alias = "Action Bar 5"},
-    {name = "Multibar5",                    alias = "Action Bar 6"},
-    {name = "Multibar6",                    alias = "Action Bar 7"},
-    {name = "Multibar7",                    alias = "Action Bar 8"},
+    {name = "MultiBar5",                    alias = "Action Bar 6"},
+    {name = "MultiBar6",                    alias = "Action Bar 7"},
+    {name = "MultiBar7",                    alias = "Action Bar 8"},
     {name = "PetActionBar",                 alias = "Pet Action Bar"},
     {name = "ZoneAbilityFrame",             alias = "Zone Action Bar"},
 }
