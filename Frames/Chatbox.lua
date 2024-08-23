@@ -262,9 +262,12 @@ function Chatbox:Create(initializer)
                 -- Text Mode - Corrección a comportamiento errático
                 local _target = target
                 local active_event = self:GetActiveEvent()
-                if active_event.name == "NO_STATE" and self:IsGlobalEnabled() then
-                    self:ModifyRegionVisibility(frame)
-                    _target = self:ModifyTargetAmount(frame, target)
+
+                if not self.fadedIn then
+                    if active_event.name == "NO_STATE" and self:IsGlobalEnabled() then
+                        self:ModifyRegionVisibility(frame)
+                        _target = self:ModifyTargetAmount(frame, target)
+                    end
                 end
                 -- End
 

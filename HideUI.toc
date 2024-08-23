@@ -2,7 +2,7 @@
 ## Title: HideUI
 ## Notes: Hide any frame
 ## Author: EEsto
-## Version: 1.0
+## Version: 1.0.2
 
 ## SavedVariables: HideUIDB
 ## OptionalDeps: Ace3

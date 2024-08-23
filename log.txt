@@ -111,4 +111,4 @@ Version 1.0:
 - Programmed the extra "Set Text Mode" functionality for Chatbox.
 - Fixed "Text Mode" Issues with certain events
 - Fixed double call of the fade transition when enabling/disabling the addon.
-- Fixed a minor visual glitch related to Chatbox's text-only mode.
+- Fixed little bug related with mouseover and Text mode
