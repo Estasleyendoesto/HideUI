@@ -33,7 +33,6 @@ function Community:OnEnable()
     self.frames = {}
     self:LoadCommunityFrames()
     self:Draw()
-    self:UpdateUI()
 end
 
 function Community:OnDisable()

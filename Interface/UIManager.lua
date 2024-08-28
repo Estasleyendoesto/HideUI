@@ -13,7 +13,7 @@ end
 
 function UIManager:OnEnable()
     self:Create()
-    
+
     -- HideUI:EnableModule("Welcome")
     HideUI:EnableModule("General")
     HideUI:EnableModule("Blizzard")
@@ -23,9 +23,16 @@ function UIManager:OnEnable()
 end
 
 function UIManager:UpdateUI()
+    -- Santo remedio, como no se me había ocurrido antes
+    self.isUpdating = true
+
     General:UpdateUI()
     Blizzard:UpdateUI()
     Community:UpdateUI()
+
+    C_Timer.After(0.15, function()
+        self.isUpdating = false
+    end)
 end
 
 function UIManager:Rebuild()

@@ -33,7 +33,6 @@ end
 function General:OnEnable()
     self.registry = {}
     self:Draw()
-    self:UpdateUI()
 end
 
 function General:OnDisable()

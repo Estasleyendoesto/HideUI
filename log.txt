@@ -117,3 +117,6 @@ Version 1.0:
 - Added a new frame.
 - Modified the default loading of the database.
 - Base function parameters have been renamed to more descriptive names.
+- Added experimental solution for community frames.
+- Fixed problems with profile change in Data.
+- Significantly improved performance by blocking DB calls when UpdateUI() is enabled.

@@ -8,7 +8,6 @@ function Dispatcher:OnInitialize()
 end
 
 function Dispatcher:OnEnable()
-    Data:ChangeProfile() --Asigna el perfil seleccionado
     self:ModulesHandler()
 end
 
@@ -56,15 +55,17 @@ function Dispatcher:HandleEnabledChange(choice) --Toggle All
 end
 
 function Dispatcher:HandleProfileChange(choice) --ChangeProfile
-    local wasEnabled = Data:Find("globals").isEnabled
-
     self:HandleEnabledChange(false)
-    Data:SetCharacterProfile(choice)
-    Data:ChangeProfile()
-    self:HandleEnabledChange(wasEnabled)
+    C_Timer.After(0.20, function()
+        Data:ChangeProfile(choice)
 
-    UIManager:Rebuild()
-    self:Refresh()
+        self:HandleEnabledChange(true)
+        UIManager:Rebuild()
+
+        C_Timer.After(0.10, function()
+            UIManager:UpdateUI()
+        end)
+    end)
 end
 
 function Dispatcher:HandleRestoreGlobals() --From General
@@ -83,12 +84,16 @@ function Dispatcher:HandleRestoreCommunityFrames()
 end
 
 function Dispatcher:HandleGlobalSettings(field, input) --to FrameManager
+    if UIManager.isUpdating then return end
+
     Data:UpdateGlobals(field, input)
     self:SendMessage("GLOBAL_SETTINGS_CHANGED", field, input)
 end
 
 -------------------------------------------------------------------------------->>>
 function Dispatcher:HandleFrameSettings(frame, field, input) --to FrameManager
+    if UIManager.isUpdating then return end
+
     Data:UpdateFrame(frame, field, input)
     self:SendMessage("FRAME_SETTINGS_CHANGED", frame, field)
 end

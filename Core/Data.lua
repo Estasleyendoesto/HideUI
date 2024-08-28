@@ -5,6 +5,7 @@ local frames = { "PlayerFrame", "TargetFrame", "FocusFrame", "PetFrame", "PetAct
 "MultiBarRight", "MultiBarLeft", "MultiBar5", "MultiBar6", "MultiBar7", "PlayerCastingBarFrame", "MainStatusTrackingBarContainer",
 "SecondaryStatusTrackingBarContainer", "EncounterBar", "StanceBar", "ZoneAbilityFrame", "PartyFrame", "Chatbox"
 }
+
 local frames_table = {}
 for _, frame in ipairs(frames) do
     frames_table[frame] = {
@@ -76,13 +77,15 @@ local defaults = {
     profile = {
         globals = globals,
         frames  = frames_table,
-    },
-    char = nil,
+    }
 }
 ---
 
+local DEFAULT_PROFILE = "Default"
+
 function Data:OnInitialize()
-    self.db = LibStub("AceDB-3.0"):New("HideUIDB", defaults, true)
+    self.db = LibStub("AceDB-3.0"):New("HideUIDB", defaults, DEFAULT_PROFILE)
+    self:LoadProfile()
     -- self.db:ResetDB("Default") --DEBUG
     -- self.db:ResetProfile() --DEBUG
 end
@@ -108,29 +111,54 @@ function Data:UpdateFrame(frame, field, input)
     end
 end
 
-function Data:IsCharacterProfile()
-    local empty = next(self.db.char) == nil
-    if empty then
-        return false
+function Data:LoadProfile()
+    local char_profile = self:GetCharProfileName()
+    local isRegistered = self:HasProfile(char_profile)
+    if isRegistered then
+        self.db:SetProfile(char_profile)
+        if not self.db.profile.globals.isCharacter then
+            self.db:SetProfile(DEFAULT_PROFILE)
+        end
     else
-        return self.db.char.globals.isCharacter
+        self.db:SetProfile(DEFAULT_PROFILE)
     end
 end
 
-function Data:SetCharacterProfile(choice)
-    local empty = next(self.db.char) == nil
-    if empty then
-        self:ChangeProfile(true)
+function Data:ChangeProfile(choice)
+    local char_profile = self:GetCharProfileName()
+    if choice then
+        self.db:SetProfile(char_profile)
+
+        if not self.db.profile.globals or not self.db.profile.frames then
+            self.db:CopyProfile(DEFAULT_PROFILE)
+        end
+
+        self.db.profile.globals.isCharacter = true
+    else
+        self.db.profile.globals.isCharacter = false
+
+        self.db:SetProfile(DEFAULT_PROFILE)
+        self.db.profile.globals.isEnabled = true --siempre activo
     end
-    self.db.char.globals.isCharacter = choice
 end
 
 function Data:GetProfile()
-    if self:IsCharacterProfile() then
-        return self.db.char
-    else
-        return self.db.profile
+    return self.db.profile, self.db:GetCurrentProfile()
+end
+
+function Data:HasProfile(profile_name)
+    local profiles = self.db:GetProfiles()
+    for _, name in ipairs(profiles) do
+        if name == profile_name then
+            return true
+        end
     end
+
+    return false
+end
+
+function Data:GetCharProfileName()
+    return UnitName("player") .. "@" .. GetRealmName()
 end
 
 function Data:RestoreGlobals()
@@ -180,21 +208,6 @@ function Data:RestoreCommunityFrames()
             }
         end
     end
-end
-
-function Data:ChangeProfile(force)
-    local profile_name
-    if self:IsCharacterProfile() or force then
-        local empty = next(self.db.char) == nil
-        if empty then
-            self.db.char.globals = self:CopyGlobals(self.db.profile.globals)
-            self.db.char.frames = self:CopyFrames(self.db.profile.frames)
-        end
-        profile_name = UnitName("player") .. "@" .. GetRealmName()
-    else
-        profile_name = "Default"
-    end
-    self.db:SetProfile(profile_name)
 end
 
 function Data:RegisterFrame(input)

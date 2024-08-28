@@ -67,7 +67,6 @@ end
 function Blizzard:OnEnable()
     self.registry = {}
     self:Draw()
-    self:UpdateUI()
 end
 
 function Blizzard:OnDisable()

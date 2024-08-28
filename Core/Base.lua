@@ -52,6 +52,7 @@ function Base:Create(frame, props, globals)
             -- IS_LOADED solo se ejecuta una vez al iniciar el addon o al hacer /reload
             -- El temporizador de 1s es para aquellos frames que fijan su velocidad tarde
             local delay = FIRST_LOAD_DELAY
+            local repeats = 1 --0=inf.
 
             -- Porque la barrita de exp es muy lenta en cargar
             if self.name == "MainStatusTrackingBarContainer" then
@@ -60,12 +61,23 @@ function Base:Create(frame, props, globals)
             if self.name == "SecondaryStatusTrackingBarContainer" then
                 delay = 2.5
             end
-            ---
+            -- Solución experimental (culpa de details)
+            if self.props.source == "community" then
+                UIFrameFadeRemoveFrame(self.frame)
+                delay = 2
+                repeats = 3
+            end
+            -- End
 
-            C_Timer.After(delay, function()
+            C_Timer.NewTicker(delay, function()
                 self:OnCreate()
                 IS_LOADED = true
-            end)
+            end, repeats)
+
+            -- C_Timer.After(delay, function()
+            --     self:OnCreate()
+            --     IS_LOADED = true
+            -- end)
         else
             self:OnReload()
         end
@@ -353,7 +365,12 @@ function Base:Create(frame, props, globals)
     end
 
     function Initial:SelectFade(frame, delay, base, target)
-        UIFrameFadeRemoveFrame(frame)
+        if not base or not target then
+            return
+        end
+        if frame then
+            UIFrameFadeRemoveFrame(frame)
+        end
         if base > target then
             delay = delay or self.globals.mouseoverFadeOutDuration
             self:FadeOut(frame, delay, base, target)

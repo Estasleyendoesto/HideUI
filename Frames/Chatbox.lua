@@ -7,7 +7,6 @@ local COMBAT_LOG = "CombatLogQuickButtonFrame_Custom"
 local CHANNEL_BUTTON = "ChatFrameChannelButton"
 local MENU_BUTTON = "ChatFrameMenuButton"
 local TEXT_MODE_ENABLED = "isTextModeEnabled"
-local NO_STATE = "NO_STATE"
 
 function Chatbox:Create(initializer)
     local Initial = initializer
