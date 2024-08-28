@@ -1,6 +1,8 @@
 local Base = HideUI:NewModule("Base")
 local EventManager
 
+local PLAYER_COMBAT_STATE = "PLAYER_COMBAT_STATE"
+local PLAYER_COMBAT_STATE_EXIT = "PLAYER_COMBAT_STATE_EXIT"
 local NO_STATE = "NO_STATE"
 local IS_LOADED = false
 local ENABLE_FIRST_OUT = false
@@ -55,6 +57,9 @@ function Base:Create(frame, props, globals)
             if self.name == "MainStatusTrackingBarContainer" then
                 delay = 2.5
             end
+            if self.name == "SecondaryStatusTrackingBarContainer" then
+                delay = 2.5
+            end
             ---
 
             C_Timer.After(delay, function()
@@ -88,10 +93,12 @@ function Base:Create(frame, props, globals)
         if not self:IsHooked(self.frame, "OnShow") then
             self:SecureHookScript(self.frame, "OnShow", function() self:OnShowHandler() end)
         end
-         
-        -- En cualquier caso, actualiza su opacidad
-        local alpha = self:GetAlpha()
-        self:SelectFade(self.frame, nil, self.originalAlpha, alpha)
+
+        -- Actualiza su opacidad
+        C_Timer.After(0.36, function()
+            local alpha = self:GetAlpha()
+            self:SelectFade(self.frame, nil, self.originalAlpha, alpha)
+        end)
     end
 
     function Initial:Destroyer()
@@ -123,28 +130,28 @@ function Base:Create(frame, props, globals)
         end
     end
 
-    function Initial:SetSelectedAlpha(field)
+    function Initial:SetSelectedAlpha(field_name)
         -- Cambia el alpha desde la interfaz (slider)
         -- field = ejemplo: afkAlphaAmount
-        local mapping = MAPPINGS[field]
+        local mapping = MAPPINGS[field_name]
         local data = self:GetActiveData()
         local active_event = self:GetActiveEvent()
         local result = data[mapping.enabled] and mapping.event == active_event.name
 
         if result then
-            self:SetAlpha(self.frame, data[field])
+            self:SetAlpha(self.frame, data[field_name])
         end
     end
 
-    function Initial:SetSelectedEvent(field)
+    function Initial:SetSelectedEvent(field_name)
         -- Según orden del usuario, fuerza la salida o reincorporación del evento seleccionado
         -- Si se reincorpora, primero comprueba si el evento se está ejecutando desde el log primario
         -- field = ejemplo: isAlphaEnabled
-        local mapping = MAPPINGS[field]
+        local mapping = MAPPINGS[field_name]
         local event = EventManager:CreateEvent(mapping.event, false)
         local data = self:GetActiveData()
 
-        local isEnabled = data[field]
+        local isEnabled = data[field_name]
         if isEnabled then
             local eventLog = EventManager:GetLog()
             for _, log in ipairs(eventLog) do
@@ -181,24 +188,24 @@ function Base:Create(frame, props, globals)
         EventManager:EventHandler(copy, self.registry, function(e) self:OnEnterEvent(e) end)
     end
 
-    function Initial:OnEnterEvent(event)
-        self:EnterEvent(event)
+    function Initial:OnEnterEvent(event_name)
+        self:EnterEvent(event_name)
     end
 
-    function Initial:OnExitEvent()
-        self:ExitEvent()
+    function Initial:OnExitEvent(event_name)
+        self:ExitEvent(event_name)
     end
 
-    function Initial:EnterEvent(event)
+    function Initial:EnterEvent(event_name)
         -- Si es EXIT, vuelve a NO_STATE
-        local isExitEvent = event:match("_EXIT")
+        local isExitEvent = event_name:match("_EXIT")
         if isExitEvent then
-            self:OnExitEvent()
+            self:OnExitEvent(event_name)
             return
         end
 
         -- Cambia al nuevo alpha
-        local formatted_event = EventManager:StripEventSuffix(event)
+        local formatted_event = EventManager:StripEventSuffix(event_name)
         local mapping = MAPPINGS[formatted_event]
         local data = self:GetActiveData()
 
@@ -213,16 +220,28 @@ function Base:Create(frame, props, globals)
         self:SetActiveEvent(formatted_event, event_alpha)
     end
 
-    function Initial:ExitEvent()
+    function Initial:ExitEvent(event_name)
         -- Corrige problema de doble llamada al encender/apagar el addon
         if not self:IsGlobalEnabled() then return end
 
         -- Rescata el alpha del evento anterior y limpia active_event
-        local base_alpha = self:GetActiveEvent().alpha
+        local active_event = self:GetActiveEvent()
+        local base_alpha = active_event.alpha
         self:SetActiveEvent(NO_STATE)
 
+        -- Si está en combate, cambia el retardo
+        local alpha_delay = ALPHA_CHANGE_DELAY
+        if event_name == PLAYER_COMBAT_STATE_EXIT then
+            for _, event in ipairs(self.registry) do 
+                if event.state == PLAYER_COMBAT_STATE and event.isActive then
+                    return -- Si evento sigue activo tras COMBAT_END_DELAY, no llamar a fade
+                end
+            end
+            alpha_delay = self.globals.combatEndDelay
+        end
+
         -- Actualiza al alpha base
-        C_Timer.After(ALPHA_CHANGE_DELAY, function()
+        C_Timer.After(alpha_delay, function()
             local target_alpha = self:GetAlpha()
             self:SelectFade(self.frame, nil, base_alpha, target_alpha)
         end)
@@ -276,7 +295,7 @@ function Base:Create(frame, props, globals)
         end)
     end
 
-    function Initial:SetExtra(field)
+    function Initial:SetExtra(field_name)
         -- Aquí llegan todos los fields actualizados desde la interfaz
         -- Solo para aquellos frames con fields adicionales y únicos, ejemplo: ChatFrame.lua
     end

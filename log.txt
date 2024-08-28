@@ -113,3 +113,7 @@ Version 1.0:
 - Fixed double call of the fade transition when enabling/disabling the addon.
 - Fixed little bug related with mouseover and Text mode
 - Multibar 5, 6, and 7 corrected; prefix changed to MultiBar.
+- Fixed aesthetic bug in certain events with chatbox text mode.
+- Added a new frame.
+- Modified the default loading of the database.
+- Base function parameters have been renamed to more descriptive names.

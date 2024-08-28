@@ -17,8 +17,10 @@ function Chatbox:Create(initializer)
 
         if self:IsTextModeEnable() then
             local alpha = self:GetAlpha()
-            self:SetAlpha(nil, alpha)
-            self:UpdateRegionVisibility()
+            C_Timer.After(0.36, function()
+                self:SetAlpha(nil, alpha)
+                self:UpdateRegionVisibility()
+            end)
         end
     end
 
@@ -138,8 +140,8 @@ function Chatbox:Create(initializer)
 
     -------------------------------------------------------------------------------->>>
     -- Extra Updates
-    function Initial:SetExtra(field)
-        if field == TEXT_MODE_ENABLED then
+    function Initial:SetExtra(field_name)
+        if field_name == TEXT_MODE_ENABLED then
             local alpha = self:GetAlpha()
             self:SetAlpha(nil, alpha)
             self:UpdateRegionVisibility()
@@ -260,17 +262,12 @@ function Chatbox:Create(initializer)
                 -- Text Mode
                 self:ModifyRegionVisibility(frame, true)
 
-                -- Text Mode - Corrección a comportamiento errático
+                -- Text Mode 
                 local _target = target
-                local active_event = self:GetActiveEvent()
-
-                if not self.fadedIn then
-                    if active_event.name == NO_STATE and self:IsGlobalEnabled() then
-                        self:ModifyRegionVisibility(frame)
-                        _target = self:ModifyTargetAmount(frame, target)
-                    end
+                if not self.fadedIn and not self.isOnFocusGained then
+                    _target = self:ModifyTargetAmount(frame, target)
+                    self:ModifyRegionVisibility(frame)
                 end
-                -- End
 
                 -- Filters
                 if string.find(frame:GetName(), "EditBox") then

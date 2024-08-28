@@ -3,7 +3,7 @@ local Data = HideUI:NewModule("Data")
 local frames = { "PlayerFrame", "TargetFrame", "FocusFrame", "PetFrame", "PetActionBar", "MinimapCluster", "ObjectiveTrackerFrame",
 "BuffFrame", "MicroMenuContainer", "BagsBar", "MainMenuBar", "BattlefieldMapFrame", "MultiBarBottomLeft", "MultiBarBottomRight",
 "MultiBarRight", "MultiBarLeft", "MultiBar5", "MultiBar6", "MultiBar7", "PlayerCastingBarFrame", "MainStatusTrackingBarContainer",
-"EncounterBar", "StanceBar", "ZoneAbilityFrame", "PartyFrame", "Chatbox"
+"SecondaryStatusTrackingBarContainer", "EncounterBar", "StanceBar", "ZoneAbilityFrame", "PartyFrame", "Chatbox"
 }
 local frames_table = {}
 for _, frame in ipairs(frames) do
@@ -82,7 +82,7 @@ local defaults = {
 ---
 
 function Data:OnInitialize()
-    self.db = LibStub("AceDB-3.0"):New("HideUIDB", defaults, "Default")
+    self.db = LibStub("AceDB-3.0"):New("HideUIDB", defaults, true)
     -- self.db:ResetDB("Default") --DEBUG
     -- self.db:ResetProfile() --DEBUG
 end
