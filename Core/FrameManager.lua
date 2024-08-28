@@ -148,9 +148,10 @@ function FrameManager:FrameSettingsUpdate(msg, frame_name, field)
         self:SendSettings(frame, field)
         -- Envía todos los fields, necesario filtrar en su correspondiente.
         frame.HideUI:SetExtra(field)
-    end
-    if field == "isEnabled" then
-        frame.HideUI:Refresh()
+
+        if field == "isEnabled" then
+            frame.HideUI:Refresh()
+        end
     end
 end
 

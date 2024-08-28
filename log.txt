@@ -120,3 +120,4 @@ Version 1.0:
 - Added experimental solution for community frames.
 - Fixed problems with profile change in Data.
 - Significantly improved performance by blocking DB calls when UpdateUI() is enabled.
+- A minor but annoying correction that I always forgot to correct xD has been applied.

@@ -383,7 +383,9 @@ function Base:Create(frame, props, globals)
     end
 
     function Initial:SetAlpha(frame, amount)
-        UIFrameFadeRemoveFrame(frame)
+        if frame then
+            UIFrameFadeRemoveFrame(frame)
+        end
         if self:IsVisible(frame) then
             frame:SetAlpha(amount)
         end
