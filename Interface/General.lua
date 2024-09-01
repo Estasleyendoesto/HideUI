@@ -120,7 +120,7 @@ function General:Draw()
     element   = Builder:AddElementToSection(section, settings)
     
     -- Enabled
-    tooltip   = "Toggle the addon's full functionality. Ideal for resetting in case of erratic behavior or as a replacement for Ctrl + Z. You can bind a key in Keybinds -> Addons."
+    tooltip   = "Toggle the addon's full functionality. Ideal for resetting in case of erratic behavior or as a replacement for Ctrl + Z. You can bind a key in Keybinds -> HideUI."
     settings  = Builder:RegisterSettings({name="Enable HideUI", type="checkbox", variable="enable_checkbox", tooltip=tooltip}, defaults)
     element   = Builder:AddElementToSection(section, settings, element)
 

@@ -54,13 +54,13 @@ Version 0.8:
 Version 0.9:
 - Event alphas sliders now work and update correctly.
 - Issues to resolve:
-    - Too much redundancy in FrameTemplate with event names and state bindings.
-    - In OnEventExit() of FrameTemplate, the described function needs to be created.
-    - The filter for OnAlphaUpdate() needs refactoring or making it compatible with frames, not just global.
-    - The new UpdateStateEvents() function requires refactoring.
-    - All changes are related to FrameTemplate, which generally requires refactoring, simplifying logic, and if possible...
-    - DO NOT TOUCH FUNCTIONS RELATED TO EVENTS, everything else is fair game.
-    - Another persistent issue with Builder sliders, the limit is never the maximum or minimum, needs fixing.
+    x Too much redundancy in FrameTemplate with event names and state bindings.
+    x In OnEventExit() of FrameTemplate, the described function needs to be created.
+    x The filter for OnAlphaUpdate() needs refactoring or making it compatible with frames, not just global.
+    x The new UpdateStateEvents() function requires refactoring.
+    x All changes are related to FrameTemplate, which generally requires refactoring, simplifying logic, and if possible...
+    x DO NOT TOUCH FUNCTIONS RELATED TO EVENTS, everything else is fair game.
+    x Another persistent issue with Builder sliders, the limit is never the maximum or minimum, needs fixing.
     (*) x -> done
 - Created SelectFade() function in FrameTemplate() that chooses the correct Fade based on base and target.
 - Consolidated all event names, fields, and amounts into a single MAPPINGS table used by everyone.
@@ -87,9 +87,9 @@ Version 1.0:
 - You can now reset Blizzard frames to defaults.
 - Completed the Frames category, frames are represented in ExpandableSection(), and adjust their visibility and availability according to Data.
 - NOTES:
-    - From FrameManager, in BindFrames and BindFrame, there is a filter for Chatbox. The intention is to make it "for all frame containers."
-    - Consider adding a new field in Data like "cluster=true," instead of evaluating Chatbox, evaluate if cluster=true.
-    - Instead of ChatFrame:Create(), use a base template like Cluster.lua, and ChatFrame will be defined within it.
+    x From FrameManager, in BindFrames and BindFrame, there is a filter for Chatbox. The intention is to make it "for all frame containers."
+    x Consider adding a new field in Data like "cluster=true," instead of evaluating Chatbox, evaluate if cluster=true.
+    x Instead of ChatFrame:Create(), use a base template like Cluster.lua, and ChatFrame will be defined within it.
 - Removed STATE_BINDINGS and UpdateStateBindings.
 - Simplified logic for updating the amount slider for frames.
 - FormatEventName() is now a function of EventManager.
@@ -109,9 +109,11 @@ Version 1.0:
 - Added a 0.18s delay for EventEnter, EventExit, and Refresh in Base to activate opacity change, improving smoothness and transition.
 - Added Chatbox.lua module that inherits from Cluster.
 - Programmed the extra "Set Text Mode" functionality for Chatbox.
+- Changed to version 1.0.1
 - Fixed "Text Mode" Issues with certain events
 - Fixed double call of the fade transition when enabling/disabling the addon.
 - Fixed little bug related with mouseover and Text mode
+- Changed to version 1.0.2
 - Multibar 5, 6, and 7 corrected; prefix changed to MultiBar.
 - Fixed aesthetic bug in certain events with chatbox text mode.
 - Added a new frame.
@@ -120,4 +122,14 @@ Version 1.0:
 - Added experimental solution for community frames.
 - Fixed problems with profile change in Data.
 - Significantly improved performance by blocking DB calls when UpdateUI() is enabled.
+- Changed to version 1.0.3
 - A minor but annoying correction that I always forgot to correct xD has been applied.
+- Changed to version 1.0.3.1
+- Applied minor corrections to code order and readability
+- Fixed problem of not detecting new chat tabs.
+- LockDefaultAlpha() and UnlockDefaultAlpha() functions have been created to prevent the system from changing the alpha.
+- Like Cluster, Frame.lua has been created to deal with those third-party or particularly conflicting frames, and if they require full customization, they will have their own module in the /Frames folder. As an advantage, they inherit from base and Frame.
+- A speculative solution has been applied to a possibility that Bindings of Blizzard.lua has a non-existing frame registered in Data
+- Added a requirement that frame has the GetName() method when trying to add a new frame in Community.
+- The Addons keybinding section has been renamed HideUI.
+- Changed to version 1.0.4

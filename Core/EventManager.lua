@@ -1,13 +1,31 @@
 local EventManager = HideUI:NewModule("EventManager", "AceEvent-3.0")
 
 local EVENT_LOG = {}
-local PRIORITIES = {
-    -- Número más alto mayor prioridad
-    PLAYER_MOUNT_STATE = 1,
-    PLAYER_AFK_STATE = 2,
-    PLAYER_COMBAT_STATE = 3,
-    PLAYER_INSTANCE_STATE = 4,
+local MAPPINGS = {
+    fields = {}
 }
+do
+    local data = {
+        {event = "PLAYER_MOUNT_STATE",    enabled = "isMountEnabled",    amount = "mountAlphaAmount"   , priority = 1, name = "mount"},
+        {event = "PLAYER_AFK_STATE",      enabled = "isAFKEnabled",      amount = "afkAlphaAmount"     , priority = 2, name = "afk"},
+        {event = "PLAYER_COMBAT_STATE",   enabled = "isCombatEnabled",   amount = "combatAlphaAmount"  , priority = 3, name = "combat"},
+        {event = "PLAYER_INSTANCE_STATE", enabled = "isInstanceEnabled", amount = "instanceAlphaAmount", priority = 4, name = "instance"},
+        -- Insertar aquí nuevos eventos, si los hay...
+        -- ...
+    }
+    for _, entry in ipairs(data) do
+        MAPPINGS[entry.event]     = {enabled = entry.enabled, amount = entry.amount, priority = entry.priority,  name = entry.name}
+        MAPPINGS[entry.enabled]   = {event   = entry.event,   amount = entry.amount, priority = entry.priority,  name = entry.name}
+        MAPPINGS[entry.name]      = {enabled = entry.enabled, amount = entry.amount,    event = entry.event, priority = entry.priority}
+        MAPPINGS[entry.priority]  = {enabled = entry.enabled, amount = entry.amount,    event = entry.event,     name = entry.name}
+        MAPPINGS[entry.amount]    = {enabled = entry.enabled,  event = entry.event , priority = entry.priority,  name = entry.name}
+    end
+    for _, entry in ipairs(data) do
+        if entry.enabled then
+            table.insert(MAPPINGS.fields, entry.enabled)
+        end
+    end
+end
 
 function EventManager:OnEnable()
     --AFK
@@ -58,57 +76,69 @@ function EventManager:CheckEvents()
     self:CheckInstance()
 end
 
-function EventManager:Recall(state)
-    if state == "PLAYER_AFK_STATE" then
+function EventManager:Recall(event_name)
+    if event_name == MAPPINGS.afk.event then
         self:OnAFKState()
-    elseif state == "PLAYER_MOUNT_STATE" then
+    elseif event_name == MAPPINGS.mount.event then
         self.isMounted = false
         self:OnMountState(nil, "player")
-    elseif state == "PLAYER_COMBAT_STATE" then
+    elseif event_name == MAPPINGS.combat.event then
         self.inCombat = false
         self:OnCombatState("UNIT_COMBAT", "player")
-    elseif state == "PLAYER_INSTANCE_STATE" then
+    elseif event_name == MAPPINGS.instance.event then
         self.inInstance = false
         self:CheckInstance()
     end
 end
 
 function EventManager:ExitStates()
-    self:NotifyEvent("PLAYER_AFK_STATE", false)
-    self:NotifyEvent("PLAYER_COMBAT_STATE", false)
-    self:NotifyEvent("PLAYER_MOUNT_STATE", false)
-    self:NotifyEvent("PLAYER_INSTANCE_STATE", false)
+    self:NotifyEvent(MAPPINGS.afk.event, false)
+    self:NotifyEvent(MAPPINGS.combat.event, false)
+    self:NotifyEvent(MAPPINGS.mount.event, false)
+    self:NotifyEvent(MAPPINGS.instance.event, false)
 end
 
-function EventManager:StripEventSuffix(event)
-    if event == "NO_STATE" then
+function EventManager:StripEventSuffix(event_name)
+    if event_name == "NO_STATE" then
         return "NO_STATE"
     end
-    local patterns = {"_EXIT$", "_NEXT$", "_HOLD$", "_ENTER$"}
+    local patterns = {".EXIT$", ".NEXT$", ".HOLD$", ".ENTER$"}
     for _, pattern in ipairs(patterns) do
-        event = string.gsub(event, pattern, "")
+        event_name = string.gsub(event_name, pattern, "")
     end
-    return event
+    return event_name
 end
 
-function EventManager:GetPriority(state)
-    return PRIORITIES[state]
+function EventManager:GetMapping(data)
+    return MAPPINGS[data]
+end
+
+function EventManager:GetMappings()
+    return MAPPINGS
+end
+
+function EventManager:GetPriority(event_name)
+    return MAPPINGS[event_name].priority
 end
 
 function EventManager:GetLog()
     return EVENT_LOG
 end
 
-function EventManager:CreateEvent(state, isActive)
+function EventManager:CreateEvent(event_name, isActive)
+    local priority = 0
+    if MAPPINGS[event_name] then
+        priority = MAPPINGS[event_name].priority
+    end
     return {
-        state = state,
-        priority = PRIORITIES[state] or 0,
+        state = event_name,
+        priority = priority,
         isActive = isActive
     }
 end
 
-function EventManager:NotifyEvent(state, isActive)
-    local event = self:CreateEvent(state, isActive)
+function EventManager:NotifyEvent(event_name, isActive)
+    local event = self:CreateEvent(event_name, isActive)
     self:EventHandler(event, EVENT_LOG) -- Log
     self:SendMessage("PLAYER_STATE_CHANGED", event)
 end
@@ -152,28 +182,28 @@ function EventManager:EventSender(event, registry, func, fifo)
     local max_event = self:GetMaxEvent(registry)
     -- _exit, lista vacía
     if not event.isActive and #registry == 0 then
-        func(event.state .. "_EXIT")
+        func(event.state .. ".EXIT")
         return
     end
     if event.isActive then
         -- _enter, actual máximo
         if event.state == max_event.state then
-            func(event.state .. "_ENTER")
+            func(event.state .. ".ENTER")
         end
     else
         -- _hold, sale inferior
         if event.priority < max_event.priority then
-            func(max_event.state .. "_HOLD")
+            func(max_event.state .. ".HOLD")
         else
             if fifo then
                 -- _exit, actual máximo
                 if event.priority > max_event.priority then
-                    func(event.state .. "_EXIT_FIRST")
+                    func(event.state .. ".EXIT_FIRST")
                 end
             else
                 -- _next, segundo máximo
                 if event.state ~= max_event.state then
-                    func(max_event.state .. "_NEXT")
+                    func(max_event.state .. ".NEXT")
                 end
             end
         end
@@ -203,11 +233,11 @@ end
 function EventManager:CheckInstance()
     if IsInInstance() then
         if not self.inInstance then
-            self:NotifyEvent("PLAYER_INSTANCE_STATE", true)
+            self:NotifyEvent(MAPPINGS.instance.event, true)
             self.inInstance = true
         end
     else
-        self:NotifyEvent("PLAYER_INSTANCE_STATE", false)
+        self:NotifyEvent(MAPPINGS.instance.event, false)
         self.inInstance = false
     end
 end
@@ -216,28 +246,28 @@ end
 -- AFK State
 function EventManager:OnAFKState()
     if UnitIsAFK("player") then
-        self:NotifyEvent("PLAYER_AFK_STATE", true)
+        self:NotifyEvent(MAPPINGS.afk.event, true)
     else
-        self:NotifyEvent("PLAYER_AFK_STATE", false)
+        self:NotifyEvent(MAPPINGS.afk.event, false)
     end
 end
 
 -------------------------------------------------------------------------------->>>
 -- Combat State
-function EventManager:OnCombatState(event, unit, ...)
+function EventManager:OnCombatState(event_name, unit, ...)
     local combat_enter = false
     local combat_end = false
-    if event == "PLAYER_REGEN_ENABLED" then
+    if event_name == "PLAYER_REGEN_ENABLED" then
         if self.inCombat then
             self.inCombat = false
             combat_end = true
         end
-    elseif event == "PLAYER_REGEN_DISABLED" then
+    elseif event_name == "PLAYER_REGEN_DISABLED" then
         if not self.inCombat then
             self.inCombat = true
             combat_enter = true
         end
-    elseif event == "UNIT_COMBAT" and unit == "player" then
+    elseif event_name == "UNIT_COMBAT" and unit == "player" then
         if UnitAffectingCombat("player") and not self.inCombat then
             self.inCombat = true
             combat_enter = true
@@ -247,27 +277,27 @@ function EventManager:OnCombatState(event, unit, ...)
         end
     end
     if combat_enter then
-        self:NotifyEvent("PLAYER_COMBAT_STATE", true)
+        self:NotifyEvent(MAPPINGS.combat.event, true)
     end
     if combat_end then
-        self:NotifyEvent("PLAYER_COMBAT_STATE", false)
+        self:NotifyEvent(MAPPINGS.combat.event, false)
     end
 end
 
 -------------------------------------------------------------------------------->>>
 -- Mount State
-function EventManager:OnMountState(event, unit)
+function EventManager:OnMountState(event_name, unit)
     if unit ~= "player" then return end
 
     if IsMounted() or UnitInVehicle("player") then
         if not self.isMounted then
             self.isMounted = true
-            self:NotifyEvent("PLAYER_MOUNT_STATE", true)
+            self:NotifyEvent(MAPPINGS.mount.event, true)
         end
     else
         if self.isMounted then
             self.isMounted = false
-            self:NotifyEvent("PLAYER_MOUNT_STATE", false)
+            self:NotifyEvent(MAPPINGS.mount.event, false)
         end
     end
 end

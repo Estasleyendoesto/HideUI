@@ -69,7 +69,7 @@ function Chatbox:Create(initializer)
 
         local OnIntercept = function()
             -- Actualiza chatboxes si hay cambios en las ventanas
-            self.chatboxes = self:GetChatFrames()
+            self.chatFrames = self:GetFrames()
             -- Para los Editboxes
             InterceptEditBoxes()
         end

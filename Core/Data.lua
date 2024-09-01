@@ -97,6 +97,18 @@ function Data:Find(field)
     end
 end
 
+function Data:CheckFrame(frame)
+    if frame then
+        local profile = self:GetProfile()
+        local exists = profile.frames[frame] or nil
+        if exists then
+            return true
+        else
+            return false
+        end
+    end
+end
+
 function Data:UpdateGlobals(field, input)
     if field then
         local profile = self:GetProfile()
@@ -183,9 +195,8 @@ function Data:RestoreCommunityFrames()
     local profile = self:GetProfile()
     local database = profile.frames
 
-    for frame, field in pairs(database) do
-        local source = field.source
-        if source == "community" then
+    for _, field in pairs(database) do
+        if field.source == "community" then
             database[field.name] = {
                 name = field.name,
                 alias = field.alias or nil,

@@ -62,7 +62,7 @@ end
 
 -- Binding Frames
 -------------------------------------------------------------------------------->>>
-function FrameManager:InitializeFrame(frame, data, globals)
+function FrameManager:InitializeFrame(frame, props, globals)
     -- Impide que vuelva a crearse y ejecutarse si ya ha sido creado
     if frame and frame.HideUI then
         return frame
@@ -70,10 +70,10 @@ function FrameManager:InitializeFrame(frame, data, globals)
 
     -- Crea si no existe
     if frame and not frame.HideUI then
-        frame.HideUI = Base:Create(frame, data, globals)
-    elseif not frame and data.cluster then
+        frame.HideUI = Base:Create(frame, props, globals)
+    elseif not frame and props.cluster then
         frame = {}
-        frame.HideUI = Cluster:Create(data, globals)
+        frame.HideUI = Cluster:Create(props, globals)
     end
 
     -- Si ha sido creado exitosamente, ejecuta
@@ -86,10 +86,10 @@ end
 
 function FrameManager:BindFrame(name)
     local globals = Data:Find("globals")
-    local data  = Data:Find("frames")[name]
+    local props  = Data:Find("frames")[name]
     local frame = GAME_FRAMES[name] or _G[name]
-    if data then
-        frame = self:InitializeFrame(frame, data, globals)
+    if props then
+        frame = self:InitializeFrame(frame, props, globals)
         if frame then
             GAME_FRAMES[name] = frame
         end
@@ -101,11 +101,11 @@ function FrameManager:BindFrames()
     local frames  = Data:Find("frames")
     local temp = {}
     local frame
-    for _, data in pairs(frames) do
-        frame = GAME_FRAMES[data.name] or _G[data.name]
-        frame = self:InitializeFrame(frame, data, globals)
+    for _, props in pairs(frames) do
+        frame = GAME_FRAMES[props.name] or _G[props.name]
+        frame = self:InitializeFrame(frame, props, globals)
         if frame then
-            temp[data.name] = frame
+            temp[props.name] = frame
         end
     end
     GAME_FRAMES = temp

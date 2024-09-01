@@ -9,7 +9,6 @@ local HEADER = "Third-Party Frames"
 local MAPPINGS = {
     enable_checkbox     = "isEnabled",
     mouseover_checkbox  = "isMouseoverEnabled",
-    -- alpha_checkbox      = "isAlphaEnabled",
     alpha_slider        = "alphaAmount",
     afk_checkbox        = "isAFKEnabled",
     mount_checkbox      = "isMountEnabled",

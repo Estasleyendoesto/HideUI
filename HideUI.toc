@@ -2,7 +2,7 @@
 ## Title: HideUI
 ## Notes: Hide any frame
 ## Author: EEsto
-## Version: 1.0.3
+## Version: 1.0.4
 
 ## SavedVariables: HideUIDB
 ## OptionalDeps: Ace3
@@ -21,6 +21,7 @@ Core\Data.lua
 Core\Dispatcher.lua
 Core\EventManager.lua
 Core\Base.lua
+Core\Single.lua
 Core\Cluster.lua
 Core\FrameManager.lua
 

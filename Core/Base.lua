@@ -10,29 +10,6 @@ local FIRST_LOAD_DELAY = 1
 local ORIGINAL_ALPHA = 1
 local MOUSEOVER_REVEAL_ALPHA = 1
 local ALPHA_CHANGE_DELAY = 0.18
-local MAPPINGS = {
-    fields = {}
-}
-do
-    local data = {
-        {event = "PLAYER_AFK_STATE",      enabled = "isAFKEnabled",      amount = "afkAlphaAmount"     },
-        {event = "PLAYER_MOUNT_STATE",    enabled = "isMountEnabled",    amount = "mountAlphaAmount"   },
-        {event = "PLAYER_COMBAT_STATE",   enabled = "isCombatEnabled",   amount = "combatAlphaAmount"  },
-        {event = "PLAYER_INSTANCE_STATE", enabled = "isInstanceEnabled", amount = "instanceAlphaAmount"},
-        -- Insertar aquí nuevos eventos, si los hay...
-        -- ...
-    }
-    for _, entry in ipairs(data) do
-        MAPPINGS[entry.event]   = {enabled = entry.enabled, amount = entry.amount}
-        MAPPINGS[entry.enabled] = {event   = entry.event,   amount = entry.amount}
-        MAPPINGS[entry.amount]  = {enabled = entry.enabled,  event = entry.event }
-    end
-    for _, entry in ipairs(data) do
-        if entry.enabled then
-            table.insert(MAPPINGS.fields, entry.enabled)
-        end
-    end
-end
 
 function Base:OnInitialize()
     EventManager = HideUI:GetModule("EventManager")
@@ -145,7 +122,7 @@ function Base:Create(frame, props, globals)
     function Initial:SetSelectedAlpha(field_name)
         -- Cambia el alpha desde la interfaz (slider)
         -- field = ejemplo: afkAlphaAmount
-        local mapping = MAPPINGS[field_name]
+        local mapping = self:GetMapping(field_name)
         local data = self:GetActiveData()
         local active_event = self:GetActiveEvent()
         local result = data[mapping.enabled] and mapping.event == active_event.name
@@ -159,7 +136,7 @@ function Base:Create(frame, props, globals)
         -- Según orden del usuario, fuerza la salida o reincorporación del evento seleccionado
         -- Si se reincorpora, primero comprueba si el evento se está ejecutando desde el log primario
         -- field = ejemplo: isAlphaEnabled
-        local mapping = MAPPINGS[field_name]
+        local mapping = self:GetMapping(field_name)
         local event = EventManager:CreateEvent(mapping.event, false)
         local data = self:GetActiveData()
 
@@ -182,7 +159,7 @@ function Base:Create(frame, props, globals)
         -- Según su estado en memoria, admite su registro u ordena su salida
 
         -- Comprueba si es evento global o local
-        local mapping = MAPPINGS[event.state]
+        local mapping = self:GetMapping(event.state)
         local field = mapping.enabled
 
         local data = self:GetActiveData()
@@ -210,7 +187,7 @@ function Base:Create(frame, props, globals)
 
     function Initial:EnterEvent(event_name)
         -- Si es EXIT, vuelve a NO_STATE
-        local isExitEvent = event_name:match("_EXIT")
+        local isExitEvent = event_name:match(".EXIT")
         if isExitEvent then
             self:OnExitEvent(event_name)
             return
@@ -218,7 +195,7 @@ function Base:Create(frame, props, globals)
 
         -- Cambia al nuevo alpha
         local formatted_event = EventManager:StripEventSuffix(event_name)
-        local mapping = MAPPINGS[formatted_event]
+        local mapping = self:GetMapping(formatted_event)
         local data = self:GetActiveData()
 
         local base_alpha = self:GetAlpha()
@@ -293,7 +270,7 @@ function Base:Create(frame, props, globals)
         self:SetActiveEvent(NO_STATE, nil)
         self.registry = {}
 
-        local fields = MAPPINGS.fields
+        local fields = self:GetEventFields()
         for _, field in ipairs(fields) do
             self:SetSelectedEvent(field)
         end
@@ -419,6 +396,14 @@ function Base:Create(frame, props, globals)
         return self.activeEvent
     end
 
+    function Initial:GetMapping(data)
+        return EventManager:GetMapping(data)
+    end
+
+    function Initial:GetEventFields()
+        return EventManager:GetMapping("fields")
+    end
+
     Initial.registry = {}
     Initial.globals  = globals
     Initial.props    = props
@@ -433,5 +418,12 @@ function Base:Create(frame, props, globals)
         Initial.frame = frame
         Initial.name  = frame:GetName()
     end
-    return Initial
+
+    -- Si es de community, deriva a Single.lua, que maneja los "comportamientos especiales" que puedan tener
+    if props.source == "community" then
+        local mod = HideUI:GetModule("Single", true)
+        return mod:Create(Initial)
+    else
+        return Initial
+    end
 end

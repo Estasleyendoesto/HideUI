@@ -43,7 +43,6 @@ local BINDINGS = {
 local MAPPINGS = {
     enable_checkbox     = "isEnabled",
     mouseover_checkbox  = "isMouseoverEnabled",
-    -- alpha_checkbox      = "isAlphaEnabled",
     alpha_slider        = "alphaAmount",
     afk_checkbox        = "isAFKEnabled",
     mount_checkbox      = "isMountEnabled",
@@ -132,8 +131,10 @@ function Blizzard:Draw()
     self.categoryHeader = Builder:CreateCategoryHeader(HEADER, self.frame, self.OnDefault)
     self.scrollContainer = Builder:CreateScrollContainer(self.frame, {y = -50})
 
-    for k, frame in ipairs(BINDINGS) do
-        self:BuildSection(frame.name, frame.alias)
+    for _, frame in ipairs(BINDINGS) do
+        if Data:CheckFrame(frame.name) then
+            self:BuildSection(frame.name, frame.alias)
+        end
     end
 
     Builder:CreateSection(nil, "empty", self.scrollContainer, self.before, {h = 50})

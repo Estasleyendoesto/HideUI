@@ -101,10 +101,10 @@ end
 -------------------------------------------------------------------------------->>>
 function Dispatcher:OnFrameRegister(name)
     local input
-    local frame = _G[name]
     local data = Data:Find("frames")
+    local frame = _G[name]
     local manager = HideUI:GetModule("FrameManager")
-    if frame and not data[name] then
+    if frame and frame.GetName and not data[name] then
         input = {
             name = name
         }
