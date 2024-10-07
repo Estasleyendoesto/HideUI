@@ -1,22 +1,18 @@
 local Cluster = HideUI:NewModule("Cluster")
-local Base
 
-function Cluster:OnInitialize()
-    Base = HideUI:GetModule("Base")
-end
-
-function Cluster:Create(props, globals)
+function Cluster:Create(initializer)
     -- Contenido que heredará
-    local Initial = Base:Create(nil, props, globals)
+    local Initial = initializer
 
     function Initial:GetFrames()
+        return {}
     end
 
-    Initial.name = props.name
+    Initial.name = initializer.props.name
     Initial.frames = Initial:GetFrames()
 
     -- Si es un cluster registrado, deriva a su modulo ubicado siempre en /Frames si existe
-    local mod = HideUI:GetModule(props.name, true)
+    local mod = HideUI:GetModule(initializer.props.name, true)
     if mod then
         return mod:Create(Initial)
     else

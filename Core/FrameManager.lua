@@ -1,6 +1,5 @@
 local FrameManager = HideUI:NewModule("FrameManager", "AceEvent-3.0")
 local Base
-local Cluster
 local Data
 
 local GAME_FRAMES = {}
@@ -17,9 +16,8 @@ local EVENT_FIELDS = {
 }
 
 function FrameManager:OnInitialize()
-    Data      = HideUI:GetModule("Data")
-    Base      = HideUI:GetModule("Base")
-    Cluster   = HideUI:GetModule("Cluster")
+    Data = HideUI:GetModule("Data")
+    Base = HideUI:GetModule("Base")
 end
 
 function FrameManager:OnEnable()
@@ -73,7 +71,7 @@ function FrameManager:InitializeFrame(frame, props, globals)
         frame.HideUI = Base:Create(frame, props, globals)
     elseif not frame and props.cluster then
         frame = {}
-        frame.HideUI = Cluster:Create(props, globals)
+        frame.HideUI = Base:Create(nil, props, globals)
     end
 
     -- Si ha sido creado exitosamente, ejecuta

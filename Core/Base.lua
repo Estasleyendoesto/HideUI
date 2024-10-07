@@ -2,14 +2,15 @@ local Base = HideUI:NewModule("Base")
 local EventManager
 
 local PLAYER_COMBAT_STATE = "PLAYER_COMBAT_STATE"
-local PLAYER_COMBAT_STATE_EXIT = "PLAYER_COMBAT_STATE_EXIT"
 local NO_STATE = "NO_STATE"
 local IS_LOADED = false
 local ENABLE_FIRST_OUT = false
 local FIRST_LOAD_DELAY = 1
 local ORIGINAL_ALPHA = 1
 local MOUSEOVER_REVEAL_ALPHA = 1
-local ALPHA_CHANGE_DELAY = 0.18
+local ALPHA_CHANGE_DELAY = 0
+local FRAME_LOADER_DELAY = 0
+local FRAME_DESTROY_DELAY = 0
 
 function Base:OnInitialize()
     EventManager = HideUI:GetModule("EventManager")
@@ -84,7 +85,7 @@ function Base:Create(frame, props, globals)
         end
 
         -- Actualiza su opacidad
-        C_Timer.After(0.36, function()
+        C_Timer.After(FRAME_LOADER_DELAY, function()
             local alpha = self:GetAlpha()
             self:SelectFade(self.frame, nil, self.originalAlpha, alpha)
         end)
@@ -95,7 +96,7 @@ function Base:Create(frame, props, globals)
             if self:IsHooked(self.frame, "OnShow") then self:Unhook(self.frame, "OnShow") end
         end
 
-        C_Timer.After(ALPHA_CHANGE_DELAY, function()
+        C_Timer.After(FRAME_DESTROY_DELAY, function()
             local alpha = self:GetAlpha()
             self:SelectFade(self.frame, nil, alpha, self.originalAlpha)
         end)
@@ -121,7 +122,6 @@ function Base:Create(frame, props, globals)
 
     function Initial:SetSelectedAlpha(field_name)
         -- Cambia el alpha desde la interfaz (slider)
-        -- field = ejemplo: afkAlphaAmount
         local mapping = self:GetMapping(field_name)
         local data = self:GetActiveData()
         local active_event = self:GetActiveEvent()
@@ -220,15 +220,14 @@ function Base:Create(frame, props, globals)
 
         -- Si está en combate, cambia el retardo
         local alpha_delay = ALPHA_CHANGE_DELAY
-        if event_name == PLAYER_COMBAT_STATE_EXIT then
-            for _, event in ipairs(self.registry) do 
+        if event_name == PLAYER_COMBAT_STATE .. ".EXIT" then
+            for _, event in ipairs(self.registry) do
                 if event.state == PLAYER_COMBAT_STATE and event.isActive then
                     return -- Si evento sigue activo tras COMBAT_END_DELAY, no llamar a fade
                 end
             end
             alpha_delay = self.globals.combatEndDelay
         end
-
         -- Actualiza al alpha base
         C_Timer.After(alpha_delay, function()
             local target_alpha = self:GetAlpha()
@@ -419,8 +418,12 @@ function Base:Create(frame, props, globals)
         Initial.name  = frame:GetName()
     end
 
-    -- Si es de community, deriva a Single.lua, que maneja los "comportamientos especiales" que puedan tener
-    if props.source == "community" then
+    -- Si es Cluster, delega responsabilidad a Cluster.lua
+    if not frame and props.cluster then
+        local mod = HideUI:GetModule("Cluster", true)
+        return mod:Create(Initial)
+    -- Si es Single, delega responsabilidad a Single.lua
+    elseif frame and props.source == "community" then
         local mod = HideUI:GetModule("Single", true)
         return mod:Create(Initial)
     else

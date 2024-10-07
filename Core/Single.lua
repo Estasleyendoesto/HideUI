@@ -20,7 +20,7 @@ function Single:Create(initializer)
         end
     end
 
-    -- Si el frame tiene su propio módulo, deriva a su modulo ubicado siempre en /Frames
+    -- Si el frame tiene su propio módulo, delega responsabilidad a su modulo ubicado siempre en carpeta /Frames
     local mod = HideUI:GetModule(initializer.name, true)
     if mod then
         return mod:Create(Initial)

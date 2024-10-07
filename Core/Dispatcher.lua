@@ -30,10 +30,10 @@ function Dispatcher:Refresh()
     HideUI:DisableModule("EventManager")
     HideUI:DisableModule("FrameManager")
 
-    C_Timer.After(0.42, function()
+    C_Timer.After(0.25, function()
         self:ModulesHandler()
     end)
-    C_Timer.After(0.225, function()
+    C_Timer.After(0.1, function()
         UIManager:UpdateUI()
     end)
 end
@@ -103,13 +103,13 @@ function Dispatcher:OnFrameRegister(name)
     local input
     local data = Data:Find("frames")
     local frame = _G[name]
-    local manager = HideUI:GetModule("FrameManager")
+    local Manager = HideUI:GetModule("FrameManager")
     if frame and frame.GetName and not data[name] then
         input = {
             name = name
         }
         Data:RegisterFrame(input)
-        manager:BindFrame(name)
+        Manager:BindFrame(name)
         return true
     end
     return false
@@ -118,10 +118,10 @@ end
 function Dispatcher:OnFrameUnregister(name)
     local data = Data:Find("frames")
     local frame = data[name]
-    local manager = HideUI:GetModule("FrameManager")
+    local Manager = HideUI:GetModule("FrameManager")
     if frame and frame.source == "community" then
         Data:UnregisterFrame(name)
-        manager:UnbindFrame(name)
+        Manager:UnbindFrame(name)
         return true
     end
     return false
