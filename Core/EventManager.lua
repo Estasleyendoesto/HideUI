@@ -8,8 +8,8 @@ do
     local data = {
         {event = "PLAYER_MOUNT_STATE",    enabled = "isMountEnabled",    amount = "mountAlphaAmount"   , priority = 1, name = "mount"},
         {event = "PLAYER_AFK_STATE",      enabled = "isAFKEnabled",      amount = "afkAlphaAmount"     , priority = 2, name = "afk"},
-        {event = "PLAYER_COMBAT_STATE",   enabled = "isCombatEnabled",   amount = "combatAlphaAmount"  , priority = 3, name = "combat"},
-        {event = "PLAYER_INSTANCE_STATE", enabled = "isInstanceEnabled", amount = "instanceAlphaAmount", priority = 4, name = "instance"},
+        {event = "PLAYER_INSTANCE_STATE", enabled = "isInstanceEnabled", amount = "instanceAlphaAmount", priority = 3, name = "instance"},
+        {event = "PLAYER_COMBAT_STATE",   enabled = "isCombatEnabled",   amount = "combatAlphaAmount"  , priority = 4, name = "combat"},
         -- Insertar aquí nuevos eventos, si los hay...
         -- ...
     }

@@ -39,3 +39,5 @@ Interface\Community.lua
 ## Custom Frames
 Frames\Mappings.lua
 Frames\Chatbox.lua
+Frames\MainStatusTrackingBarContainer.lua
+Frames\SecondaryStatusTrackingBarContainer.lua

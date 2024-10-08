@@ -3,13 +3,10 @@ local EventManager
 
 local PLAYER_COMBAT_STATE = "PLAYER_COMBAT_STATE"
 local NO_STATE = "NO_STATE"
-local IS_LOADED = false
 local ENABLE_FIRST_OUT = false
-local FIRST_LOAD_DELAY = 1
 local ORIGINAL_ALPHA = 1
 local MOUSEOVER_REVEAL_ALPHA = 1
 local ALPHA_CHANGE_DELAY = 0
-local FRAME_LOADER_DELAY = 0
 local FRAME_DESTROY_DELAY = 0
 
 function Base:OnInitialize()
@@ -26,36 +23,9 @@ function Base:Create(frame, props, globals)
     self:Embed(Initial)
 
     function Initial:OnReady()
-        if not IS_LOADED then
-            -- IS_LOADED solo se ejecuta una vez al iniciar el addon o al hacer /reload
-            -- El temporizador de 1s es para aquellos frames que fijan su velocidad tarde
-            local delay = FIRST_LOAD_DELAY
-            local repeats = 1 --0=inf.
-
-            -- Porque la barrita de exp es muy lenta en cargar
-            if self.name == "MainStatusTrackingBarContainer" then
-                delay = 2.5
-            end
-            if self.name == "SecondaryStatusTrackingBarContainer" then
-                delay = 2.5
-            end
-            -- Solución experimental (culpa de details)
-            if self.props.source == "community" then
-                UIFrameFadeRemoveFrame(self.frame)
-                delay = 2
-                repeats = 3
-            end
-            -- End
-
-            C_Timer.NewTicker(delay, function()
-                self:OnCreate()
-                IS_LOADED = true
-            end, repeats)
-
-            -- C_Timer.After(delay, function()
-            --     self:OnCreate()
-            --     IS_LOADED = true
-            -- end)
+        if not self.frame.HideUI_loaded then
+            self:OnCreate()
+            self.frame.HideUI_loaded = true
         else
             self:OnReload()
         end
@@ -74,21 +44,14 @@ function Base:Create(frame, props, globals)
     end
 
     function Initial:Initializer()
-        -- Solo afecta a frames, no clusters
-        if not self.frame then
-            return
-        end
-
         -- Solución a aquellos frames que se muestran/ocultan en medio del juego
         if not self:IsHooked(self.frame, "OnShow") then
             self:SecureHookScript(self.frame, "OnShow", function() self:OnShowHandler() end)
         end
 
         -- Actualiza su opacidad
-        C_Timer.After(FRAME_LOADER_DELAY, function()
-            local alpha = self:GetAlpha()
-            self:SelectFade(self.frame, nil, self.originalAlpha, alpha)
-        end)
+        local alpha = self:GetAlpha()
+        self:SelectFade(self.frame, nil, self.originalAlpha, alpha)
     end
 
     function Initial:Destroyer()
@@ -201,8 +164,14 @@ function Base:Create(frame, props, globals)
         local base_alpha = self:GetAlpha()
         local event_alpha = data[mapping.amount]
 
-        C_Timer.After(ALPHA_CHANGE_DELAY, function()
-            self:SelectFade(self.frame, nil, base_alpha, event_alpha)
+        self:SelectFade(self.frame, nil, base_alpha, event_alpha)
+
+        -- Fuerza a cambiar el alpha a aquellos frames rezagados
+        C_Timer.After(1, function()
+            local active_event = self:GetActiveEvent()
+            if formatted_event == active_event.name then
+                self:SetAlpha(self.frame, event_alpha)
+            end
         end)
 
         -- Actualiza active_event
@@ -413,20 +382,24 @@ function Base:Create(frame, props, globals)
         name  = NO_STATE,
         alpha = nil,
     }
-    if frame and type(frame) == "table" then
-        Initial.frame = frame
-        Initial.name  = frame:GetName()
-    end
+    Initial.frame = frame
+    Initial.name  = props.name
 
     -- Si es Cluster, delega responsabilidad a Cluster.lua
-    if not frame and props.cluster then
+    if props.cluster then
         local mod = HideUI:GetModule("Cluster", true)
         return mod:Create(Initial)
-    -- Si es Single, delega responsabilidad a Single.lua
-    elseif frame and props.source == "community" then
+    -- Si es Community, delega responsabilidad a Single.lua
+    elseif props.source == "community" then
         local mod = HideUI:GetModule("Single", true)
         return mod:Create(Initial)
     else
-        return Initial
+        -- Si existe un modulo con el nombre del frame en carpeta "/Frames" , redirige
+        local mod = HideUI:GetModule(Initial.name, true)
+        if mod then
+            return mod:Create(Initial)
+        else
+            return Initial
+        end
     end
 end

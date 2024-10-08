@@ -133,3 +133,12 @@ Version 1.0:
 - Added a requirement that frame has the GetName() method when trying to add a new frame in Community.
 - The Addons keybinding section has been renamed HideUI.
 - Changed to version 1.0.4
+
+Version 1.0.5:
+- Se ha mejorado la respuesta al cambio de opacidades
+- Se ha delegado las responsabilidades de los frames conflictivos a sus respectivos Modulos
+- Ahora la salida del combate responde mejor junto al delay
+- Se ha corregido un error importante relacionado con la primera carga de los frames
+- Se han eliminado los retardos innecesarios que empeoraban la experiencia
+- Se ha cambiado la prioridad, siendo el combate la máxima prioridad, seguido de instancia
+- Se ha corregido problema en donde ciertos frames no actualizaban su opacidad tras entrar o salir de un evento

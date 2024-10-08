@@ -8,7 +8,6 @@ function Cluster:Create(initializer)
         return {}
     end
 
-    Initial.name = initializer.props.name
     Initial.frames = Initial:GetFrames()
 
     -- Si es un cluster registrado, deriva a su modulo ubicado siempre en /Frames si existe

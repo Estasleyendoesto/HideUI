@@ -14,6 +14,9 @@ function Chatbox:Create(initializer)
     function Initial:Initializer()
         self:ChatFramesUpdate("hook")
 
+        local alpha = self:GetAlpha()
+        self:SelectFade(self.frame, nil, self.originalAlpha, alpha)
+
         if self:IsTextModeEnable() then
             local alpha = self:GetAlpha()
             C_Timer.After(0.36, function()

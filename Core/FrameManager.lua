@@ -71,11 +71,13 @@ function FrameManager:InitializeFrame(frame, props, globals)
         frame.HideUI = Base:Create(frame, props, globals)
     elseif not frame and props.cluster then
         frame = {}
-        frame.HideUI = Base:Create(nil, props, globals)
+        frame.name = props.name
+        frame.HideUI = Base:Create(frame, props, globals)
     end
 
     -- Si ha sido creado exitosamente, ejecuta
     if frame and frame.HideUI then
+        frame.HideUI_loaded = false -- De control, importante
         frame.HideUI:OnReady()
     end
 
@@ -113,6 +115,7 @@ function FrameManager:UnbindFrame(name)
     local frame = GAME_FRAMES[name]
     if frame and frame.HideUI then
         frame.HideUI:OnDestroy()
+        frame.HideUI_loaded = nil
         frame.HideUI = nil
     end
     GAME_FRAMES[name] = nil
@@ -122,6 +125,7 @@ function FrameManager:UnbindFrames()
     for _, frame in pairs(GAME_FRAMES) do
         if frame and frame.HideUI then
             frame.HideUI:OnDestroy()
+            frame.HideUI_loaded = nil
             frame.HideUI = nil
         end
     end

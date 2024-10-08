@@ -4,6 +4,22 @@ function Single:Create(initializer)
     -- Contenido que heredará
     local Initial = initializer
 
+    function Initial:OnReady()
+        if not self.frame.HideUI_loaded then
+			local delay = 2
+            local repeats = 3
+            
+            self.frame.HideUI_loaded = true
+            
+            UIFrameFadeRemoveFrame(self.frame)
+            C_Timer.NewTicker(delay, function()
+                self:OnCreate()
+            end, repeats)
+		else
+			self:OnReload()
+		end
+	end
+
     -- Funciones aqui
     function Initial:LockSetAlpha(frame)
         frame = frame or self.frame
