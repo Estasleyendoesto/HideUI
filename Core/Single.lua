@@ -1,10 +1,7 @@
 local Single = HideUI:NewModule("Single")
 
-function Single:Create(initializer)
-    -- Contenido que heredará
-    local Initial = initializer
-
-    function Initial:OnReady()
+function Single:Create(Initializer)
+    function Initializer:OnReady()
         if not self.frame.HideUI_loaded then
 			local delay = 2
             local repeats = 3
@@ -21,7 +18,7 @@ function Single:Create(initializer)
 	end
 
     -- Funciones aqui
-    function Initial:LockSetAlpha(frame)
+    function Initializer:LockSetAlpha(frame)
         frame = frame or self.frame
         if self:IsVisible(frame) and frame.SetAlpha then
             self.OldSetAlpha = frame.SetAlpha
@@ -29,7 +26,7 @@ function Single:Create(initializer)
         end
     end
 
-    function Initial:UnlockSetAlpha(frame)
+    function Initializer:UnlockSetAlpha(frame)
         frame = frame or self.frame
         if self:IsVisible(frame) and frame.SetAlpha and self.OldSetAlpha then
             frame.SetAlpha = self.OldSetAlpha
@@ -37,10 +34,10 @@ function Single:Create(initializer)
     end
 
     -- Si el frame tiene su propio módulo, delega responsabilidad a su modulo ubicado siempre en carpeta /Frames
-    local mod = HideUI:GetModule(initializer.name, true)
+    local mod = HideUI:GetModule(Initializer.name, true)
     if mod then
-        return mod:Create(Initial)
+        return mod:Create(Initializer)
     else
-        return Initial
+        return Initializer
     end
 end

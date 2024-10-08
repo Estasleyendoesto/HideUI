@@ -2,7 +2,7 @@
 ## Title: HideUI
 ## Notes: Hide any frame
 ## Author: EEsto
-## Version: 1.0.4
+## Version: 1.0.5
 
 ## IconTexture: Interface\AddOns\HideUI\icon
 

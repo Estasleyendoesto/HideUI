@@ -135,10 +135,10 @@ Version 1.0:
 - Changed to version 1.0.4
 
 Version 1.0.5:
-- Se ha mejorado la respuesta al cambio de opacidades
-- Se ha delegado las responsabilidades de los frames conflictivos a sus respectivos Modulos
-- Ahora la salida del combate responde mejor junto al delay
-- Se ha corregido un error importante relacionado con la primera carga de los frames
-- Se han eliminado los retardos innecesarios que empeoraban la experiencia
-- Se ha cambiado la prioridad, siendo el combate la máxima prioridad, seguido de instancia
-- Se ha corregido problema en donde ciertos frames no actualizaban su opacidad tras entrar o salir de un evento
+- The response to opacity changes has been improved.
+- The responsibilities of conflicting frames have been delegated to their respective modules.
+- Exiting combat now responds better along with the delay.
+- A significant error related to the first frame load has been fixed.
+- Unnecessary delays that worsened the experience have been removed.
+- The priority has been changed, with combat now being the highest priority, followed by instances.
+- A problem where certain frames did not update their opacity after entering or leaving an event has been corrected.

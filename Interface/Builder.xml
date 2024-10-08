@@ -306,23 +306,4 @@
       </Layer>
     </Layers>
   </Frame>
-
-  <!--
-    **********************************************************************************
-      Button Template
-    **********************************************************************************
-  -->
-  <!-- <Frame name="HideUIButtonControlTemplate" inherits="SettingsListElementTemplate" mixin="HideUIButtonControlMixin" virtual="true">
-    <Size x="280" y="26"/>
-    <Scripts>
-      <OnLoad method="OnLoad"/>
-    </Scripts>
-  </Frame> -->
-
-  <!-- <EditBox parentKey="SearchBox" inherits="SearchBoxTemplate" autoFocus="false" historyLines="1" bytes="64" frameLevel="5">
-        <Size x="350" y="22"/>
-        <Anchors>
-          <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Container" relativePoint="TOPRIGHT" x="4" y="20"/>
-        </Anchors>
-      </EditBox> -->
 </Ui>

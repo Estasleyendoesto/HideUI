@@ -8,10 +8,8 @@ local CHANNEL_BUTTON = "ChatFrameChannelButton"
 local MENU_BUTTON = "ChatFrameMenuButton"
 local TEXT_MODE_ENABLED = "isTextModeEnabled"
 
-function Chatbox:Create(initializer)
-    local Initial = initializer
-
-    function Initial:Initializer()
+function Chatbox:Create(Initializer)
+    function Initializer:Initializer()
         self:ChatFramesUpdate("hook")
 
         local alpha = self:GetAlpha()
@@ -26,7 +24,7 @@ function Chatbox:Create(initializer)
         end
     end
 
-    function Initial:OnDestroy()
+    function Initializer:OnDestroy()
         self:Destroyer()
         self:ChatFramesUpdate("unhook")
         if self:IsTextModeEnable() then
@@ -38,7 +36,7 @@ function Chatbox:Create(initializer)
 
     -------------------------------------------------------------------------------->>>
     -- Hooks
-    function Initial:ChatFramesUpdate(operator)
+    function Initializer:ChatFramesUpdate(operator)
         -- Para la detección de nuevas ventanas de chat
         local methods = {
             "FCF_Close",               --Al cerrar una ventana
@@ -92,7 +90,7 @@ function Chatbox:Create(initializer)
 
     -------------------------------------------------------------------------------->>>
     -- Mouseover
-    function Initial:OnMouseover()
+    function Initializer:OnMouseover()
         local alpha = self:GetAlpha()
         local data = self:GetActiveData()
         local isEnabled = data.isMouseoverEnabled
@@ -129,7 +127,7 @@ function Chatbox:Create(initializer)
 
     -------------------------------------------------------------------------------->>>
     -- Editbox
-    function Initial:EditBoxHandler(action)
+    function Initializer:EditBoxHandler(action)
         local alpha = self:GetAlpha()
         if action == "FocusLost" then
             self.isOnFocusGained = false
@@ -142,7 +140,7 @@ function Chatbox:Create(initializer)
 
     -------------------------------------------------------------------------------->>>
     -- Extra Updates
-    function Initial:SetExtra(field_name)
+    function Initializer:SetExtra(field_name)
         if field_name == TEXT_MODE_ENABLED then
             local alpha = self:GetAlpha()
             self:SetAlpha(nil, alpha)
@@ -152,7 +150,7 @@ function Chatbox:Create(initializer)
 
     -------------------------------------------------------------------------------->>>
     -- Text Mode
-    function Initial:ModifyTargetAmount(frame, target)
+    function Initializer:ModifyTargetAmount(frame, target)
         if not self:IsTextModeEnable() then
             return target
         end
@@ -169,7 +167,7 @@ function Chatbox:Create(initializer)
         return target
     end
 
-    function Initial:ModifyRegionVisibility(frame, force_enable)
+    function Initializer:ModifyRegionVisibility(frame, force_enable)
         if frame:GetName():match("^ChatFrame%d+$") then
             for _, region in ipairs({ frame:GetRegions() }) do
                 local regionType  = region:GetObjectType()
@@ -188,7 +186,7 @@ function Chatbox:Create(initializer)
         end
     end
 
-    function Initial:UpdateRegionVisibility(force_enable)
+    function Initializer:UpdateRegionVisibility(force_enable)
         self:BatchBoxes(function(frame)
             if self:IsVisible(frame) then
                 self:ModifyRegionVisibility(frame, force_enable)
@@ -198,7 +196,7 @@ function Chatbox:Create(initializer)
 
     -------------------------------------------------------------------------------->>>
     -- Utils
-    function Initial:GetFrames()
+    function Initializer:GetFrames()
         --Busca y empaqueta los chatframes
         local activeChats = {}
         local i = 1
@@ -225,7 +223,7 @@ function Chatbox:Create(initializer)
         return activeChats
     end
 
-    function Initial:BatchBoxes(func)
+    function Initializer:BatchBoxes(func)
         func(self.socialFrame)
         func(self.combatLog)
         for _, chatbox in ipairs(self.chatFrames) do
@@ -236,7 +234,7 @@ function Chatbox:Create(initializer)
         end
     end
 
-    function Initial:SetAlpha(_, amount)
+    function Initializer:SetAlpha(_, amount)
         self:BatchBoxes(function(frame)
             if self:IsVisible(frame) then
                 -- Text Mode
@@ -258,7 +256,7 @@ function Chatbox:Create(initializer)
         end)
     end
 
-    function Initial:FadeIn(_, delay, base, target)
+    function Initializer:FadeIn(_, delay, base, target)
         self:BatchBoxes(function(frame)
             if self:IsVisible(frame) then
                 -- Text Mode
@@ -284,7 +282,7 @@ function Chatbox:Create(initializer)
         end)
     end
 
-    function Initial:FadeOut(_, delay, base, target)
+    function Initializer:FadeOut(_, delay, base, target)
         self:BatchBoxes(function(frame)
             if self:IsVisible(frame) then
                 -- Text Mode
@@ -308,18 +306,18 @@ function Chatbox:Create(initializer)
         end)
     end
 
-    function Initial:IsTextModeEnable()
+    function Initializer:IsTextModeEnable()
         return self.props.isTextModeEnabled
     end
 
-    Initial.chatFrames = Initial:GetFrames()
-    Initial.socialFrame = _G[SOCIAL_FRAME]
-    Initial.combatLog = _G[COMBAT_LOG]
-    Initial.channelButton = _G[CHANNEL_BUTTON]
-    Initial.menuButton = _G[MENU_BUTTON]
-    Initial.editBoxFactor = EDITBOX_FACTOR
-    Initial.focusAlpha = FOCUS_ALPHA
-    Initial.isOnFocusGained = false --De control
+    Initializer.chatFrames = Initializer:GetFrames()
+    Initializer.socialFrame = _G[SOCIAL_FRAME]
+    Initializer.combatLog = _G[COMBAT_LOG]
+    Initializer.channelButton = _G[CHANNEL_BUTTON]
+    Initializer.menuButton = _G[MENU_BUTTON]
+    Initializer.editBoxFactor = EDITBOX_FACTOR
+    Initializer.focusAlpha = FOCUS_ALPHA
+    Initializer.isOnFocusGained = false --De control
 
-    return Initial
+    return Initializer
 end
