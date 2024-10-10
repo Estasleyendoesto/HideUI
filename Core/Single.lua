@@ -10,7 +10,10 @@ function Single:Create(Initializer)
             
             UIFrameFadeRemoveFrame(self.frame)
             C_Timer.NewTicker(delay, function()
-                self:OnCreate()
+                -- Impide que siga funcionando tras apagar el addon
+                if self.globals.isEnabled then
+                    self:OnCreate()
+                end
             end, repeats)
 		else
 			self:OnReload()

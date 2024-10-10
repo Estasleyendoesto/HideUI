@@ -142,3 +142,7 @@ Version 1.0.5:
 - Unnecessary delays that worsened the experience have been removed.
 - The priority has been changed, with combat now being the highest priority, followed by instances.
 - A problem where certain frames did not update their opacity after entering or leaving an event has been corrected.
+
+Version 1.0.5.1:
+- The word wrap mode has been changed to experimental.
+- Fixed a minor issue when turning off the addon right after entering an event.

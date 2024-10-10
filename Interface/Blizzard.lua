@@ -224,7 +224,7 @@ function Blizzard:AttachExtras(frame, defaults, before, section)
     local element
     if frame == "Chatbox" then
         -- Mouseover
-        name      = "Enable Text Mode"
+        name      = "Enable Text Mode (Experimental)"
         variable  = frame .. ".text_checkbox"
         tooltip   = "Hide the chat box, leaving only the messages visible."
         settings  = Builder:RegisterSettings({name=name, type="checkbox", variable=variable, tooltip=tooltip}, defaults)

@@ -8,6 +8,7 @@ local ORIGINAL_ALPHA = 1
 local MOUSEOVER_REVEAL_ALPHA = 1
 local ALPHA_CHANGE_DELAY = 0
 local FRAME_DESTROY_DELAY = 0
+local DELAY_AFTER_EVENT = 0.85
 
 function Base:OnInitialize()
     EventManager = HideUI:GetModule("EventManager")
@@ -167,10 +168,13 @@ function Base:Create(frame, props, globals)
         self:SelectFade(self.frame, nil, base_alpha, event_alpha)
 
         -- Fuerza a cambiar el alpha a aquellos frames rezagados
-        C_Timer.After(1, function()
-            local active_event = self:GetActiveEvent()
-            if formatted_event == active_event.name then
-                self:SetAlpha(self.frame, event_alpha)
+        C_Timer.After(DELAY_AFTER_EVENT, function()
+            -- Impide que siga funcionando tras apagar el addon
+            if self.globals.isEnabled then
+                local active_event = self:GetActiveEvent()
+                if formatted_event == active_event.name then
+                    self:SetAlpha(self.frame, event_alpha)
+                end
             end
         end)
 
