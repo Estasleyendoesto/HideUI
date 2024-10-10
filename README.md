@@ -1,6 +1,6 @@
-<div style="text-align: center;">
+<p align="center">
 <img src=".dist/HideUI.png">
-</div>
+</p>
 
 # HideUI Addon for World of Warcraft
 HideUI is an addon designed to adjust the opacity of any frame in the game, including those created by other addons. This addon enhances frames with additional features like adaptive opacity adjustment based on certain events, such as being AFK, mounted, in combat, or inside an instance.
