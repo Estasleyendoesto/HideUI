@@ -1,4 +1,4 @@
-<div style="text-align: centeR;">
+<div style="text-align: center;">
 <img src=".dist/HideUI.png">
 </div>
 
