@@ -233,3 +233,7 @@ function Blizzard:AttachExtras(frame, defaults, before, section)
 
     return element
 end
+
+function Blizzard:RegisterField(frame, variable, type, default, name, tooltip)
+    print(frame, variable, type, default, name, tooltip)
+end
