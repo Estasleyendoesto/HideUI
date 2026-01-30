@@ -35,7 +35,6 @@ local DEFAULT_STYLE = {
         idle      = { bg = {0.05, 0.05, 0.05, 0.8}, border = {0.3, 0.3, 0.4, 1} },
         hover     = { bg = {0.1, 0.1, 0.1, 0.9},    border = {0.5, 0.5, 0.7, 1}, overlay = {1, 1, 1, 0.05} },
         active    = { bg = {0.3, 0.3, 0.4, 0.3},    border = {0.3, 0.3, 0.4, 1}, offset = {1, -1} },
-        -- ESTADO NUEVO: Como lo usas para la Navbar, le damos un look "Resaltado"
         disabled  = { bg = {0.1, 0.1, 0.15, 1},     border = {0.4, 0.4, 0.8, 1} } 
     }
 }

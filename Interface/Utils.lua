@@ -5,6 +5,27 @@ local Utils = HideUI:NewModule("Utils")
 -- CONFIGURACIÓN Y LAYOUT
 ---------------------------------------------------------------------
 
+-- Función auxiliar para estandarizar el padding
+function Utils:NormalizePadding(p, default)
+    default = default or 10
+    if type(p) == "number" then
+        return { top = p, bottom = p, left = p, right = p }
+    elseif type(p) == "table" then
+        return {
+            top    = p.top    or default,
+            bottom = p.bottom or default,
+            left   = p.left   or default,
+            right  = p.right  or default
+        }
+    end
+    return { 
+        top = default, 
+        bottom = default, 
+        left = default, 
+        right = default 
+    }
+end
+
 -- Normaliza nombres de parámetros (ej: h -> height)
 function Utils:SetLayout(config)
     config = config or {}
@@ -16,7 +37,7 @@ function Utils:SetLayout(config)
         point      = config.point  or "TOPLEFT",
         relativeTo = config.relativeTo or config.relTo,
         relPoint   = config.relativePoint or config.relPoint or "TOPLEFT",
-        padding    = config.padding,
+        padding    = self:NormalizePadding(config.padding or config.p),
         spacing    = config.spacing,
         opacity    = config.opacity
     }
@@ -42,62 +63,103 @@ end
 -- VSTACK: Apilado Vertical
 ---------------------------------------------------------------------
 function Utils:VStack(container, spacing, padding)
-    local cfg = Utils:GetLayout(container.layoutConfig, { padding = 15, spacing = 10 })
+    local cfg = Utils:GetLayout(container.layoutConfig or {}, { 
+        spacing = 10, 
+        padding = { top = 15, bottom = 15, left = 10, right = 10 } 
+    })
+
+    local spacing = spacing or cfg.spacing
+    local padding = self:NormalizePadding(padding or cfg.padding)
     
-    padding = padding or cfg.padding
-    spacing = spacing or cfg.spacing
 
     local lastChild = nil
-    local totalHeight = padding
+    local totalHeight = padding.top
 
-    for _, child in ipairs({ container:GetChildren() }) do
+    local children = { container:GetChildren() }
+    for i, child in ipairs(children) do
         if child:IsObjectType("Frame") and child:IsShown() then
             child:ClearAllPoints()
             
-            if not lastChild then
-                child:SetPoint("TOPLEFT", container, "TOPLEFT", 10, -padding)
-                child:SetPoint("TOPRIGHT", container, "TOPRIGHT", -10, -padding)
+            local rel = lastChild or container
+            local point = lastChild and "BOTTOM" or "TOP"
+            local yOffset = lastChild and -spacing or -padding.top
+
+            local cAlign = child.customAlign
+            if cAlign then
+                local align = cAlign.alignment or "CENTER"
+                
+                if align == "RIGHT" then
+                    child:SetPoint("TOPRIGHT", rel, point .. "RIGHT", cAlign.x or -padding.right, yOffset)
+                elseif align == "LEFT" then
+                    child:SetPoint("TOPLEFT", rel, point .. "LEFT", cAlign.x or padding.left, yOffset)
+                else
+                    -- CENTER
+                    child:SetPoint("TOP", rel, point, cAlign.x or 0, yOffset)
+                end
             else
-                child:SetPoint("TOPLEFT", lastChild, "BOTTOMLEFT", 0, -spacing)
-                child:SetPoint("TOPRIGHT", lastChild, "BOTTOMRIGHT", 0, -spacing)
+                -- Comportamiento estándar: Ocupar todo el ancho
+                child:SetPoint("TOP", rel, point, 0, yOffset)
+                child:SetPoint("LEFT", container, "LEFT", padding.left, 0)
+                child:SetPoint("RIGHT", container, "RIGHT", -padding.right, 0)
             end
-            
+
+            -- Cálculo de la altura
+            totalHeight = totalHeight + child:GetHeight()
+            if i < #children then
+                totalHeight = totalHeight + spacing
+            end
             lastChild = child
-            totalHeight = totalHeight + child:GetHeight() + spacing
         end
     end
 
-    container:SetHeight(totalHeight + padding)
+    container:SetHeight(totalHeight + padding.bottom)
 end
 
 ---------------------------------------------------------------------
 -- HSTACK: Apilado Horizontal
 ---------------------------------------------------------------------
 function Utils:HStack(container, spacing, padding)
-    local cfg = Utils:GetLayout(container.layoutConfig, { padding = 10, spacing = 8 })
+    local cfg = Utils:GetLayout(container.layoutConfig or {}, { 
+        spacing = 8, 
+        padding = { top = 10, bottom = 10, left = 10, right = 10 } 
+    })
     
-    padding = padding or cfg.padding
     spacing = spacing or cfg.spacing
+    padding = self:NormalizePadding(padding or cfg.padding)
 
     local lastChild = nil
-    local totalWidth = padding 
+    local totalWidth = padding.left 
 
-    for _, child in ipairs({ container:GetChildren() }) do
+    local children = { container:GetChildren() }
+    for i, child in ipairs(children) do
         if child:IsObjectType("Frame") and child:IsShown() then
             child:ClearAllPoints()
             
+            -- Anclaje Horizontal
             if not lastChild then
-                child:SetPoint("LEFT", container, "LEFT", padding, 0)
+                child:SetPoint("LEFT", container, "LEFT", padding.left, 0)
             else
                 child:SetPoint("LEFT", lastChild, "RIGHT", spacing, 0)
             end
+
+            -- Alineación Vertical
+            local cAlign = child.customAlign
+            if cAlign and cAlign.vAlign == "TOP" then
+                child:SetPoint("TOP", container, "TOP", 0, -padding.top)
+            elseif cAlign and cAlign.vAlign == "BOTTOM" then
+                child:SetPoint("BOTTOM", container, "BOTTOM", 0, padding.bottom)
+            end
             
+            -- Cálculo del ancho
+            totalWidth = totalWidth + child:GetWidth()
+            if i < #children then
+                totalWidth = totalWidth + spacing
+            end
             lastChild = child
-            totalWidth = totalWidth + child:GetWidth() + spacing
         end
     end
 
-    container:SetWidth(totalWidth + padding)
+    container:SetWidth(totalWidth + padding.right)
 end
 
 ---------------------------------------------------------------------
@@ -108,7 +170,7 @@ function Utils:DrawBackground(frame, color)
     if not frame then return end
     frame.bg = frame.bg or frame:CreateTexture(nil, "BACKGROUND")
     frame.bg:SetAllPoints()
-    frame.bg:SetColorTexture(unpack(color or {1, 1, 1, 0.03}))
+    frame.bg:SetColorTexture(unpack(color or {1, 1, 1, 0.05}))
 end
 
 function Utils:Clear(frame)

@@ -94,18 +94,18 @@ function MainFrame:CreateNavBar()
     local Navbar = HideUI:GetModule("Navbar")
     local nav = Navbar:Create(self.TopPanel)
 
-    local tabs = {"About", "General", "Blizzard", "Addon"}
+    local tabs = {"About", "General", "Blizzard", "Others"}
     for _, name in ipairs(tabs) do
         local isActive = (self.currentPanel == name)
-
         Navbar:AddButton(nav, name, function() 
             self.currentPanel = name
             self:SendMessage("HIDEUI_PANEL_CHANGED", name)
         end, isActive)
     end
 
-    Utils:HStack(nav)
-    Utils:VStack(self.TopPanel)
+    -- Calcula su height para el TopPanel 
+    -- y ajusta su alineación horizontal
+    Navbar:Refresh(nav, "CENTER")
 end
 
 ---------------------------------------------------------------------
@@ -140,6 +140,6 @@ function MainFrame:ClearAll()
     Utils:Clear(self.TopPanel)
     Utils:Clear(self.Content)
     
-    -- Al limpiar, necesitamos regenerar la barra de navegación
+    -- Necesitamos regenerar la barra de navegación
     self:CreateNavBar()
 end

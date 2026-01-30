@@ -17,12 +17,12 @@ end
 ---------------------------------------------------------------------
 -- RENDERIZADO DINÁMICO
 ---------------------------------------------------------------------
-function Builder:RenderSettings(container, category, id)
-    local Database = HideUI:GetModule("Database")
-    local Checkbox = HideUI:GetModule("Checkbox")
-    local Slider   = HideUI:GetModule("Slider")
-    local CBSlider = HideUI:GetModule("CheckboxSlider")
-    local Section  = HideUI:GetModule("Section")
+function Builder:RenderSettings(container, category, id, layout)
+    local Database    = HideUI:GetModule("Database")
+    local Checkbox    = HideUI:GetModule("Checkbox")
+    local Slider      = HideUI:GetModule("Slider")
+    local CBSlider    = HideUI:GetModule("CheckboxSlider")
+    local Section     = HideUI:GetModule("Section")
     
     local dbData = (category == "globals") and Database:GetGlobals() or Database:GetFrameData(id)
     local schema = ns.UI_SCHEMA[category]
@@ -38,7 +38,7 @@ function Builder:RenderSettings(container, category, id)
             -- Refrescamos la sección anterior antes de empezar la nueva
             if activeSection then activeSection:Refresh() end
             -- Creamos la nueva section
-            activeSection = Section:Create(container, entry.label)
+            activeSection = Section:Create(container, entry.label, layout)
         
         -- SI ES UN Field (String)
         elseif activeSection then -- Solo dibujamos si existe una sección activa

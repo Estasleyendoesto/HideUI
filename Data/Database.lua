@@ -104,18 +104,35 @@ end
 
 --- Registra un frame externo (útil para integración con otros addons)
 function Database:RegisterFrame(frameConfig)
-    if not frameConfig or not frameConfig.name then return end
-    
-    local frames = self:GetFrames()
-    local newData = self:Deepcopy(ns.DEFAULT_FRAME_SETTINGS)
-    
-    -- Sobrescribimos el template con la config proporcionada
-    for k, v in pairs(frameConfig) do
-        newData[k] = v
+    if not frameConfig or not frameConfig.name then 
+        return false, "Invalid name" 
     end
     
-    newData.source = frameConfig.source or ns.SOURCE.ADDON
-    frames[frameConfig.name] = newData
+    local name   = frameConfig.name
+    local frames = self:GetFrames()
+    local obj    = _G[name]
+
+    -- Validaciones de existencia y tipo
+    if not obj then 
+        return false, "Frame not found" 
+    end
+    if type(obj) ~= "table" or not obj.GetObjectType then 
+        return false, "Not a UI object" 
+    end
+    if frames[name] then 
+        return false, "Already registered" 
+    end
+
+    -- Registro de datos
+    local data = self:Deepcopy(ns.DEFAULT_FRAME_SETTINGS)
+    for k, v in pairs(frameConfig) do
+        data[k] = v
+    end
+    
+    data.source  = frameConfig.source or ns.SOURCE.OTHER
+    frames[name] = data
+
+    return true
 end
 
 function Database:UnregisterFrame(frameName)
@@ -143,17 +160,17 @@ function Database:RestoreBlizzFrames()
     end
 end
 
-function Database:RestoreAddonFrames()
+function Database:RestoreOtherFrames()
     local frames = self:GetFrames()
     local baseTemplate = ns.DEFAULT_FRAME_SETTINGS
     
     for name, data in pairs(frames) do
-        if data.source == ns.SOURCE.ADDON then
+        if data.source == ns.SOURCE.OTHER then
             local reset = self:Deepcopy(baseTemplate)
             -- Mantenemos la identidad del frame externo
             reset.name   = data.name
             reset.alias  = data.alias
-            reset.source = ns.SOURCE.ADDON
+            reset.source = ns.SOURCE.OTHER
             
             frames[name] = reset
         end

@@ -47,12 +47,12 @@ function General:Draw()
     -- 2. Configuración del Layout
     Utils:RegisterLayout(MainFrame.Content, {
         padding = 15, -- Ypadding por ser un VStack
-        spacing = 0 -- Espacio entre los sections
+        spacing = 8 -- Espacio entre los sections
     })
 
     -- 3. CABECERA Y RESET
     Header:Create(MainFrame.TopPanel, "General Settings", function()
-        Popup:Confirm("¿Estás seguro de que quieres resetear toda la configuración global?", function()
+        Popup:Confirm("Are you sure you want to reset all global settings?", function()
             Database:RestoreGlobals()
             self:Draw() -- Redibujamos con los valores de fábrica
         end)

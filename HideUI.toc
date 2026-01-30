@@ -46,7 +46,7 @@ Interface\Widgets\Searchbox.lua
 Interface\Panels\About.lua
 Interface\Panels\General.lua
 Interface\Panels\Blizzard.lua
-Interface\Panels\Addon.lua
+Interface\Panels\Others.lua
 
 
 

@@ -7,8 +7,8 @@ local Utils = HideUI:GetModule("Utils")
 ---------------------------------------------------------------------
 
 -- Configura las texturas y fuentes del botón (Header)
-local function ApplyHeaderStyles(btn, title)
-    local paddingL, paddingR = 30, -12
+local function ApplyHeaderStyles(btn, title, config)
+    local paddingL, paddingR = config.headerLeft, config.headerRight
     
     -- Texturas de Blizzard (Atlas)
     local left = btn:CreateTexture(nil, "BACKGROUND")
@@ -39,7 +39,12 @@ local function UpdateCollapsibleState(container, forceState)
     local content = container.Content
     
     -- Determinar si expandir o contraer
-    local isExpanded = (forceState ~= nil) and forceState or not content:IsShown()
+    local isExpanded
+    if forceState ~= nil then
+        isExpanded = forceState
+    else
+        isExpanded = not content:IsShown()
+    end
     
     content:SetShown(isExpanded)
 
@@ -47,11 +52,13 @@ local function UpdateCollapsibleState(container, forceState)
     local atlas = isExpanded and "Options_ListExpand_Right_Expanded" or "Options_ListExpand_Right"
     header.Right:SetAtlas(atlas, true)
     
-    -- Recalcular altura: Header + (Contenido + Margen si está expandido)
+    -- RECALCULAR ALTURA
+    -- Si no está expandido, la altura es SOLO la del header
     local height = header:GetHeight()
     if isExpanded then
         height = height + content:GetHeight() + 10
     end
+
     container:SetHeight(height)
     
     -- Forzar re-apilado en el frame padre
@@ -72,6 +79,8 @@ function Collapsible:Create(parent, title, layout)
         right   = -62,
         padding = 15,
         spacing = 13,
+        headerLeft = 30,
+        headerRight = -12,
     })
 
     -- 1. Contenedor Principal
@@ -85,7 +94,7 @@ function Collapsible:Create(parent, title, layout)
     header:SetPoint("TOPLEFT")
     header:SetPoint("TOPRIGHT")
     header:SetHeight(config.height)
-    ApplyHeaderStyles(header, title)
+    ApplyHeaderStyles(header, title, config)
     
     -- 3. Contenido (Frame interno para widgets)
     local content = CreateFrame("Frame", nil, container)

@@ -9,7 +9,7 @@ local CFG = {
     LEFT   = 15,
     RIGHT  = -15,
     PADDING = 5,
-    SPACING = 7
+    SPACING = 7,
 }
 
 ---------------------------------------------------------------------
@@ -18,19 +18,25 @@ local CFG = {
 function Navbar:Create(parent)
     local nav = CreateFrame("Frame", nil, parent)
     nav:SetHeight(CFG.HEIGHT)
-    nav:SetPoint("TOPLEFT", parent, "TOPLEFT", CFG.LEFT, CFG.TOP)
-    nav:SetPoint("TOPRIGHT", parent, "TOPRIGHT", CFG.RIGHT, CFG.TOP)
-
-    -- Registro para que HStack sepa qué hacer
+    
+    -- Registro para HStack
     Utils:RegisterLayout(nav, {
         padding = CFG.PADDING,
         spacing = CFG.SPACING
     })
     
-    -- Lista interna para gestionar estados de botones
     nav.buttons = {}
-    
     return nav
+end
+
+function Navbar:Refresh(nav, alignment)
+    nav.customAlign = {
+        alignment = (alignment or "CENTER"):upper(),
+        x = (alignment == "RIGHT" and CFG.RIGHT) or (alignment == "LEFT" and CFG.LEFT) or 0
+    }
+    
+    Utils:HStack(nav)
+    Utils:VStack(nav:GetParent())
 end
 
 ---------------------------------------------------------------------

@@ -8,7 +8,7 @@ local Utils = HideUI:GetModule("Utils")
 function Header:Create(parent, title, onDefaults, layout)
     local config = Utils:GetLayout(layout, {
         height  = 50,
-        left    = 40,
+        left    = 35,
         right   = -30,
         buttonW = 96,
         buttonH = 22

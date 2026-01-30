@@ -2,38 +2,40 @@ local _, ns = ...
 local Section = HideUI:NewModule("Section")
 local Utils = HideUI:GetModule("Utils")
 
-function Section:Create(parent, title)
+function Section:Create(parent, title, layout)
+    local config = Utils:GetLayout(layout, {
+        left = 72,
+        right = -48,
+        padding = 10,
+        spacing = 10,
+    })
+
     -- Contenedor maestro
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetSize(1, 1)
 
-    -- 2. Título de la sección (minimalista)
+    -- Título de la sección
     if title then
         frame.Title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        frame.Title:SetPoint("TOPLEFT", 72, 0)
+        frame.Title:SetPoint("TOPLEFT", config.left + -12, 0)
         frame.Title:SetText(title:upper())
         frame.Title:SetAlpha(0.5)
     end
 
-    -- 3. El Contenedor de Contenido (donde irán los widgets)
+    -- Contenedor de Widgets
     local content = CreateFrame("Frame", nil, frame)
-    -- Bajamos el contenido si hay título
-    content:SetPoint("TOPLEFT", frame, "TOPLEFT", 72, title and -15 or 5)
-    content:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -48, title and -15 or 5)
+    content:SetPoint("TOPLEFT", frame, "TOPLEFT", config.left, title and -15 or 5)
+    content:SetPoint("TOPRIGHT", frame, "TOPRIGHT", config.right, title and -15 or 5)
 
-    -- 4. Registro de Layout (Aquí definimos tus paddings)
-    Utils:RegisterLayout(content, {
-        padding = 10,
-        spacing = 10
-    })
-
+    -- Registro interno
     frame.Content = content
+    frame.Content.layoutConfig = config
 
-    -- 5. Método Refresh (Calcula el alto total)
+    -- Método Refresh
     function frame:Refresh()
-        -- Apilamos los widgets internos
+        -- Apila los widgets internos
         Utils:VStack(self.Content)
-        -- Ajustamos el alto del frame raíz al del contenido + título
+        -- Actualiza altura del frame
         local h = self.Content:GetHeight()
         self:SetHeight(h + (title and 20 or 0))
     end

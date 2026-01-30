@@ -9,156 +9,187 @@ ns.UI_SCHEMA = {
     -- Ajustes Globales (Para el panel General)
     -- ---------------------------------------------------------------
     globalsOrder = {
-        { isSection = true, label = "Configuración General" },
+        { isSection = true,  label = "General" },
         "addonEnabled",
         "useCharacterProfile",
-        { isSection = true, label = "Alpha Global" },
+        { isSection = true,  label = "Global Visibility" },
         "globalAlpha",
-        { isSection = true, label = "Detección de Ratón (Mouseover)" },
+        { isSection = true,  label = "Mouseover Behavior" },
         "useMouseover",
         "mouseoverFadeInDuration",
         "mouseoverFadeOutDuration",
-        { isSection = true, label = "Eventos y Estados" },
+        { isSection = true,  label = "Events & Conditions" },
         "combatGroup",
         "afkGroup",
         "mountGroup",
         "instanceGroup",
-        { isSection = true, label = "Misc" },
+        { isSection = true,  label = "Additional Options" },
         "combatEndDelay"
     },
     globals = {
+        -- General
         addonEnabled = { 
             type = "checkbox", 
-            label = "Habilitar Addon", 
-            tooltip = "Activa o desactiva por completo las funciones de HideUI." 
+            label = "Enable Addon", 
+            tooltip = "Turns all HideUI features on or off globally." 
         },
         useCharacterProfile = { 
             type = "checkbox", 
-            label = "Perfil por Personaje", 
-            tooltip = "Si se activa, los cambios solo afectarán a este personaje." 
-        },
-        useMouseover = { 
-            type = "checkbox", 
-            label = "Usar Mouseover Global", 
-            tooltip = "Habilita la detección de ratón para mostrar marcos ocultos de forma global." 
+            label = "Character Profile", 
+            tooltip = "If activated, the changes will only affect this character." 
         },
         globalAlpha = { 
             type = "slider", 
-            label = "Opacidad Global", 
+            label = "Global Opacity", 
             min = 0, max = 1, step = 0.05, unit = "%",
-            tooltip = "Ajusta la transparencia base de todos los elementos registrados."
+            tooltip = "Sets the default opacity applied to all frames."
+        },
+        -- Mouseover
+        useMouseover = { 
+            type = "checkbox", 
+            label = "Enable Mouseover", 
+            tooltip = "Allows all frames to appear when hovered by the mouse cursor." 
         },
         mouseoverFadeInDuration = { 
             type = "slider", 
-            label = "Velocidad de Entrada", 
+            label = "Fade-In Speed", 
             min = 0, max = 5, step = 0.1, unit = "s",
-            tooltip = "Duración de la transición al aparecer el marco." 
+            tooltip = "Controls how quickly frames fade in when triggered by mouseover." 
         },
         mouseoverFadeOutDuration = { 
             type = "slider", 
-            label = "Velocidad de Salida", 
+            label = "Fade-Out Speed", 
             min = 0, max = 5, step = 0.1, unit = "s",
-            tooltip = "Duración de la transición al ocultarse el marco." 
+            tooltip = "Controls how quickly frames fade out after the mouse leaves." 
         },
         -- CheckboxSliders para eventos globales
         combatGroup = {
             type = "checkboxslider",
-            label = "Opacidad en Combate",
+            label = "In Combat",
             cbKey = "useCombat",
             sliderKey = "combatAlpha",
             min = 0, max = 1, step = 0.05, unit = "%",
-            tooltip = "Activa la opacidad específica cuando entras en combate."
+            tooltip = "Adjusts frame opacity while your character is in combat."
         },
         afkGroup = {
             type = "checkboxslider",
-            label = "Opacidad en AFK",
+            label = "When AFK",
             cbKey = "useAFK",
             sliderKey = "afkAlpha",
             min = 0, max = 1, step = 0.05, unit = "%",
-            tooltip = "Activa la opacidad específica cuando estás ausente."
+            tooltip = "Controls frame opacity when your character is marked as AFK."
         },
         mountGroup = {
             type = "checkboxslider",
-            label = "Opacidad en Montura",
+            label = "On Mount",
             cbKey = "useMount",
             sliderKey = "mountAlpha",
             min = 0, max = 1, step = 0.05, unit = "%",
-            tooltip = "Activa la opacidad específica cuando estás montado."
+            tooltip = "Changes frame opacity while your character is mounted."
         },
         instanceGroup = {
             type = "checkboxslider",
-            label = "Opacidad en Estancia",
+            label = "In Instance",
             cbKey = "useInstance",
             sliderKey = "instanceAlpha",
             min = 0, max = 1, step = 0.05, unit = "%",
-            tooltip = "Activa la opacidad específica dentro de mazmorras o bandas."
+            tooltip = "Adjusts frame opacity inside dungeons, raids, or other instances."
         },
         combatEndDelay = { 
             type = "slider", 
-            label = "Retraso fin de combate", 
+            label = "Combat End Delay", 
             min = 0, max = 2, step = 0.1, unit = "s",
-            tooltip = "Tiempo que tarda en aplicarse la opacidad de reposo tras salir de combate." 
+            tooltip = "Time before the default opacity is restored after leaving combat." 
         },
     },
 
     -- ---------------------------------------------------------------
     -- Ajustes por Frame (Para los paneles Blizzard/Addon)
     -- ---------------------------------------------------------------
+    framesOrder = {
+        { isSection = true, label = "General" },
+        "isEnabled",
+        "ignoreFrame",
+        { isSection = true, label = "Frame Visibility" },
+        "frameAlpha",
+        { isSection = true, label = "Mouseover Behavior" },
+        "useMouseover",
+        "mouseoverFadeInDuration",
+        "mouseoverFadeOutDuration",
+        { isSection = true, label = "Events & Conditions" },
+        "combatGroup",
+        "afkGroup",
+        "mountGroup",
+        "instanceGroup"
+    },
     frames = {
+        -- General
         isEnabled = { 
             type = "checkbox", 
-            label = "Habilitar Control", 
-            tooltip = "Si se desactiva, HideUI dejará de gestionar este marco por completo." 
+            label = "Enable", 
+            tooltip = "Enable custom settings for this frame." 
         },
-        useMouseover = { 
+        ignoreFrame = {
             type = "checkbox", 
-            label = "Habilitar Mouseover", 
-            tooltip = "Permite que el marco se muestre al pasar el ratón por encima." 
+            label = "Ignore", 
+            tooltip = "HideUI will completely ignore this frame." 
         },
         frameAlpha = { 
             type = "slider", 
-            label = "Opacidad Normal", 
+            label = "Base Opacity", 
             min = 0, max = 1, step = 0.05, unit = "%",
-            tooltip = "Opacidad del marco cuando no hay ningún evento activo."
+            tooltip = "Default frame opacity when no visibility conditions are active."
+        },
+        -- Mouseover
+        useMouseover = { 
+            type = "checkbox", 
+            label = "Show on Mouseover", 
+            tooltip = "Displays the frame when the mouse cursor hovers over it." 
         },
         mouseoverFadeInDuration = { 
             type = "slider", 
-            label = "Velocidad de Entrada", 
-            min = 0, max = 5, step = 0.1, unit = "s" 
+            label = "Fade-In Speed", 
+            min = 0, max = 5, step = 0.1, unit = "s",
+            tooltip = "Controls how quickly the frame fades in when shown by mouseover." 
         },
         mouseoverFadeOutDuration = { 
             type = "slider", 
-            label = "Velocidad de Salida", 
-            min = 0, max = 5, step = 0.1, unit = "s" 
+            label = "Fade-Out Speed", 
+            min = 0, max = 5, step = 0.1, unit = "s",
+            tooltip = "Controls how quickly the frame fades out after the mouse leaves." 
         },
-        -- CheckboxSliders para eventos del frame
+        -- Events and States
         combatGroup = {
             type = "checkboxslider",
-            label = "En Combate",
+            label = "In Combat",
             cbKey = "useCombat",
             sliderKey = "combatAlpha",
-            min = 0, max = 1, step = 0.05, unit = "%"
+            min = 0, max = 1, step = 0.05, unit = "%",
+            tooltip = "Adjusts the frame`s visibility while your character is in combat."
         },
         afkGroup = {
             type = "checkboxslider",
-            label = "Al estar AFK",
+            label = "When AFK",
             cbKey = "useAFK",
             sliderKey = "afkAlpha",
-            min = 0, max = 1, step = 0.05, unit = "%"
+            min = 0, max = 1, step = 0.05, unit = "%",
+            tooltip = "Controls the frame`s visibility when your character is marked as AFK."
         },
         mountGroup = {
             type = "checkboxslider",
-            label = "En Montura",
+            label = "On Mount",
             cbKey = "useMount",
             sliderKey = "mountAlpha",
-            min = 0, max = 1, step = 0.05, unit = "%"
+            min = 0, max = 1, step = 0.05, unit = "%",
+            tooltip = "Changes the frame`s visibility while your character is mounted."
         },
         instanceGroup = {
             type = "checkboxslider",
-            label = "En Estancia",
+            label = "In Instance",
             cbKey = "useInstance",
             sliderKey = "instanceAlpha",
-            min = 0, max = 1, step = 0.05, unit = "%"
+            min = 0, max = 1, step = 0.05, unit = "%",
+            tooltip = "Adjusts the frame`s visibility when inside dungeons, raids, or other instances."
         },
     }
 }

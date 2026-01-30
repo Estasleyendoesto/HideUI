@@ -5,13 +5,18 @@ local _, ns = ...
 ---------------------------------------------------------------------
 ns.SOURCE = {
     BLIZZARD = "blizzard",
-    ADDON    = "addon",
+    OTHER    = "other",
     CUSTOM   = "custom"
 }
 
 ns.PANEL_STATE = {
     ENABLE  = "TurnOn",
     DISABLE = "TurnOff",
+}
+
+ns.ACTION = {
+    ADD    = "add",
+    REMOVE = "remove",
 }
 
 ns.FRAME_REGISTRY = {
@@ -56,6 +61,7 @@ ns.DEFAULT_FRAME_SETTINGS = {
     alias = "",
     source = ns.SOURCE.BLIZZARD,
     isEnabled = false,
+    ignoreFrame = false,
     useMouseover = true,
     mouseoverFadeInDuration = 0.3,
     mouseoverFadeOutDuration = 0.4,

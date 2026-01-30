@@ -1,7 +1,7 @@
 local _, ns = ...
 local Interface = HideUI:NewModule("Interface", "AceConsole-3.0", "AceEvent-3.0")
 
-local PANELS = { "About", "General", "Blizzard", "Addon" }
+local PANELS = { "About", "General", "Blizzard", "Others" }
 
 ---------------------------------------------------------------------
 -- INICIALIZACIÓN
