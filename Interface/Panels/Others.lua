@@ -42,7 +42,7 @@ end
 
 --- Sección de búsqueda y gestión (Add/Remove)
 function Others:DrawSearchSection()
-    local sb = Searchbox:Create(MainFrame.Content, function(action, value, sbFrame)
+    self.sb = Searchbox:Create(MainFrame.Content, function(action, value, sbFrame)
         -- Si no hay valor, no hacer nada
         if value == "" then 
             return sbFrame:SetFeedback("Enter a frame name", true) 
@@ -58,17 +58,19 @@ function Others:DrawSearchSection()
                 source = ns.SOURCE.OTHER 
             })
 
+            self:Draw()
+
             if success then
-                sbFrame:SetFeedback("Success: " .. value .. " added!", false)
-                self:Draw()
+                self.sb:SetFeedback("Added!", false)
             else
-                sbFrame:SetFeedback(err, true)
+                self.sb:SetFeedback(err, true)
             end
+
         -- Si es REMOVE
         elseif action == ns.ACTION.REMOVE then
             Database:UnregisterFrame(value)
-            sbFrame:SetFeedback("Frame removed", false)
             self:Draw()
+            self.sb:SetFeedback("Removed!", false)
         end
     end, nil, "Setup any frame", {
         alignment = "CENTER",
@@ -81,7 +83,7 @@ function Others:DrawSearchSection()
     })
 
     -- Lógica de filtrado en tiempo real
-    sb.EditBox:SetScript("OnTextChanged", function(eb)
+    self.sb.EditBox:SetScript("OnTextChanged", function(eb)
         SearchBoxTemplate_OnTextChanged(eb)
         self.filterText = eb:GetText():lower()
         self:UpdateList()
@@ -90,28 +92,27 @@ end
 
 function Others:DrawFrameList()
     self.collapsibles = {}
-    local order = ns.FRAME_REGISTRY
+    local allFrames = Database:GetFrames()
 
-    for _, entry in ipairs(order) do
-        local isRegistered, frame = Database:IsFrameRegistered(entry.name)
-        
-        if isRegistered and frame.source == ns.SOURCE.OTHER then
+    for frameName, data in pairs(allFrames) do
+        if data.source == ns.SOURCE.OTHER then
             -- Collapsible por frame
-            local co = Collapsible:Create(MainFrame.Content, entry.alias, {
+            local alias = data.alias or frameName
+            local co = Collapsible:Create(MainFrame.Content, alias, {
                 headerLeft = 60, 
                 headerRight = -42, 
                 spacing = 3
             })
             
             -- Sections internos
-            Builder:RenderSettings(co.Content, "frames", entry.name, {
+            Builder:RenderSettings(co.Content, "frames", frameName, {
                 left = 28, 
                 right = -28, 
                 spacing = 5
             })
             
             co:Refresh(false)
-            co.searchText = entry.alias:lower()
+            co.searchText = alias:lower()
             table.insert(self.collapsibles, co)
         end
     end

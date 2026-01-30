@@ -59,11 +59,12 @@ end
 local function CreateInputBlock(frame, width)
     local eb = CreateFrame("EditBox", nil, frame, "SearchBoxTemplate")
     eb:SetSize(width - 40, 25)
-    eb.customAlign = { alignment = "CENTER" } -- Queremos el editbox centrado
+    eb.customAlign = { alignment = "CENTER" }
     
     -- Texto de Feedback (anclado al EditBox, no al VStack)
     local fs = eb:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    fs:SetPoint("LEFT", eb, "RIGHT", 15, 0)
+    fs:SetPoint("LEFT", eb, "RIGHT", 10, 0)
+    fs:SetJustifyH("LEFT")
     fs:Hide()
     
     frame.EditBox = eb
