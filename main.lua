@@ -2,9 +2,9 @@ HideUI = LibStub("AceAddon-3.0"):NewAddon("HideUI")
 HideUI:SetDefaultModuleState(false)
 
 function HideUI:OnEnable()
-    self:EnableModule("Data")
-    self:EnableModule("Dispatcher")
-    self:EnableModule("UIManager")
+    self:EnableModule("Database")
+    -- self:EnableModule("Dispatcher")
+    self:EnableModule("Interface")
 end
 
 function HideUI:FindModule(name)
