@@ -2,8 +2,16 @@ local _, ns = ...
 local Blizzard = HideUI:NewModule("Blizzard", "AceEvent-3.0")
 local Utils = HideUI:GetModule("Utils")
 
+local MainFrame, Database, Builder, Collapsible
+
 function Blizzard:OnEnable()
+    MainFrame   = HideUI:GetModule("MainFrame")
+    Database    = HideUI:GetModule("Database")
+    Builder     = HideUI:GetModule("Builder")
+    Collapsible = HideUI:GetModule("Collapsible")
+    
     self:RegisterMessage("HIDEUI_PANEL_CHANGED", "OnEnter")
+    self:RegisterMessage("HIDEUI_FRAME_CHANGED", "OnFrameChanged")
 end
 
 function Blizzard:OnEnter(event, panel)
@@ -12,8 +20,16 @@ function Blizzard:OnEnter(event, panel)
     end
 end
 
+function Blizzard:OnFrameChanged(event, frameName, field, value)
+    if field == "isEnabled" then
+        local co = self.collapsibles and self.collapsibles[frameName]
+        if co then
+            co:SetStatus(value)
+        end
+    end
+end
+
 function Blizzard:Refresh()
-    local MainFrame = HideUI:GetModule("MainFrame")
     if MainFrame.frame:IsVisible() and self.isOpen then
         self:Draw()
     end
@@ -26,50 +42,52 @@ function Blizzard:TurnOff()
 end
 
 function Blizzard:Draw()
-    local MainFrame   = HideUI:GetModule("MainFrame")
-    local Header      = HideUI:GetModule("Header")
-    local Builder     = HideUI:GetModule("Builder")
-    local Database    = HideUI:GetModule("Database")
-    local Popup       = HideUI:GetModule("Popup")
-    local Collapsible = HideUI:GetModule("Collapsible")
-
-    local order = ns.FRAME_REGISTRY
-    local dbData = Database:GetFrames()
-
     self.isOpen = true
     MainFrame:ClearAll()
 
-    Utils:RegisterLayout(MainFrame.Content, {
-        padding = 15,
-        spacing = 8
-    })
+    Utils:RegisterLayout(MainFrame.Content, { padding = 15, spacing = 8 })
+
+    self:DrawHeader()
+    self:DrawFrameList()
+
+    Utils:VStack(MainFrame.Content)
+end
+
+function Blizzard:DrawHeader()
+    local Header = HideUI:GetModule("Header")
+    local Popup  = HideUI:GetModule("Popup")
 
     Header:Create(MainFrame.TopPanel, "Blizzard Frames", function()
-        Popup:Confirm("Are you sure you want to reset every frame`s settings?", function()
+        Popup:Confirm("Are you sure you want to reset every frame's settings?", function()
             Database:RestoreGlobals()
-            self:Draw() -- Redibujamos con los valores de fábrica
+            self:Draw()
         end)
     end)
     Utils:VStack(MainFrame.TopPanel)
+end
+
+function Blizzard:DrawFrameList()
+    self.collapsibles = {}
+    local order = ns.FRAME_REGISTRY
 
     for _, entry in ipairs(order) do
         local isRegistered, frame = Database:IsFrameRegistered(entry.name)
         
+        -- Solo mostramos frames de origen Blizzard
         if isRegistered and frame.source == ns.SOURCE.BLIZZARD then
-        -- Cada frame es un collapsible
             local co = Collapsible:Create(MainFrame.Content, entry.alias, {
-                headerLeft = 60,
-                headerRight = -42,
-                spacing = 3
+                headerLeft = 60, headerRight = -42, spacing = 3
             })
+
+            -- Seteamos el estado del collapsible
+            co:SetStatus(frame.isEnabled)
+            self.collapsibles[entry.name] = co
+
             Builder:RenderSettings(co.Content, "frames", entry.name, {
-                left = 28,
-                right = -28,
-                spacing = 5
+                left = 28, right = -28, spacing = 5
             })
-            co:Refresh(false) -- Cerrado por defecto
+
+            co:Refresh(false)
         end
     end
-
-    Utils:VStack(MainFrame.Content)
 end

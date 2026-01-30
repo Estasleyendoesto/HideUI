@@ -2,7 +2,7 @@ local _, ns = ...
 local Others = HideUI:NewModule("Others", "AceEvent-3.0")
 local Utils = HideUI:GetModule("Utils")
 
-local MainFrame, Database, Searchbox, Builder, Collapsible
+local MainFrame, Database, Searchbox, Builder, Collapsible, Popup
 
 function Others:OnEnable()
     MainFrame   = HideUI:GetModule("MainFrame")
@@ -10,12 +10,23 @@ function Others:OnEnable()
     Searchbox   = HideUI:GetModule("Searchbox")
     Builder     = HideUI:GetModule("Builder")
     Collapsible = HideUI:GetModule("Collapsible")
+    Popup       = HideUI:GetModule("Popup")
 
     self:RegisterMessage("HIDEUI_PANEL_CHANGED", "OnEnter")
+    self:RegisterMessage("HIDEUI_FRAME_CHANGED", "OnFrameChanged")
 end
 
 function Others:OnEnter(event, panel)
     if panel == "Others" then self:Draw() end
+end
+
+function Others:OnFrameChanged(event, frameName, field, value)
+    if field == "isEnabled" then
+        local co = self.collapsibles and self.collapsibles[frameName]
+        if co then
+            co:SetStatus(value)
+        end
+    end
 end
 
 function Others:Refresh()
@@ -29,7 +40,6 @@ end
 --- Cabecera con botón de Reset
 function Others:DrawHeader()
     local Header = HideUI:GetModule("Header")
-    local Popup  = HideUI:GetModule("Popup")
 
     Header:Create(MainFrame.TopPanel, "Other Frames", function()
         Popup:Confirm("Are you sure you want to reset every frame's settings?", function()
@@ -96,13 +106,25 @@ function Others:DrawFrameList()
 
     for frameName, data in pairs(allFrames) do
         if data.source == ns.SOURCE.OTHER then
+            -- Función de eliminación
+            local deleteFunc = function()
+                Popup:Confirm("¿Eliminar " .. frameName .. " de la lista?", function()
+                    Database:UnregisterFrame(frameName)
+                    self:Draw() -- Redibujamos para que desaparezca
+                end)
+            end
+
             -- Collapsible por frame
             local alias = data.alias or frameName
             local co = Collapsible:Create(MainFrame.Content, alias, {
                 headerLeft = 60, 
                 headerRight = -42, 
                 spacing = 3
-            })
+            }, deleteFunc)
+
+            -- Seteamos el estado del collapsible
+            co:SetStatus(data.isEnabled)
+            self.collapsibles[frameName] = co
             
             -- Sections internos
             Builder:RenderSettings(co.Content, "frames", frameName, {
