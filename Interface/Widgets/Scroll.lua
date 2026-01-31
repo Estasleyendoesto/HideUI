@@ -21,19 +21,19 @@ end
 -- LÓGICA DE MOVIMIENTO (INTERNO)
 ---------------------------------------------------------------------
 local function HandleMouseWheel(self, delta)
-    -- 1. Obtenemos el rango máximo que se puede scrollear
+    -- Obtenemos el rango máximo que se puede scrollear
     -- Es la diferencia entre el alto del contenido y el alto del visor
     local maxScroll = self:GetVerticalScrollRange()
     
-    -- 2. Si el contenido cabe entero, no hacemos nada
+    -- Si el contenido cabe entero, no hacemos nada
     if maxScroll <= 0 then return end
 
-    -- 3. Calculamos la nueva posición
+    -- Calculamos la nueva posición
     local current = self:GetVerticalScroll()
     local scrollStep = 30
     local newPos = current - (delta * scrollStep)
 
-    -- 4. CLAMP: Bloqueamos entre 0 y el máximo real
+    -- CLAMP: Bloqueamos entre 0 y el máximo real
     -- Esto evita que el scroll "tire para abajo" en el vacío
     if newPos < 0 then 
         newPos = 0 
@@ -48,21 +48,21 @@ end
 -- CONSTRUCTOR
 ---------------------------------------------------------------------
 function Scroll:Create(parent)
-    -- 1. El ScrollFrame
+    -- El ScrollFrame
     local scrollFrame = CreateFrame("ScrollFrame", nil, parent, "UIPanelScrollFrameTemplate")
     ApplyScrollStyles(scrollFrame)
 
-    -- 2. El Content (El lienzo interno)
+    -- El Content (El lienzo interno)
     local content = CreateFrame("Frame", nil, scrollFrame)
     content:SetSize(scrollFrame:GetWidth(), 1) 
     scrollFrame:SetScrollChild(content)
 
-    -- 3. Sincronización de dimensiones
+    -- Sincronización de dimensiones
     scrollFrame:SetScript("OnSizeChanged", function(self, width)
         content:SetWidth(width)
     end)
 
-    -- 4. Evento de Rueda (Corregido con clamping)
+    -- Evento de Rueda
     scrollFrame:EnableMouseWheel(true)
     scrollFrame:SetScript("OnMouseWheel", HandleMouseWheel)
 

@@ -18,20 +18,20 @@ function Interface:OnInitialize()
 end
 
 function Interface:OnEnable()
-    -- 1. Comandos de chat
+    -- Comandos de chat
     self:RegisterChatCommand("hideui", "HandleChatCommand")
     self:RegisterChatCommand("hui", "HandleChatCommand")
 
-    -- 2. Activación de Core Modules
+    -- Activación de Core Modules
     HideUI:EnableModule("MinimapButton")
     HideUI:EnableModule("MainFrame")
 
-    -- 3. Activación de Paneles
+    -- Activación de Paneles
     for name in pairs(self.panels) do
         HideUI:EnableModule(name)
     end
     
-    -- 4. Registro de Eventos/Mensajes Internos
+    -- Registro de Eventos/Mensajes Internos
     self:RegisterMessage("HIDEUI_CONFIG_OPENED", "RefreshPanels")
 end
 
@@ -39,8 +39,6 @@ end
 -- COMANDOS DE CHAT
 ---------------------------------------------------------------------
 function Interface:HandleChatCommand(input)
-    -- Por ahora cualquier comando abre el frame, 
-    -- pero dejamos el 'input' listo por si quieres añadir "reset", "help", etc.
     self:ToggleMainFrame()
 end
 
@@ -62,7 +60,6 @@ function Interface:RefreshPanels()
 end
 
 --- Cambia el estado visual de todos los elementos (Enable/Disable)
--- @param state: String ("SetEnable" o "SetDisable")
 function Interface:SetPanelsState(state)
     -- Si no viene estado, por defecto habilitamos
     local method = state or "SetEnable"
@@ -72,7 +69,6 @@ function Interface:SetPanelsState(state)
             module[method](module)
         else
             -- Debug sutil para el desarrollador
-            -- print(string.format("|cffff0000HideUI:|r Módulo %s no implementa %s", name, method))
         end
     end
 end

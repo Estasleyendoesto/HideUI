@@ -124,13 +124,13 @@ function Collapsible:Create(parent, title, layout, onDelete)
         headerRight = -12,
     })
 
-    -- 1. Contenedor Principal
+    -- Contenedor Principal
     local container = CreateFrame("Frame", nil, parent)
     container:SetWidth(parent:GetWidth())
     container.parent = parent
     container.layoutConfig = config
 
-    -- 2. Header (Botón)
+    -- Header (Botón)
     local header = CreateFrame("Button", nil, container)
     header:SetPoint("TOPLEFT")
     header:SetPoint("TOPRIGHT")
@@ -138,7 +138,7 @@ function Collapsible:Create(parent, title, layout, onDelete)
     ApplyHeaderStyles(header, title, config)
     CreateDeleteButton(header, onDelete)
     
-    -- 3. Contenido (Frame interno para widgets)
+    -- Contenido (Frame interno para widgets)
     local content = CreateFrame("Frame", nil, container)
     content:SetPoint("TOPLEFT", header, "BOTTOMLEFT", config.left, config.top)
     content:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", config.right, 0)
@@ -160,7 +160,7 @@ function Collapsible:Create(parent, title, layout, onDelete)
         UpdateCollapsibleState(self, forceState)
     end
 
-    -- 5. Eventos
+    -- Eventos
     header:SetScript("OnClick", function() 
         container:Refresh() 
     end)

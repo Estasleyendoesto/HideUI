@@ -24,13 +24,13 @@ end
 function MinimapButton:OnEnable()
     local db = Database:GetGlobals()
     
-    -- 1. Crear el Frame base
+    -- Frame principal
     local btn = CreateFrame("Button", "HideUIMinimapButton", Minimap)
     btn:SetSize(31, 31)
     btn:SetFrameLevel(10)
     btn:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
     
-    -- 2. Capas visuales (Icono y Borde)
+    -- Capas visuales (Icono y Borde)
     btn.icon = btn:CreateTexture(nil, "BACKGROUND")
     btn.icon:SetTexture(ICON_PATH)
     btn.icon:SetSize(20, 20)
@@ -41,7 +41,7 @@ function MinimapButton:OnEnable()
     btn.border:SetSize(53, 53)
     btn.border:SetPoint("TOPLEFT", 0, 0)
 
-    -- 3. Scripts de Arrastre (Drag)
+    -- Scripts de Arrastre (Drag)
     btn:RegisterForDrag("LeftButton")
     btn:SetScript("OnDragStart", function(self)
         self:SetScript("OnUpdate", function(s)
@@ -60,7 +60,7 @@ function MinimapButton:OnEnable()
         self:SetScript("OnUpdate", nil) 
     end)
 
-    -- 4. Script de Click
+    -- Script de Click
     btn:RegisterForClicks("AnyUp")
     btn:SetScript("OnClick", function(self, button)
         if button == "LeftButton" then
@@ -68,7 +68,7 @@ function MinimapButton:OnEnable()
         end
     end)
 
-    -- 5. Tooltip (Básico pero necesario)
+    -- Tooltip
     btn:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
         GameTooltip:AddLine("HideUI")

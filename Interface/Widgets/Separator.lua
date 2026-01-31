@@ -3,7 +3,7 @@ local Separator = HideUI:NewModule("Separator")
 local Utils = HideUI:GetModule("Utils")
 
 ---------------------------------------------------------------------
--- CONSTRUCTOR DEL SEPARADOR
+-- CONSTRUCTOR
 ---------------------------------------------------------------------
 function Separator:Create(parent, layout)
     local config = Utils:GetLayout(layout, {
@@ -14,11 +14,11 @@ function Separator:Create(parent, layout)
         thickness = 1,
     })
 
-    -- 1. Contenedor
+    -- Contenedor
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetHeight(config.height)
 
-    -- 2. Textura de la línea
+    -- Textura de la línea
     local line = frame:CreateTexture(nil, "ARTWORK")
     line:SetAtlas("Options_HorizontalDivider", true)
     
@@ -31,9 +31,7 @@ function Separator:Create(parent, layout)
     
     frame.Line = line
 
-    -- 3. Métodos de compatibilidad
-    -- Los dejamos como "no-op" (operación vacía) para que no crashee 
-    -- si un bucle general intenta habilitar/deshabilitar todo el panel.
+    -- Métodos de compatibilidad
     function frame:SetButtonState() end
 
     return frame

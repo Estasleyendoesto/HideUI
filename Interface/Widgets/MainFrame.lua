@@ -144,7 +144,6 @@ function MainFrame:NotifyOnOpen()
         local target = addonEnabled and "About" or "General"
 
         self.currentPanel = target
-        
         self:ClearAll() 
         self:SendMessage("HIDEUI_PANEL_CHANGED", target)
     end)

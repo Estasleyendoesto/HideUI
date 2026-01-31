@@ -3,7 +3,7 @@ local Searchbox = HideUI:NewModule("Searchbox")
 local Utils = HideUI:GetModule("Utils")
 
 ---------------------------------------------------------------------
--- MÉTODOS PRIVADOS (LÓGICA)
+-- MÉTODOS INTERNOS
 ---------------------------------------------------------------------
 
 local function ShowFeedback(frame, text, isError)
@@ -40,11 +40,11 @@ end
 -- CONSTRUCTORES DE BLOQUES (PARA VSTACK)
 ---------------------------------------------------------------------
 
--- Bloque 1: Título (Encapsulado en un frame para que VStack lo vea)
+-- Título
 local function CreateTitleBlock(frame, text)
     if not text then return nil end
     local block = CreateFrame("Frame", nil, frame)
-    block:SetSize(1, 15) -- El ancho da igual (VStack lo ajustará), el alto es el espacio del texto
+    block:SetSize(1, 15)
     
     local fs = block:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     fs:SetPoint("BOTTOMLEFT", block, "BOTTOMLEFT", 5, -3)
@@ -55,13 +55,13 @@ local function CreateTitleBlock(frame, text)
     return block
 end
 
--- Bloque 2: Input (EditBox + Feedback)
+-- Input (EditBox + Feedback)
 local function CreateInputBlock(frame, width)
     local eb = CreateFrame("EditBox", nil, frame, "SearchBoxTemplate")
     eb:SetSize(width - 40, 25)
     eb.customAlign = { alignment = "CENTER" }
     
-    -- Texto de Feedback (anclado al EditBox, no al VStack)
+    -- Texto de Feedback
     local fs = eb:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     fs:SetPoint("LEFT", eb, "RIGHT", 10, 0)
     fs:SetJustifyH("LEFT")
@@ -72,17 +72,17 @@ local function CreateInputBlock(frame, width)
     return eb
 end
 
--- Bloque 3: Botones (HStack)
+-- Botones
 local function CreateButtonsBlock(frame)
     local container = CreateFrame("Frame", nil, frame)
     container:SetHeight(22)
-    container.customAlign = { alignment = "CENTER" } -- Centramos el grupo de botones
+    container.customAlign = { alignment = "CENTER" }
     
     local Button = HideUI:GetModule("Button")
     frame.InsertBtn = Button:Create(container, "Insert", nil, {96, 22})
     frame.RemoveBtn = Button:Create(container, "Remove", nil, {96, 22})
 
-    Utils:HStack(container, 10, 0) -- Alineación horizontal de los botones
+    Utils:HStack(container, 10, 0)
     
     frame.BtnContainer = container
     return container
@@ -93,7 +93,7 @@ end
 ---------------------------------------------------------------------
 
 function Searchbox:Create(parent, onAction, tooltip, title, layout)
-    -- 1. Configuración de Layout
+    -- Configuración de Layout
     local config = Utils:GetLayout(layout, {
         width = 400,
         alignment = "LEFT",
@@ -101,21 +101,20 @@ function Searchbox:Create(parent, onAction, tooltip, title, layout)
         padding = 5
     })
 
-    -- 2. El Contenedor Base
+    -- Contenedor Base
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetWidth(config.width)
-    frame.customAlign = config -- Para que el VStack del padre (Others) lo posicione
+    frame.customAlign = config
 
-    -- 3. Crear los hijos (En orden de aparición vertical)
+    -- Crear los hijos
     CreateTitleBlock(frame, title)
     local eb = CreateInputBlock(frame, config.width)
     CreateButtonsBlock(frame)
 
-    -- 4. Aplicar VStack interno
-    -- Esto organiza el Título -> EditBox -> Botones y calcula el alto total del frame
+    -- Aplicar VStack interno
     Utils:VStack(frame, config.spacing, config.padding)
 
-    -- 5. Finalizar
+    -- Finalizar
     BindEvents(frame, onAction, tooltip)
     
     function frame:SetFeedback(text, isError) ShowFeedback(self, text, isError) end
