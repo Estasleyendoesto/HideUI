@@ -1,26 +1,33 @@
 local _, ns = ...
-local Others = HideUI:NewModule("Others", "AceEvent-3.0")
-local Utils = HideUI:GetModule("Utils")
 
-local MainFrame, Database, Searchbox, Builder, Collapsible, Popup
+local Others   = HideUI:NewModule("Others", "AceEvent-3.0")
+
+local Database = HideUI:GetModule("Database")
+local Builder  = HideUI:GetModule("Builder")
+local Utils    = HideUI:GetModule("Utils")
+
+-- Widgets
+local MainFrame   = HideUI:GetModule("MainFrame")
+local Header      = HideUI:GetModule("Header")
+local Searchbox   = HideUI:GetModule("Searchbox")
+local Collapsible = HideUI:GetModule("Collapsible")
+local Popup       = HideUI:GetModule("Popup")
+
+-- Panel Name
+local PANEL_NAME = "Others"
 
 function Others:OnEnable()
-    MainFrame   = HideUI:GetModule("MainFrame")
-    Database    = HideUI:GetModule("Database")
-    Searchbox   = HideUI:GetModule("Searchbox")
-    Builder     = HideUI:GetModule("Builder")
-    Collapsible = HideUI:GetModule("Collapsible")
-    Popup       = HideUI:GetModule("Popup")
-
     self:RegisterMessage("HIDEUI_PANEL_CHANGED", "OnEnter")
     self:RegisterMessage("HIDEUI_FRAME_CHANGED", "OnFrameChanged")
 end
 
-function Others:OnEnter(event, panel)
-    if panel == "Others" then self:Draw() end
+function Others:OnEnter(_, panel)
+    if panel == PANEL_NAME then self:Draw() end
 end
 
-function Others:OnFrameChanged(event, frameName, field, value)
+function Others:OnFrameChanged(_, frameName, field, value)
+    -- Necesario obtener el cambio de estado de un frame
+    -- Para actualizar el collapsible
     if field == "isEnabled" then
         local co = self.collapsibles and self.collapsibles[frameName]
         if co then
@@ -29,18 +36,12 @@ function Others:OnFrameChanged(event, frameName, field, value)
     end
 end
 
-function Others:Refresh()
-    if MainFrame.frame:IsVisible() and self.isOpen then self:Draw() end
-end
-
 ---------------------------------------------------------------------
--- RENDERERS (BLOQUES DE CONSTRUCCIÓN)
+-- DRAWERS
 ---------------------------------------------------------------------
 
 --- Cabecera con botón de Reset
 function Others:DrawHeader()
-    local Header = HideUI:GetModule("Header")
-
     Header:Create(MainFrame.TopPanel, "Other Frames", function()
         Popup:Confirm("Are you sure you want to reset every frame's settings?", function()
             Database:RestoreGlobals()
@@ -53,14 +54,14 @@ end
 --- Sección de búsqueda y gestión (Add/Remove)
 function Others:DrawSearchSection()
     self.sb = Searchbox:Create(MainFrame.Content, function(action, value, sbFrame)
-        -- Si no hay valor, no hacer nada
+        -- Si no hay valor, mostrar feedback
         if value == "" then 
             return sbFrame:SetFeedback("Enter a frame name", true) 
         end
 
         value = value:trim()
 
-        -- Si es ADD
+        -- Si hizo clic en ADD
         if action == ns.ACTION.ADD then
             local success, err = Database:RegisterFrame({ 
                 name = value, 
@@ -76,7 +77,7 @@ function Others:DrawSearchSection()
                 self.sb:SetFeedback(err, true)
             end
 
-        -- Si es REMOVE
+        -- Si hizo clic en REMOVE
         elseif action == ns.ACTION.REMOVE then
             Database:UnregisterFrame(value)
             self:Draw()
@@ -143,9 +144,7 @@ end
 ---------------------------------------------------------------------
 -- MÉTODOS PÚBLICOS
 ---------------------------------------------------------------------
-
 function Others:Draw()
-    self.isOpen = true
     MainFrame:ClearAll()
 
     -- Configuración base del layout

@@ -1,26 +1,32 @@
 local _, ns = ...
-local Blizzard = HideUI:NewModule("Blizzard", "AceEvent-3.0")
-local Utils = HideUI:GetModule("Utils")
 
-local MainFrame, Database, Builder, Collapsible
+local Blizzard = HideUI:NewModule("Blizzard", "AceEvent-3.0")
+
+local Database = HideUI:GetModule("Database")
+local Builder  = HideUI:GetModule("Builder")
+local Utils    = HideUI:GetModule("Utils")
+
+-- Widgets
+local MainFrame   = HideUI:GetModule("MainFrame")
+local Collapsible = HideUI:GetModule("Collapsible")
+local Header      = HideUI:GetModule("Header")
+local Popup       = HideUI:GetModule("Popup")
+
+-- Panel Name
+local PANEL_NAME = "Blizzard"
 
 function Blizzard:OnEnable()
-    MainFrame   = HideUI:GetModule("MainFrame")
-    Database    = HideUI:GetModule("Database")
-    Builder     = HideUI:GetModule("Builder")
-    Collapsible = HideUI:GetModule("Collapsible")
-    
     self:RegisterMessage("HIDEUI_PANEL_CHANGED", "OnEnter")
     self:RegisterMessage("HIDEUI_FRAME_CHANGED", "OnFrameChanged")
 end
 
 function Blizzard:OnEnter(event, panel)
-    if panel == "Blizzard" then
-        self:Draw()
-    end
+    if panel == PANEL_NAME then self:Draw() end
 end
 
 function Blizzard:OnFrameChanged(event, frameName, field, value)
+    -- Necesario obtener el cambio de estado de un frame
+    -- Para actualizar el estado del collapsible
     if field == "isEnabled" then
         local co = self.collapsibles and self.collapsibles[frameName]
         if co then
@@ -29,20 +35,7 @@ function Blizzard:OnFrameChanged(event, frameName, field, value)
     end
 end
 
-function Blizzard:Refresh()
-    if MainFrame.frame:IsVisible() and self.isOpen then
-        self:Draw()
-    end
-end
-
-function Blizzard:TurnOn()
-end
-
-function Blizzard:TurnOff()
-end
-
 function Blizzard:Draw()
-    self.isOpen = true
     MainFrame:ClearAll()
 
     Utils:RegisterLayout(MainFrame.Content, { padding = 15, spacing = 8 })
@@ -54,9 +47,6 @@ function Blizzard:Draw()
 end
 
 function Blizzard:DrawHeader()
-    local Header = HideUI:GetModule("Header")
-    local Popup  = HideUI:GetModule("Popup")
-
     Header:Create(MainFrame.TopPanel, "Blizzard Frames", function()
         Popup:Confirm("Are you sure you want to reset every frame's settings?", function()
             Database:RestoreGlobals()
@@ -73,16 +63,18 @@ function Blizzard:DrawFrameList()
     for _, entry in ipairs(order) do
         local isRegistered, frame = Database:IsFrameRegistered(entry.name)
         
-        -- Solo mostramos frames de origen Blizzard
+        -- Filtramos frames de Blizzard
         if isRegistered and frame.source == ns.SOURCE.BLIZZARD then
+            -- Creamos el collapsible
             local co = Collapsible:Create(MainFrame.Content, entry.alias, {
                 headerLeft = 60, headerRight = -42, spacing = 3
             })
 
-            -- Seteamos el estado del collapsible
+            -- Definimos el estado inicial del collapsible
             co:SetStatus(frame.isEnabled)
             self.collapsibles[entry.name] = co
 
+            -- Se rellena el collapsible
             Builder:RenderSettings(co.Content, "frames", entry.name, {
                 left = 28, right = -28, spacing = 5
             })

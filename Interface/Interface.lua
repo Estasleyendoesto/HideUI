@@ -30,9 +30,6 @@ function Interface:OnEnable()
     for name in pairs(self.panels) do
         HideUI:EnableModule(name)
     end
-    
-    -- Registro de Eventos/Mensajes Internos
-    self:RegisterMessage("HIDEUI_CONFIG_OPENED", "RefreshPanels")
 end
 
 ---------------------------------------------------------------------
@@ -40,37 +37,6 @@ end
 ---------------------------------------------------------------------
 function Interface:HandleChatCommand(input)
     self:ToggleMainFrame()
-end
-
----------------------------------------------------------------------
--- GESTIÓN DE PANELES (LOGICA)
----------------------------------------------------------------------
---- Recarga los datos de todos los paneles registrados
-function Interface:RefreshPanels()
-    -- 'isUpdating' actúa como un semáforo para evitar bucles de eventos
-    self.isUpdating = true
-
-    for name, module in pairs(self.panels) do
-        if module.Refresh then 
-            module:Refresh()
-        end
-    end
-    
-    self.isUpdating = false
-end
-
---- Cambia el estado visual de todos los elementos (Enable/Disable)
-function Interface:SetPanelsState(state)
-    -- Si no viene estado, por defecto habilitamos
-    local method = state or "SetEnable"
-
-    for name, module in pairs(self.panels) do
-        if module[method] then
-            module[method](module)
-        else
-            -- Debug sutil para el desarrollador
-        end
-    end
 end
 
 ---------------------------------------------------------------------
