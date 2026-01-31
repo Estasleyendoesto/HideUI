@@ -5,8 +5,8 @@
 local _, ns = ...
 local MainFrame = HideUI:NewModule("MainFrame", "AceEvent-3.0")
 local Utils = HideUI:GetModule("Utils")
+local Database = HideUI:GetModule("Database")
 
--- Configuración estática
 local CFG = {
     WIDTH  = 620,
     HEIGHT = 520,
@@ -23,12 +23,13 @@ function MainFrame:OnEnable()
     self:CreateNavBar()         -- 4. Botones de navegación
     self:CreateContentScroll()  -- 5. Área de scroll
     self:NotifyOnOpen()         -- 6. Hooks de eventos
+    self:RegisterMessage("HIDEUI_GLOBAL_CHANGED", "OnGlobalSettingChanged")
 
     self.frame:Hide()
 end
 
 ---------------------------------------------------------------------
--- 1. CONTENEDOR PRINCIPAL
+-- CONTENEDOR PRINCIPAL
 ---------------------------------------------------------------------
 function MainFrame:CreateMainFrame()
     local f = CreateFrame("Frame", "HideUIMainFrame", UIParent)
@@ -47,7 +48,7 @@ function MainFrame:CreateMainFrame()
 end
 
 ---------------------------------------------------------------------
--- 2. ESTÉTICA (Fondo, Bordes y Título)
+-- ESTÉTICA (Fondo, Bordes y Título)
 ---------------------------------------------------------------------
 function MainFrame:StylizeMainFrame()
     local f = self.frame
@@ -80,7 +81,7 @@ function MainFrame:StylizeMainFrame()
 end
 
 ---------------------------------------------------------------------
--- 3 & 4. PANELES Y NAVEGACIÓN
+-- PANELES Y NAVEGACIÓN
 ---------------------------------------------------------------------
 function MainFrame:CreateTopPanel()
     self.TopPanel = CreateFrame("Frame", nil, self.frame)
@@ -92,24 +93,31 @@ end
 
 function MainFrame:CreateNavBar()
     local Navbar = HideUI:GetModule("Navbar")
-    local nav = Navbar:Create(self.TopPanel)
+    self.nav = Navbar:Create(self.TopPanel)
 
+    local addonEnabled = Database:GetGlobals().addonEnabled
     local tabs = {"About", "General", "Blizzard", "Others"}
+
     for _, name in ipairs(tabs) do
         local isActive = (self.currentPanel == name)
-        Navbar:AddButton(nav, name, function() 
+        Navbar:AddButton(self.nav, name, function() 
             self.currentPanel = name
             self:SendMessage("HIDEUI_PANEL_CHANGED", name)
         end, isActive)
     end
 
-    -- Calcula su height para el TopPanel 
-    -- y ajusta su alineación horizontal
-    Navbar:Refresh(nav, "CENTER")
+    Navbar:SetEnabled(self.nav, addonEnabled)
+    Navbar:Refresh(self.nav, "CENTER")
+end
+
+function MainFrame:RegisterHeader(headerFrame)
+    self.currentHeader = headerFrame
+    local addonEnabled = Database:GetGlobals().addonEnabled
+    headerFrame:SetEnabled(addonEnabled)
 end
 
 ---------------------------------------------------------------------
--- 5. ÁREA DE CONTENIDO (Scroll)
+-- ÁREA DE CONTENIDO (Scroll)
 ---------------------------------------------------------------------
 function MainFrame:CreateContentScroll()
     local ScrollWidget = HideUI:GetModule("Scroll")
@@ -132,14 +140,44 @@ end
 
 function MainFrame:NotifyOnOpen()
     self.frame:SetScript("OnShow", function()
-        self:SendMessage("HIDEUI_CONFIG_OPENED")
+        local addonEnabled = Database:GetGlobals().addonEnabled
+        local target = addonEnabled and "About" or "General"
+
+        self.currentPanel = target
+        
+        self:ClearAll() 
+        self:SendMessage("HIDEUI_PANEL_CHANGED", target)
     end)
 end
 
 function MainFrame:ClearAll()
     Utils:Clear(self.TopPanel)
     Utils:Clear(self.Content)
-    
-    -- Necesitamos regenerar la barra de navegación
+    self.currentHeader = nil
     self:CreateNavBar()
+end
+
+---------------------------------------------------------------------
+-- GESTIÓN DE ESTADO GLOBAL
+---------------------------------------------------------------------
+function MainFrame:OnGlobalSettingChanged(message, field, value)
+    if field == "addonEnabled" then
+        self:UpdateUIVisuals(value)
+        
+        if value == false and self.currentPanel ~= "General" then
+            self.currentPanel = "General"
+            self:SendMessage("HIDEUI_PANEL_CHANGED", "General")
+        end
+    end
+end
+
+function MainFrame:UpdateUIVisuals(addonEnabled)
+    local Navbar = HideUI:GetModule("Navbar")
+    
+    if self.nav then
+        Navbar:SetEnabled(self.nav, addonEnabled)
+    end
+    if self.currentHeader then
+        self.currentHeader:SetEnabled(addonEnabled)
+    end
 end

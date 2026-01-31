@@ -14,7 +14,7 @@ local function BindComboEvents(cbControl, sliderControl, onUpdate)
         local isChecked = self:GetChecked()
         
         -- El slider se habilita/deshabilita según el checkbox
-        sliderControl:SetButtonState(isChecked)
+        sliderControl:SetEnabled(isChecked)
         
         -- Callback general: (checked, sliderValue)
         if onUpdate then 
@@ -34,11 +34,11 @@ function CheckboxSlider:Create(parent, label, onUpdate, tooltip, settings)
     local root = CreateFrame("Frame", nil, parent)
     root:SetSize(280, 55)
 
-    -- 2. Checkbox
+    -- Checkbox
     local cb = Checkbox:Create(root, label, nil, tooltip, settings.cbDefault)
     cb:SetPoint("TOPLEFT", 0, 0)
 
-    -- 3. Slider
+    -- Slider
     local sliderSettings = {
         min     = settings.min or 0,
         max     = settings.max or 1,
@@ -57,23 +57,24 @@ function CheckboxSlider:Create(parent, label, onUpdate, tooltip, settings)
     slider:SetPoint("TOPRIGHT", 0, 18)
     slider.Label:Hide()
 
-    -- 4. Unión de piezas
+    -- Unión de piezas
     BindComboEvents(cb, slider, onUpdate)
 
     -- Inicialización de estado visual
-    slider:SetButtonState(settings.cbDefault)
+    slider:SetEnabled(settings.cbDefault)
 
-    -- 5. API Pública
+    -- API Pública
     root.Checkbox = cb
     root.Slider   = slider
 
-    function root:SetButtonState(enabled)
+    function root:SetEnabled(enabled)
         self:SetAlpha(enabled and 1 or 0.4)
-        self.Checkbox:SetButtonState(enabled)
-        
-        -- Lógica en cascada: el slider solo se activa si el root está activo Y el checkbox marcado
+        self.Checkbox:SetEnabled(enabled)
+
         local shouldEnableSlider = enabled and self.Checkbox.Checkbox:GetChecked()
-        self.Slider:SetButtonState(shouldEnableSlider)
+        self.Slider:SetEnabled(shouldEnableSlider)
+
+        self:EnableMouse(enabled)
     end
 
     return root

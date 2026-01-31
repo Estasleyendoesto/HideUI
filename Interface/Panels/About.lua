@@ -24,6 +24,8 @@ function About:Draw()
     self.isOpen = true
     MainFrame:ClearAll()
 
+    print("About Draw")
+
     -- ...
 
     Utils:VStack(MainFrame.Content)

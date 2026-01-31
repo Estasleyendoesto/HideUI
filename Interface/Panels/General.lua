@@ -27,7 +27,7 @@ function General:Refresh()
 end
 
 ---------------------------------------------------------------------
--- RENDERIZADO DEL PANEL (DRAW)
+-- RENDERIZADO DEL PANEL
 ---------------------------------------------------------------------
 function General:Draw()
     local MainFrame   = HideUI:GetModule("MainFrame")
@@ -40,31 +40,24 @@ function General:Draw()
     local Section     = HideUI:GetModule("Section")
 
     self.isOpen = true
-
-    -- 1. Limpieza total
+    MainFrame.currentPanel = "General"
     MainFrame:ClearAll()
 
-    -- 2. Configuración del Layout
-    Utils:RegisterLayout(MainFrame.Content, {
-        padding = 15, -- Ypadding por ser un VStack
-        spacing = 8 -- Espacio entre los sections
-    })
-
-    -- 3. CABECERA Y RESET
-    Header:Create(MainFrame.TopPanel, "General Settings", function()
+    -- Cabecera y Reset
+    local header = Header:Create(MainFrame.TopPanel, "General Settings", function()
         Popup:Confirm("Are you sure you want to reset all global settings?", function()
             Database:RestoreGlobals()
             self:Draw() -- Redibujamos con los valores de fábrica
         end)
     end)
+    MainFrame:RegisterHeader(header)
     Utils:VStack(MainFrame.TopPanel)
 
-    -- 4. Dibujado del Schema
+    -- Dibujado del Content
+    Utils:RegisterLayout(MainFrame.Content, {
+        padding = 15,
+        spacing = 8
+    })
     Builder:RenderSettings(MainFrame.Content, "globals")
-
-    -- 5. Pueden añadirse otros Section o Collapsible
-    -- local sectionActions = Collapsible:Create(MainFrame.Content, "Acciones de Interfaz")
-
-    -- 6. FINALIZACIÓN
     Utils:VStack(MainFrame.Content)
 end

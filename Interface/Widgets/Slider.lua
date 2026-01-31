@@ -68,16 +68,16 @@ end
 function Slider:Create(parent, label, onUpdate, tooltip, settings)
     settings = settings or { min = 0, max = 1, step = 0.1, default = 0.5, unit = "" }
 
-    -- 1. Estructura Principal
+    -- Contenedor maestro
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetSize(280, 42) -- Un poco más alto para que respire el texto
 
-    -- 2. Label Superior
+    -- Label Superior
     frame.Label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     frame.Label:SetPoint("TOPLEFT", 5, 0)
     frame.Label:SetText(label)
 
-    -- 3. El Slider (Widget)
+    -- Slider (Widget)
     local s = CreateFrame("Slider", nil, frame, "MinimalSliderTemplate")
     s:SetPoint("TOPLEFT", 20, -18)
     s:SetPoint("TOPRIGHT", -45, -18)
@@ -87,7 +87,7 @@ function Slider:Create(parent, label, onUpdate, tooltip, settings)
     s:SetValue(settings.default)
     frame.Widget = s
 
-    -- 4. Botones y Texto de Valor
+    -- Botones y Texto de Valor
     frame.Back = CreateFrame("Button", nil, frame)
     frame.Back:SetPoint("RIGHT", s, "LEFT", -5, 0)
 
@@ -97,17 +97,20 @@ function Slider:Create(parent, label, onUpdate, tooltip, settings)
     frame.ValueText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     frame.ValueText:SetPoint("LEFT", frame.Forward, "RIGHT", 5, 0)
     
-    -- 5. Inicializar
+    -- Inicializar
     ApplyStyle(frame)
     BindEvents(frame, onUpdate, tooltip, label, settings)
     UpdateValueText(frame, settings.default, settings.unit)
 
     -- API Pública
-    function frame:SetButtonState(enabled)
+    function frame:SetEnabled(enabled)
         self:SetAlpha(enabled and 1 or 0.4)
+
         self.Widget:SetEnabled(enabled)
         self.Back:SetEnabled(enabled)
         self.Forward:SetEnabled(enabled)
+
+        self:EnableMouse(enabled)
     end
 
     return frame

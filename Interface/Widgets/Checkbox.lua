@@ -51,12 +51,12 @@ end
 -- CONSTRUCTOR
 ---------------------------------------------------------------------
 function Checkbox:Create(parent, label, onUpdate, tooltip, default)
-    -- 1. Estructura
+    -- Condenedor maestro
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetSize(280, 29)
 
 
-    -- 2. El Widget (CheckButton)
+    -- El Widget (CheckButton)
     local cb = CreateFrame("CheckButton", nil, frame, "BackdropTemplate")
     cb:SetSize(30, 29)
     cb:SetPoint("LEFT", 0, 0)
@@ -64,19 +64,21 @@ function Checkbox:Create(parent, label, onUpdate, tooltip, default)
     
     ApplyStyle(cb)
 
-    -- 3. Label
+    -- Label
     frame.Text = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     frame.Text:SetPoint("LEFT", cb, "RIGHT", 10, 0)
     frame.Text:SetText(label)
 
-    -- 4. Unión de Lógica
+    -- Unión de Lógica
     BindEvents(frame, cb, label, onUpdate, tooltip)
 
-    -- 5. API Pública
+    -- API Pública
     frame.Checkbox = cb
-    function frame:SetButtonState(enabled)
+    
+    function frame:SetEnabled(enabled)
         self:SetAlpha(enabled and 1 or 0.4)
         self.Checkbox:SetEnabled(enabled)
+        self:EnableMouse(enabled)
     end
 
     return frame
