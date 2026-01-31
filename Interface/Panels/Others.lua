@@ -39,7 +39,6 @@ end
 ---------------------------------------------------------------------
 -- DRAWERS
 ---------------------------------------------------------------------
-
 --- Cabecera con botón de Reset
 function Others:DrawHeader()
     local header = Header:Create(MainFrame.TopPanel, "Other Frames", function()
@@ -83,9 +82,9 @@ function Others:DrawSearchSection()
         end
     end, nil, "Setup any frame", {
         alignment = "CENTER",
-        x = 10,
+        x = 5,
         width = 325,
-        padding = { top = 0, bottom = 20 }
+        padding = { top = 0, bottom = 35 }
     })
 
     -- 2. Aplicamos feedback pendiente (si existe después del Draw)
@@ -112,7 +111,9 @@ function Others:DrawFrameList()
     for frameName, data in pairs(allFrames) do
         if data.source == ns.SOURCE.OTHER then
             local co = Collapsible:Create(MainFrame.Content, data.alias or frameName, {
-                headerLeft = 60, spacing = 3
+                -- Layout de cada collapsible
+                margin  = { left = 70, right = 40 },
+                padding = { x = 10, top = 10, bottom = 20 },
             }, function()
                 Popup:Confirm("Delete " .. frameName .. "?", function()
                     Database:UnregisterFrame(frameName)
@@ -127,10 +128,7 @@ function Others:DrawFrameList()
             table.insert(self.orderedList, co)
 
             Builder:RenderSettings(co.Content, "frames", frameName, {
-                -- Espaciados de cada Content dentro del collapsible
-                left = 28, 
-                right = -28, 
-                spacing = 5
+                -- Layout de cada section dentro del collapsible
             })
             co:Refresh(false)
         end
@@ -143,9 +141,10 @@ end
 function Others:Draw()
     MainFrame:ClearAll()
 
-    -- Espaciados del Content (searchbox y cada collapsible)
     Utils:RegisterLayout(MainFrame.Content, { 
-        padding = { top = 15, bottom = 25, left = 22, right = 45 }, 
+        -- Layout del MainFrame.Content
+        -- Padre del searchbox y los collapsibles
+        padding = { x = 68, top = 18, bottom = 52 }, 
         spacing = 8 
     })
 
@@ -153,8 +152,6 @@ function Others:Draw()
     self:DrawSearchSection()
     self:DrawFrameList()
 
-    -- Actualizar altura del Content
-    -- Utils:VStack(MainFrame.Content)
     if self.filterText and self.filterText ~= "" then
         self:UpdateList()
     else

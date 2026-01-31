@@ -27,8 +27,7 @@ Data\Schema.lua
 
 ## Interface
 Interface\Utils.lua
-Interface\Interface.lua
-Interface\Builder.lua
+
 Interface\Widgets\Button.lua
 Interface\Widgets\Scroll.lua
 Interface\Widgets\Navbar.lua
@@ -43,6 +42,10 @@ Interface\Widgets\Slider.lua
 Interface\Widgets\CheckboxSlider.lua
 Interface\Widgets\Popup.lua
 Interface\Widgets\Searchbox.lua
+
+Interface\Interface.lua
+Interface\Builder.lua
+
 Interface\Panels\About.lua
 Interface\Panels\General.lua
 Interface\Panels\Blizzard.lua

@@ -1,14 +1,20 @@
 local _, ns = ...
-local Builder = HideUI:NewModule("Builder")
 
-local Database, Checkbox, Slider, CBSlider, Section
+local Builder  = HideUI:NewModule("Builder")
+local Database = HideUI:GetModule("Database")
+local Utils    = HideUI:GetModule("Utils")
+
+-- Widgets
+local Checkbox = HideUI:GetModule("Checkbox")
+local Slider   = HideUI:GetModule("Slider")
+local CBSlider = HideUI:GetModule("CheckboxSlider")
+local Section  = HideUI:GetModule("Section")
 
 ---------------------------------------------------------------------
 -- PERSISTENCIA
 ---------------------------------------------------------------------
 --- Guardado de cambios del usuario en la DB
 local function SaveValue(category, id, key, value)
-    Database = HideUI:GetModule("Database")
     if category == "globals" then
         Database:UpdateGlobal(key, value)
     else
@@ -108,13 +114,6 @@ end
 -- RENDERIZADO DINÁMICO
 ---------------------------------------------------------------------
 function Builder:RenderSettings(container, category, id, layout)
-    -- Inicializar módulos
-    Database  = HideUI:GetModule("Database")
-    Checkbox  = HideUI:GetModule("Checkbox")
-    Slider    = HideUI:GetModule("Slider")
-    CBSlider  = HideUI:GetModule("CheckboxSlider")
-    Section   = HideUI:GetModule("Section")
-    
     local dbData = (category == "globals") and Database:GetGlobals() or Database:GetFrameData(id)
     local schema = ns.UI_SCHEMA[category]
     local order = ns.UI_SCHEMA[category .. "Order"]
@@ -126,10 +125,14 @@ function Builder:RenderSettings(container, category, id, layout)
     local activeSection
 
     for _, entry in ipairs(order) do
+        -- Si es una sección
         if type(entry) == "table" and entry.isSection then
             if activeSection then activeSection:Refresh() end
+
             activeSection = Section:Create(container, entry.label, layout)
 
+            -- Utils:DrawBackground(activeSection, {0, 0, 1, 0.1}) -- azul, contenedor
+        -- Si es un widget
         elseif activeSection then
             local info = schema[entry]
             if info then
@@ -139,4 +142,5 @@ function Builder:RenderSettings(container, category, id, layout)
     end
 
     if activeSection then activeSection:Refresh() end
+    UpdateContainerStates(container, dbData, category)
 end

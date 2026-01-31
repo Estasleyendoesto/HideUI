@@ -38,18 +38,20 @@ end
 function Blizzard:Draw()
     MainFrame:ClearAll()
 
-    Utils:RegisterLayout(MainFrame.Content, { padding = 15, spacing = 8 })
-
     self:DrawHeader()
     self:DrawFrameList()
 
+    Utils:RegisterLayout(MainFrame.Content, { 
+        -- El contenedor de los collapsibles
+        padding = {x = 68, top = 18, bottom = 52} 
+    })
     Utils:VStack(MainFrame.Content)
 end
 
 function Blizzard:DrawHeader()
     Header:Create(MainFrame.TopPanel, "Blizzard Frames", function()
         Popup:Confirm("Are you sure you want to reset every frame's settings?", function()
-            Database:RestoreGlobals()
+            Database:RestoreBlizzFrames()
             self:Draw()
         end)
     end)
@@ -63,22 +65,20 @@ function Blizzard:DrawFrameList()
     for _, entry in ipairs(order) do
         local isRegistered, frame = Database:IsFrameRegistered(entry.name)
         
-        -- Filtramos frames de Blizzard
         if isRegistered and frame.source == ns.SOURCE.BLIZZARD then
-            -- Creamos el collapsible
             local co = Collapsible:Create(MainFrame.Content, entry.alias, {
-                headerLeft = 60, headerRight = -42, spacing = 3
+                -- Layout de cada collapsible
+                margin  = { left = 70, right = 40 },
+                padding = { x = 10, top = 10, bottom = 20 },
             })
 
-            -- Definimos el estado inicial del collapsible
+            -- Estado inicial del collapsible
             co:SetStatus(frame.isEnabled)
             self.collapsibles[entry.name] = co
 
-            -- Se rellena el collapsible
             Builder:RenderSettings(co.Content, "frames", entry.name, {
-                left = 28, right = -28, spacing = 5
+                -- Layout de cada section dentro del collapsible
             })
-
             co:Refresh(false)
         end
     end

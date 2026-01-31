@@ -38,17 +38,23 @@ function General:Draw()
     local header = Header:Create(MainFrame.TopPanel, "General Settings", function()
         Popup:Confirm("Are you sure you want to reset all global settings?", function()
             Database:RestoreGlobals()
-            self:Draw() -- Redibujamos con los valores de fábrica
+            self:Draw()
         end)
     end)
     MainFrame:RegisterHeader(header)
     Utils:VStack(MainFrame.TopPanel)
 
-    -- Dibujado del Content
-    Utils:RegisterLayout(MainFrame.Content, {
-        padding = 15,
-        spacing = 8
+    Builder:RenderSettings(MainFrame.Content, "globals", nil, {
+        -- Ajusta cada section dentro de Mainframe.Content
+        padding = {x = 10, y = 10},
+        titleSpacing = 10,
+        spacing = 3
     })
-    Builder:RenderSettings(MainFrame.Content, "globals")
+
+    Utils:RegisterLayout(MainFrame.Content, {
+        -- Ajusta el contenedor de los sections
+        padding = {x = 120, top = 8, bottom = 52},
+        spacing = 12
+    })
     Utils:VStack(MainFrame.Content)
 end

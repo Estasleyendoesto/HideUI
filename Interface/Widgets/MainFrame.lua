@@ -10,7 +10,7 @@ local Database = HideUI:GetModule("Database")
 
 local CFG = {
     WIDTH  = 620,
-    HEIGHT = 520,
+    HEIGHT = 620,
     TITLE  = "HideUI",
     ALPHA  = 0.02,
     TOP_OFFSET = -25,
