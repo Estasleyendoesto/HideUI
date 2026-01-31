@@ -4,9 +4,6 @@ local Utils = HideUI:GetModule("Utils")
 
 local CFG = {
     HEIGHT = 30,
-    TOP    = -32,
-    LEFT   = 15,
-    RIGHT  = -15,
     PADDING = 5,
     SPACING = 7
 }
@@ -56,9 +53,10 @@ end
 
 function Navbar:AddButton(navbar, text, onClick, isActive)
     local Button = HideUI:GetModule("Button")
+
     local btn = Button:CreateModern(navbar, text, function(self)
-        self:GetParent().activeBtn = self -- Actualizamos referencia en el nav
-        UpdateAllButtons(self:GetParent())
+        navbar.activeBtn = self -- Actualizamos referencia en el nav
+        UpdateAllButtons(navbar)
         if onClick then onClick(self) end
     end)
 
@@ -79,10 +77,10 @@ function Navbar:SetActiveButton(navbar, activeBtn)
     UpdateAllButtons(navbar)
 end
 
-function Navbar:Refresh(nav, alignment)
+function Navbar:Refresh(nav, alignment, xOffset)
     nav.customAlign = {
         alignment = (alignment or "CENTER"):upper(),
-        x = (alignment == "RIGHT" and CFG.RIGHT) or (alignment == "LEFT" and CFG.LEFT) or 0
+        x = (alignment == "RIGHT" and xOffset) or (alignment == "LEFT" and -xOffset) or 0
     }
     Utils:HStack(nav)
     Utils:VStack(nav:GetParent())

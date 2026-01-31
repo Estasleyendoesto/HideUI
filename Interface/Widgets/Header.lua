@@ -1,4 +1,5 @@
 local _, ns = ...
+
 local Header = HideUI:NewModule("Header")
 local Utils = HideUI:GetModule("Utils")
 
@@ -17,8 +18,8 @@ function Header:Create(parent, title, onDefaults, layout)
     -- Contenedor Principal
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetHeight(config.height)
-    frame:SetPoint("TOPLEFT", 0, -35)
-    frame:SetPoint("TOPRIGHT", 0, -35)
+    frame:SetPoint("TOPLEFT")
+    frame:SetPoint("TOPRIGHT")
 
     -- Título
     frame.Title = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightHuge")
@@ -40,8 +41,8 @@ function Header:Create(parent, title, onDefaults, layout)
     -- Separador (Divider)
     local divider = frame:CreateTexture(nil, "ARTWORK")
     divider:SetAtlas("Options_HorizontalDivider", true)
-    divider:SetPoint("BOTTOMLEFT")
-    divider:SetPoint("BOTTOMRIGHT")
+    divider:SetPoint("BOTTOMLEFT", 10, 0)
+    divider:SetPoint("BOTTOMRIGHT", -10, 0)
     divider:SetAlpha(0.4)
     frame.Divider = divider
 

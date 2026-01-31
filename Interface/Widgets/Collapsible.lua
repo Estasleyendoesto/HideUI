@@ -80,7 +80,7 @@ local function CreateDeleteButton(header, onDelete)
 
     local btn = CreateFrame("Button", nil, header)
     btn:SetSize(20, 20)
-    btn:SetPoint("RIGHT", header, "RIGHT", -72, 0)
+    btn:SetPoint("RIGHT", header, "RIGHT", -42, 0)
     btn:SetFrameLevel(header:GetFrameLevel() + 10)
 
     local text = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")

@@ -31,7 +31,6 @@ function Separator:Create(parent, layout)
     
     frame.Line = line
 
-    -- Métodos de compatibilidad
     function frame:SetButtonState() end
 
     return frame

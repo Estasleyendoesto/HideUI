@@ -28,8 +28,8 @@ end
 function Others:OnFrameChanged(_, frameName, field, value)
     -- Necesario obtener el cambio de estado de un frame
     -- Para actualizar el collapsible
-    if field == "isEnabled" then
-        local co = self.collapsibles and self.collapsibles[frameName]
+    if field == "isEnabled" and self.collapsibles then
+        local co = self.collapsibles[frameName]
         if co then
             co:SetStatus(value)
         end
@@ -42,58 +42,60 @@ end
 
 --- Cabecera con botón de Reset
 function Others:DrawHeader()
-    Header:Create(MainFrame.TopPanel, "Other Frames", function()
+    local header = Header:Create(MainFrame.TopPanel, "Other Frames", function()
         Popup:Confirm("Are you sure you want to reset every frame's settings?", function()
-            Database:RestoreGlobals()
+            Database:RestoreOtherFrames()
             self:Draw() 
         end)
     end)
+    MainFrame:RegisterHeader(header)
     Utils:VStack(MainFrame.TopPanel)
 end
 
---- Sección de búsqueda y gestión (Add/Remove)
 function Others:DrawSearchSection()
-    self.sb = Searchbox:Create(MainFrame.Content, function(action, value, sbFrame)
-        -- Si no hay valor, mostrar feedback
+    local currentText = self.filterText or ""
+    
+    -- 1. Recuperamos el diseño original (alignment, width, padding)
+    self.sb = Searchbox:Create(MainFrame.Content, function(action, value)
         if value == "" then 
-            return sbFrame:SetFeedback("Enter a frame name", true) 
+            return self.sb:SetFeedback("Enter a frame name", true) 
         end
-
+        
         value = value:trim()
 
-        -- Si hizo clic en ADD
         if action == ns.ACTION.ADD then
             local success, err = Database:RegisterFrame({ 
-                name = value, 
-                alias = value,
-                source = ns.SOURCE.OTHER 
+                name = value, alias = value, source = ns.SOURCE.OTHER 
             })
-
-            self:Draw()
-
+            
             if success then
-                self.sb:SetFeedback("Added!", false)
+                self.filterText = "" -- Limpiamos búsqueda
+                self.pendingFeedback = { msg = "Added!", isError = false }
             else
-                self.sb:SetFeedback(err, true)
+                self.pendingFeedback = { msg = err, isError = true }
             end
+            self:Draw() -- Redibuja todo el panel
 
-        -- Si hizo clic en REMOVE
         elseif action == ns.ACTION.REMOVE then
             Database:UnregisterFrame(value)
+            self.pendingFeedback = { msg = "Removed!", isError = false }
             self:Draw()
-            self.sb:SetFeedback("Removed!", false)
         end
     end, nil, "Setup any frame", {
         alignment = "CENTER",
         x = 10,
         width = 325,
-        padding = {
-            top = 0,
-            bottom = 20,
-        }
+        padding = { top = 0, bottom = 20 }
     })
 
-    -- Lógica de filtrado en tiempo real
+    -- 2. Aplicamos feedback pendiente (si existe después del Draw)
+    if self.pendingFeedback then
+        self.sb:SetFeedback(self.pendingFeedback.msg, self.pendingFeedback.isError)
+        self.pendingFeedback = nil
+    end
+
+    -- 3. Restaurar texto y lógica de filtrado
+    self.sb.EditBox:SetText(currentText)
     self.sb.EditBox:SetScript("OnTextChanged", function(eb)
         SearchBoxTemplate_OnTextChanged(eb)
         self.filterText = eb:GetText():lower()
@@ -103,40 +105,34 @@ end
 
 function Others:DrawFrameList()
     self.collapsibles = {}
+    self.orderedList = {}
+    
     local allFrames = Database:GetFrames()
 
     for frameName, data in pairs(allFrames) do
         if data.source == ns.SOURCE.OTHER then
-            -- Función de eliminación
-            local deleteFunc = function()
-                Popup:Confirm("¿Eliminar " .. frameName .. " de la lista?", function()
+            local co = Collapsible:Create(MainFrame.Content, data.alias or frameName, {
+                headerLeft = 60, spacing = 3
+            }, function()
+                Popup:Confirm("Delete " .. frameName .. "?", function()
                     Database:UnregisterFrame(frameName)
-                    self:Draw() -- Redibujamos para que desaparezca
+                    self:Draw()
                 end)
-            end
+            end)
 
-            -- Collapsible por frame
-            local alias = data.alias or frameName
-            local co = Collapsible:Create(MainFrame.Content, alias, {
-                headerLeft = 60, 
-                headerRight = -42, 
-                spacing = 3
-            }, deleteFunc)
-
-            -- Seteamos el estado del collapsible
             co:SetStatus(data.isEnabled)
-            self.collapsibles[frameName] = co
+            co.searchText = (data.alias or frameName):lower()
             
-            -- Sections internos
+            self.collapsibles[frameName] = co
+            table.insert(self.orderedList, co)
+
             Builder:RenderSettings(co.Content, "frames", frameName, {
+                -- Espaciados de cada Content dentro del collapsible
                 left = 28, 
                 right = -28, 
                 spacing = 5
             })
-            
             co:Refresh(false)
-            co.searchText = alias:lower()
-            table.insert(self.collapsibles, co)
         end
     end
 end
@@ -147,29 +143,31 @@ end
 function Others:Draw()
     MainFrame:ClearAll()
 
-    -- Configuración base del layout
+    -- Espaciados del Content (searchbox y cada collapsible)
     Utils:RegisterLayout(MainFrame.Content, { 
-        padding = 15, 
+        padding = { top = 15, bottom = 25, left = 22, right = 45 }, 
         spacing = 8 
     })
 
-    -- Ejecución de la "receta"
     self:DrawHeader()
     self:DrawSearchSection()
     self:DrawFrameList()
 
-    -- Al finalizar, apilamos todo verticalmente
-    Utils:VStack(MainFrame.Content)
+    -- Actualizar altura del Content
+    -- Utils:VStack(MainFrame.Content)
+    if self.filterText and self.filterText ~= "" then
+        self:UpdateList()
+    else
+        Utils:VStack(MainFrame.Content)
+    end
 end
 
 function Others:UpdateList()
     local filter = self.filterText or ""
 
-    for _, co in ipairs(self.collapsibles) do
-        local matches = (filter == "" or co.searchText:find(filter, 1, true))
-        co:SetShown(matches)
+    for _, co in ipairs(self.orderedList) do
+        co:SetShown(filter == "" or co.searchText:find(filter, 1, true))
     end
 
-    -- Re-calculamos el layout solo de los que quedaron visibles
     Utils:VStack(MainFrame.Content)
 end

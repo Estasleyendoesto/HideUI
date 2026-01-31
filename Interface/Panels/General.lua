@@ -32,7 +32,6 @@ end
 -- RENDERIZADO DEL PANEL
 ---------------------------------------------------------------------
 function General:Draw()
-    MainFrame.currentPanel = PANEL_NAME
     MainFrame:ClearAll()
 
     -- Cabecera y Reset

@@ -7,9 +7,8 @@ local POPUP_NAME = "HIDEUI_CONFIRM_DIALOG"
 -- INICIALIZACIÓN
 ---------------------------------------------------------------------
 function Popup:OnInitialize()
-    -- Registramos la plantilla una sola vez al cargar el addon
     StaticPopupDialogs[POPUP_NAME] = {
-        text = "%s", -- El texto se pasará dinámicamente
+        text = "%s",
         button1 = YES,
         button2 = NO,
         OnAccept = function(self, data) 
@@ -21,12 +20,12 @@ function Popup:OnInitialize()
         timeout = 0,
         whileDead = true,
         hideOnEscape = true,
-        preferredIndex = 3, -- Evita conflictos con otros popups
+        preferredIndex = 3,
     }
 end
 
 ---------------------------------------------------------------------
--- MÉTODOS PÚBLICOS
+-- API
 ---------------------------------------------------------------------
 function Popup:Confirm(text, onAccept, onCancel)
     local data = {
@@ -34,6 +33,5 @@ function Popup:Confirm(text, onAccept, onCancel)
         onCancel = onCancel
     }
     
-    -- Pasamos el texto al primer argumento y la data al segundo
     StaticPopup_Show(POPUP_NAME, text, nil, data)
 end

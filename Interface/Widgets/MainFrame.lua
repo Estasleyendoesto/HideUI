@@ -3,6 +3,7 @@
 -- https://www.townlong-yak.com/framexml/beta/Blizzard_Settings_Shared/Blizzard_SettingsPanelTemplates.xml
 
 local _, ns = ...
+
 local MainFrame = HideUI:NewModule("MainFrame", "AceEvent-3.0")
 local Utils = HideUI:GetModule("Utils")
 local Database = HideUI:GetModule("Database")
@@ -23,7 +24,6 @@ function MainFrame:OnEnable()
     self:CreateNavBar()         -- 4. Botones de navegación
     self:CreateContentScroll()  -- 5. Área de scroll
     self:NotifyOnOpen()         -- 6. Hooks de eventos
-    self:RegisterMessage("HIDEUI_GLOBAL_CHANGED", "OnGlobalSettingChanged")
 
     self.frame:Hide()
 end
@@ -81,14 +81,14 @@ function MainFrame:StylizeMainFrame()
 end
 
 ---------------------------------------------------------------------
--- PANELES Y NAVEGACIÓN
+-- TOP PANEL
 ---------------------------------------------------------------------
 function MainFrame:CreateTopPanel()
     self.TopPanel = CreateFrame("Frame", nil, self.frame)
     self.TopPanel:SetPoint("TOPLEFT", 0, CFG.TOP_OFFSET)
     self.TopPanel:SetPoint("TOPRIGHT", 0, CFG.TOP_OFFSET)
     
-    Utils:RegisterLayout(self.TopPanel, { padding = 0, spacing = 5 })
+    Utils:RegisterLayout(self.TopPanel, { padding = {top = 3, bottom = 5, left = 28, right = 28}, spacing = 10 })
 end
 
 function MainFrame:CreateNavBar()
@@ -101,8 +101,7 @@ function MainFrame:CreateNavBar()
     for _, name in ipairs(tabs) do
         local isActive = (self.currentPanel == name)
         Navbar:AddButton(self.nav, name, function() 
-            self.currentPanel = name
-            self:SendMessage("HIDEUI_PANEL_CHANGED", name)
+            self:OpenPanel(name)
         end, isActive)
     end
 
@@ -110,14 +109,8 @@ function MainFrame:CreateNavBar()
     Navbar:Refresh(self.nav, "CENTER")
 end
 
-function MainFrame:RegisterHeader(headerFrame)
-    self.currentHeader = headerFrame
-    local addonEnabled = Database:GetGlobals().addonEnabled
-    headerFrame:SetEnabled(addonEnabled)
-end
-
 ---------------------------------------------------------------------
--- ÁREA DE CONTENIDO (Scroll)
+-- CONTENT SCROLL
 ---------------------------------------------------------------------
 function MainFrame:CreateContentScroll()
     local ScrollWidget = HideUI:GetModule("Scroll")
@@ -132,42 +125,16 @@ function MainFrame:CreateContentScroll()
 end
 
 ---------------------------------------------------------------------
--- MÉTODOS PÚBLICOS Y EVENTOS
+-- API
 ---------------------------------------------------------------------
 function MainFrame:Toggle()
     self.frame:SetShown(not self.frame:IsShown())
 end
 
-function MainFrame:NotifyOnOpen()
-    self.frame:SetScript("OnShow", function()
-        local addonEnabled = Database:GetGlobals().addonEnabled
-        local target = addonEnabled and "About" or "General"
-
-        self.currentPanel = target
-        self:ClearAll() 
-        self:SendMessage("HIDEUI_PANEL_CHANGED", target)
-    end)
-end
-
-function MainFrame:ClearAll()
-    Utils:Clear(self.TopPanel)
-    Utils:Clear(self.Content)
-    self.currentHeader = nil
-    self:CreateNavBar()
-end
-
----------------------------------------------------------------------
--- GESTIÓN DE ESTADO GLOBAL
----------------------------------------------------------------------
-function MainFrame:OnGlobalSettingChanged(message, field, value)
-    if field == "addonEnabled" then
-        self:UpdateUIVisuals(value)
-        
-        if value == false and self.currentPanel ~= "General" then
-            self.currentPanel = "General"
-            self:SendMessage("HIDEUI_PANEL_CHANGED", "General")
-        end
-    end
+function MainFrame:OpenPanel(panelName)
+    self.currentPanel = panelName
+    self:ClearAll()
+    self:SendMessage("HIDEUI_PANEL_CHANGED", panelName)
 end
 
 function MainFrame:UpdateUIVisuals(addonEnabled)
@@ -179,4 +146,26 @@ function MainFrame:UpdateUIVisuals(addonEnabled)
     if self.currentHeader then
         self.currentHeader:SetEnabled(addonEnabled)
     end
+end
+
+function MainFrame:RegisterHeader(headerFrame)
+    self.currentHeader = headerFrame
+    local addonEnabled = Database:GetGlobals().addonEnabled
+    headerFrame:SetEnabled(addonEnabled)
+end
+
+---------------------------------------------------------------------
+-- INTERNAL
+---------------------------------------------------------------------
+function MainFrame:NotifyOnOpen()
+    self.frame:SetScript("OnShow", function()
+        HideUI:GetModule("Interface"):SetupInitialPanel()
+    end)
+end
+
+function MainFrame:ClearAll()
+    Utils:Clear(self.TopPanel)
+    Utils:Clear(self.Content)
+    self.currentHeader = nil
+    self:CreateNavBar()
 end

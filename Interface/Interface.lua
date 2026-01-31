@@ -7,7 +7,6 @@ local PANELS = { "About", "General", "Blizzard", "Others" }
 -- INICIALIZACIÓN
 ---------------------------------------------------------------------
 function Interface:OnInitialize()
-    -- Precarga de módulos de paneles para acceso rápido
     self.panels = {}
     for _, name in ipairs(PANELS) do
         local module = HideUI:GetModule(name, true)
@@ -30,21 +29,42 @@ function Interface:OnEnable()
     for name in pairs(self.panels) do
         HideUI:EnableModule(name)
     end
+
+    -- Escucha cambios globales para actualizar el estado de los paneles
+    self:RegisterMessage("HIDEUI_GLOBAL_CHANGED", "OnGlobalSettingChanged")
 end
 
 ---------------------------------------------------------------------
 -- COMANDOS DE CHAT
 ---------------------------------------------------------------------
 function Interface:HandleChatCommand(input)
-    self:ToggleMainFrame()
+    HideUI:GetModule("MainFrame"):Toggle()
 end
 
 ---------------------------------------------------------------------
--- UTILIDADES DE INTERFAZ
+-- LÓGICA DE CONTROL (CEREBRO)
 ---------------------------------------------------------------------
-function Interface:ToggleMainFrame()
-    local mainFrame = HideUI:GetModule("MainFrame", true)
-    if mainFrame then
-        mainFrame:Toggle()
+function Interface:OnGlobalSettingChanged(message, field, value)
+    if field == "addonEnabled" then
+        local MainFrame = HideUI:GetModule("MainFrame")
+        
+        -- Ordenamos actualizar visuales (NavBar/Header)
+        MainFrame:UpdateUIVisuals(value)
+        
+        -- Lógica de seguridad: si se apaga, mandamos a General
+        if value == false and MainFrame.currentPanel ~= "General" then
+            MainFrame:OpenPanel("General")
+        end
     end
+end
+
+-- Determina qué panel mostrar al abrir la ventana
+function Interface:SetupInitialPanel()
+    local Database = HideUI:GetModule("Database")
+    local MainFrame = HideUI:GetModule("MainFrame")
+    
+    local addonEnabled = Database:GetGlobals().addonEnabled
+    local target = addonEnabled and "About" or "General"
+
+    MainFrame:OpenPanel(target)
 end
