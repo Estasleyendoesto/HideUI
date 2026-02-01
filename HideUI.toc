@@ -42,9 +42,12 @@ Interface\Widgets\Slider.lua
 Interface\Widgets\CheckboxSlider.lua
 Interface\Widgets\Popup.lua
 Interface\Widgets\Searchbox.lua
+Interface\Widgets\Link.lua
+Interface\Widgets\Text.lua
 
 Interface\Interface.lua
 Interface\Builder.lua
+
 
 Interface\Panels\About.lua
 Interface\Panels\General.lua

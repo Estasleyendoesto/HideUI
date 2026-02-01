@@ -45,7 +45,7 @@ function General:Draw()
     Utils:VStack(MainFrame.TopPanel)
 
     Builder:RenderSettings(MainFrame.Content, "globals", nil, {
-        -- Ajusta cada section dentro de Mainframe.Content
+        -- Ajusta cada section individual
         padding = {x = 10, y = 10},
         titleSpacing = 10,
         spacing = 3
