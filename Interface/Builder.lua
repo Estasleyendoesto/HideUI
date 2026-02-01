@@ -130,8 +130,6 @@ function Builder:RenderSettings(container, category, id, layout)
             if activeSection then activeSection:Refresh() end
 
             activeSection = Section:Create(container, entry.label, layout)
-
-            -- Utils:DrawBackground(activeSection, {0, 0, 1, 0.1}) -- azul, contenedor
         -- Si es un widget
         elseif activeSection then
             local info = schema[entry]

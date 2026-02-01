@@ -17,6 +17,11 @@ function About:OnEnter(_, panel)
 end
 
 function About:Draw()
+    -- Ocultamos el scrollbar
+    -- Si la lista de traductores crece o se redimensiona el MainFrame
+    -- Eliminar o comentar esta linea
+    MainFrame.ScrollFrame.ScrollBar:Hide()
+
     MainFrame:ClearAll()
     local container = MainFrame.Content
 
@@ -35,7 +40,7 @@ function About:Draw()
         { "Wago.io:", "wago.io/hideui" },
         { "CurseForge:", "curseforge.com/wow/addons/hideui" },
         { "WoWInterface:", "wowinterface.com/downloads/infoXXXX" },
-        { "GitHub:", "github.com/astroboy/hideui" }
+        { "GitHub:", "github.com/Estasleyendoesto/HideUI" }
     }
     for _, l in ipairs(links) do 
         Link:Create(container, l[1], l[2]) 
@@ -43,7 +48,8 @@ function About:Draw()
 
     CreateFrame("Frame", nil, container):SetHeight(35)
 
-    -- Traductores
+    -- Traductores (Ahora no hay ninguna)
+    --[[
     local sharedOffset = 18
     Text:CreateSingleLine(container, "SPECIAL THANKS TO OUR TRANSLATORS", {
         align = "LEFT", 
@@ -66,10 +72,11 @@ function About:Draw()
             spacing = 10 
         })
     end
+    --]]
 
     -- Configuración Final del Layout
     Utils:RegisterLayout(container, {
-        padding = {left = 110, right = 90, top = 8, bottom = 60},
+        padding = {left = 110, right = 90, top = 48, bottom = 60}, -- top = 8, si se descomenta los traductores
         spacing = 8
     })
     Utils:VStack(container)
