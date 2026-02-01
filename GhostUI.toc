@@ -1,12 +1,12 @@
 ## Interface: 120000
-## Title: GhostUI
-## Notes: Fade and Ghost your UI
+## Title: |cff00ccffgUI|r - GhostUI
+## Notes: The best UI is the one that isn't there.
 ## Author: EEsto
 ## Version: 1.1.0
 
 ## IconTexture: Interface\AddOns\GhostUI\icon
 
-## SavedVariables: gUIDB
+## SavedVariables: GhostDB
 ## OptionalDeps: Ace3
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml

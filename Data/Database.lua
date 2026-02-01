@@ -20,7 +20,7 @@ function Database:OnInitialize()
     }
 
     -- "gUIDB" debe coincidir con el .toc (SavedVariables)
-    self.db = LibStub("AceDB-3.0"):New("gUIDB", DEFAULTS, DEFAULT_PROFILE)
+    self.db = LibStub("AceDB-3.0"):New("GhostDB", DEFAULTS, DEFAULT_PROFILE)
     
     -- Sincronizamos el perfil según la configuración guardada
     self:SyncProfile()

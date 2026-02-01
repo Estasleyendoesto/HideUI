@@ -5,7 +5,7 @@ local Database = gUI:GetModule("Database")
 -- Constantes para fácil ajuste
 local RADIUS = 105 -- Distancia al centro del minimapa
 -- local ICON_PATH = "Interface\\Icons\\INV_Misc_Eye_01"
-local ICON_PATH = "Interface\\AddOns\\gUI\\icon"
+local ICON_PATH = "Interface\\AddOns\\GhostUI\\icon"
 local GUI_NAME = "GhostUI"
 
 ---------------------------------------------------------------------
