@@ -4,7 +4,9 @@ local Database = gUI:GetModule("Database")
 
 -- Constantes para fácil ajuste
 local RADIUS = 105 -- Distancia al centro del minimapa
-local ICON_PATH = "Interface\\Icons\\INV_Misc_Eye_01"
+-- local ICON_PATH = "Interface\\Icons\\INV_Misc_Eye_01"
+local ICON_PATH = "Interface\\AddOns\\gUI\\icon"
+local GUI_NAME = "GhostUI"
 
 ---------------------------------------------------------------------
 -- LÓGICA DE POSICIONAMIENTO (INTERNA)
@@ -71,7 +73,7 @@ function MinimapButton:OnEnable()
     -- Tooltip
     btn:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-        GameTooltip:AddLine("gUI")
+        GameTooltip:AddLine(GUI_NAME)
         GameTooltip:AddLine("|cff00ff00Click|r to open the options", 1, 1, 1)
         GameTooltip:Show()
     end)

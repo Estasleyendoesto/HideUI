@@ -9,7 +9,7 @@ local Link      = gUI:GetModule("Link")
 local PANEL_NAME = "About"
 
 function About:OnEnable()
-    self:RegisterMessage("gUI_PANEL_CHANGED", "OnEnter")
+    self:RegisterMessage("GHOSTUI_PANEL_CHANGED", "OnEnter")
 end
 
 function About:OnEnter(_, panel)
@@ -26,7 +26,7 @@ function About:Draw()
     local container = MainFrame.Content
 
     -- Branding y Versión
-    Text:CreateHeadLine(container, "gUI", "1.1.0")
+    Text:CreateHeadLine(container, "GhostUI", "gUI - 1.1.0")
 
     -- Autoría
     local authConfig = { centered = true, suffix = "", spacing = 10, xOffset = -18 }

@@ -1,10 +1,10 @@
 ## Interface: 120000
-## Title: gUI
-## Notes: GhostUI
+## Title: GhostUI
+## Notes: Fade and Ghost your UI
 ## Author: EEsto
 ## Version: 1.1.0
 
-## IconTexture: Interface\AddOns\gUI\icon
+## IconTexture: Interface\AddOns\GhostUI\icon
 
 ## SavedVariables: gUIDB
 ## OptionalDeps: Ace3

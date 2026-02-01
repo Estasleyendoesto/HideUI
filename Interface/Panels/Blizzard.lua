@@ -15,8 +15,8 @@ local Popup       = gUI:GetModule("Popup")
 local PANEL_NAME = "Blizzard"
 
 function Blizzard:OnEnable()
-    self:RegisterMessage("gUI_PANEL_CHANGED", "OnEnter")
-    self:RegisterMessage("gUI_FRAME_CHANGED", "OnFrameChanged")
+    self:RegisterMessage("GHOSTUI_PANEL_CHANGED", "OnEnter")
+    self:RegisterMessage("GHOSTUI_FRAME_CHANGED", "OnFrameChanged")
 end
 
 function Blizzard:OnEnter(event, panel)

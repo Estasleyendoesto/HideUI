@@ -20,7 +20,7 @@ local PANEL_NAME = "General"
 -- INICIALIZACIÓN Y EVENTOS
 ---------------------------------------------------------------------
 function General:OnEnable()
-    self:RegisterMessage("gUI_PANEL_CHANGED", "OnEnter")
+    self:RegisterMessage("GHOSTUI_PANEL_CHANGED", "OnEnter")
 end
 
 function General:OnEnter(_, panelName)

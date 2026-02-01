@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".assets/gUI_tail.png" width="128" height="128">
+  <img src=".assets/gUI_alpha.png" width="128" height="128">
 </p>
 
 # gUI - GhostUI

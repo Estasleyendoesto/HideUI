@@ -16,8 +16,8 @@ local Popup       = gUI:GetModule("Popup")
 local PANEL_NAME = "Others"
 
 function Others:OnEnable()
-    self:RegisterMessage("gUI_PANEL_CHANGED", "OnEnter")
-    self:RegisterMessage("gUI_FRAME_CHANGED", "OnFrameChanged")
+    self:RegisterMessage("GHOSTUI_PANEL_CHANGED", "OnEnter")
+    self:RegisterMessage("GHOSTUI_FRAME_CHANGED", "OnFrameChanged")
 end
 
 function Others:OnEnter(_, panel)
