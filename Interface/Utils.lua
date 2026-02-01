@@ -1,5 +1,5 @@
-local _, ns = ...
-local Utils = HideUI:NewModule("Utils")
+﻿local _, ns = ...
+local Utils = gUI:NewModule("Utils")
 
 ---------------------------------------------------------------------
 -- CONFIGURACIÓN Y LAYOUT
@@ -38,7 +38,6 @@ function Utils:SetLayout(config)
         point      = config.point  or "TOPLEFT",
         relativeTo = config.relativeTo or config.relTo,
         relPoint   = config.relativePoint or config.relPoint or "TOPLEFT",
-        -- Aplicamos normalización a ambos
         padding    = self:NormalizePadding(config.padding or config.p),
         margin     = self:NormalizeMargin(config.margin or config.m),
         spacing    = config.spacing or 0,
@@ -211,7 +210,6 @@ end
 ---------------------------------------------------------------------
 -- MISCELÁNEA
 ---------------------------------------------------------------------
-
 function Utils:DrawBackground(frame, color)
     if not frame then return end
     frame.bg = frame.bg or frame:CreateTexture(nil, "BACKGROUND")

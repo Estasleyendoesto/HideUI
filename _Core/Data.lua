@@ -1,4 +1,4 @@
-local Data = HideUI:NewModule("Data")
+﻿local Data = Fade:NewModule("Data")
 
 local frames = { "PlayerFrame", "TargetFrame", "FocusFrame", "PetFrame", "PetActionBar", "MinimapCluster", "ObjectiveTrackerFrame",
 "BuffFrame", "MicroMenuContainer", "BagsBar", "MainMenuBar", "BattlefieldMapFrame", "MultiBarBottomLeft", "MultiBarBottomRight",
@@ -84,7 +84,7 @@ local defaults = {
 local DEFAULT_PROFILE = "Default"
 
 function Data:OnInitialize()
-    self.db = LibStub("AceDB-3.0"):New("HideUIDB", defaults, DEFAULT_PROFILE)
+    self.db = LibStub("AceDB-3.0"):New("FadeDB", defaults, DEFAULT_PROFILE)
     self:LoadProfile()
     -- self.db:ResetDB("Default") --DEBUG
     -- self.db:ResetProfile() --DEBUG

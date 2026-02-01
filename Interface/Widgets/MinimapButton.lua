@@ -1,6 +1,6 @@
-local addonName, ns = ...
-local MinimapButton = HideUI:NewModule("MinimapButton")
-local Database = HideUI:GetModule("Database")
+﻿local addonName, ns = ...
+local MinimapButton = gUI:NewModule("MinimapButton")
+local Database = gUI:GetModule("Database")
 
 -- Constantes para fácil ajuste
 local RADIUS = 105 -- Distancia al centro del minimapa
@@ -25,7 +25,7 @@ function MinimapButton:OnEnable()
     local db = Database:GetGlobals()
     
     -- Frame principal
-    local btn = CreateFrame("Button", "HideUIMinimapButton", Minimap)
+    local btn = CreateFrame("Button", "gUIMinimapButton", Minimap)
     btn:SetSize(31, 31)
     btn:SetFrameLevel(10)
     btn:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
@@ -64,14 +64,14 @@ function MinimapButton:OnEnable()
     btn:RegisterForClicks("AnyUp")
     btn:SetScript("OnClick", function(self, button)
         if button == "LeftButton" then
-            HideUI:GetModule("MainFrame"):Toggle()
+            gUI:GetModule("MainFrame"):Toggle()
         end
     end)
 
     -- Tooltip
     btn:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-        GameTooltip:AddLine("HideUI")
+        GameTooltip:AddLine("gUI")
         GameTooltip:AddLine("|cff00ff00Click|r to open the options", 1, 1, 1)
         GameTooltip:Show()
     end)

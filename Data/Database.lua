@@ -1,8 +1,8 @@
--- Documentación de AceDB-3.0
+﻿-- Documentación de AceDB-3.0
 -- https://www.wowace.com/projects/ace3/pages/api/ace-db-3-0
 
 local _, ns = ...
-local Database = HideUI:NewModule("Database", "AceEvent-3.0")
+local Database = gUI:NewModule("Database", "AceEvent-3.0")
 
 -- Constantes internas
 local DEFAULT_PROFILE = "Default"
@@ -19,8 +19,8 @@ function Database:OnInitialize()
         }
     }
 
-    -- "HideUIDB" debe coincidir con el .toc (SavedVariables)
-    self.db = LibStub("AceDB-3.0"):New("HideUIDB", DEFAULTS, DEFAULT_PROFILE)
+    -- "gUIDB" debe coincidir con el .toc (SavedVariables)
+    self.db = LibStub("AceDB-3.0"):New("gUIDB", DEFAULTS, DEFAULT_PROFILE)
     
     -- Sincronizamos el perfil según la configuración guardada
     self:SyncProfile()
@@ -94,7 +94,7 @@ function Database:UpdateGlobal(field, value)
         globals[field] = value
     end
 
-    self:SendMessage("HIDEUI_GLOBAL_CHANGED", field, value)
+    self:SendMessage("GHOSTUI_GLOBAL_CHANGED", field, value)
 end
 
 function Database:UpdateFrame(frameName, field, value)
@@ -103,7 +103,7 @@ function Database:UpdateFrame(frameName, field, value)
         data[field] = value
     end
 
-    self:SendMessage("HIDEUI_FRAME_CHANGED", frameName, field, value)
+    self:SendMessage("GHOSTUI_FRAME_CHANGED", frameName, field, value)
 end
 
 --- Registra un frame externo (útil para integración con otros addons)

@@ -1,4 +1,4 @@
-local Base = HideUI:NewModule("Base")
+﻿local Base = Fade:NewModule("Base")
 local EventManager
 
 local PLAYER_COMBAT_STATE = "PLAYER_COMBAT_STATE"
@@ -11,7 +11,7 @@ local FRAME_DESTROY_DELAY = 0
 local DELAY_AFTER_EVENT = 0.85
 
 function Base:OnInitialize()
-    EventManager = HideUI:GetModule("EventManager")
+    EventManager = Fade:GetModule("EventManager")
 end
 
 function Base:Embed(target)
@@ -24,9 +24,9 @@ function Base:Create(frame, props, globals)
     self:Embed(Initial)
 
     function Initial:OnReady()
-        if not self.frame.HideUI_loaded then
+        if not self.frame.Fade_loaded then
             self:OnCreate()
-            self.frame.HideUI_loaded = true
+            self.frame.Fade_loaded = true
         else
             self:OnReload()
         end
@@ -391,15 +391,15 @@ function Base:Create(frame, props, globals)
 
     -- Si es Cluster, delega responsabilidad a Cluster.lua
     if props.cluster then
-        local mod = HideUI:GetModule("Cluster", true)
+        local mod = Fade:GetModule("Cluster", true)
         return mod:Create(Initial)
     -- Si es Community, delega responsabilidad a Single.lua
     elseif props.source == "community" then
-        local mod = HideUI:GetModule("Single", true)
+        local mod = Fade:GetModule("Single", true)
         return mod:Create(Initial)
     else
         -- Si existe un modulo con el nombre del frame en carpeta "/Frames" , redirige
-        local mod = HideUI:GetModule(Initial.name, true)
+        local mod = Fade:GetModule(Initial.name, true)
         if mod then
             return mod:Create(Initial)
         else

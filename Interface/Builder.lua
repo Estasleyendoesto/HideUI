@@ -1,14 +1,13 @@
-local _, ns = ...
-
-local Builder  = HideUI:NewModule("Builder")
-local Database = HideUI:GetModule("Database")
-local Utils    = HideUI:GetModule("Utils")
+﻿local _, ns = ...
+local Builder  = gUI:NewModule("Builder")
+local Database = gUI:GetModule("Database")
+local Utils    = gUI:GetModule("Utils")
 
 -- Widgets
-local Checkbox = HideUI:GetModule("Checkbox")
-local Slider   = HideUI:GetModule("Slider")
-local CBSlider = HideUI:GetModule("CheckboxSlider")
-local Section  = HideUI:GetModule("Section")
+local Checkbox = gUI:GetModule("Checkbox")
+local Slider   = gUI:GetModule("Slider")
+local CBSlider = gUI:GetModule("CheckboxSlider")
+local Section  = gUI:GetModule("Section")
 
 ---------------------------------------------------------------------
 -- PERSISTENCIA

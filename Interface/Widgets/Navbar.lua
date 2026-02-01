@@ -1,6 +1,6 @@
-local _, ns = ...
-local Navbar = HideUI:NewModule("Navbar")
-local Utils = HideUI:GetModule("Utils")
+﻿local _, ns = ...
+local Navbar = gUI:NewModule("Navbar")
+local Utils = gUI:GetModule("Utils")
 
 local CFG = {
     HEIGHT = 30,
@@ -52,7 +52,7 @@ function Navbar:Create(parent)
 end
 
 function Navbar:AddButton(navbar, text, onClick, isActive)
-    local Button = HideUI:GetModule("Button")
+    local Button = gUI:GetModule("Button")
 
     local btn = Button:CreateModern(navbar, text, function(self)
         navbar.activeBtn = self -- Actualizamos referencia en el nav

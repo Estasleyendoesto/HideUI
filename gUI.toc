@@ -1,12 +1,12 @@
 ## Interface: 120000
-## Title: HideUI
-## Notes: Hide any frame
+## Title: gUI
+## Notes: GhostUI
 ## Author: EEsto
 ## Version: 1.1.0
 
-## IconTexture: Interface\AddOns\HideUI\icon
+## IconTexture: Interface\AddOns\gUI\icon
 
-## SavedVariables: HideUIDB
+## SavedVariables: gUIDB
 ## OptionalDeps: Ace3
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
@@ -71,15 +71,6 @@ Interface\Panels\Others.lua
 ## Core\Single.lua
 ## Core\Cluster.lua
 ## Core\FrameManager.lua
-
-## Interface
-## Interface\Builder.lua
-## Interface\Builder.xml
-## Interface\UIManager.lua
-## Interface\Welcome.lua
-## Interface\General.lua
-## Interface\Blizzard.lua
-## Interface\Community.lua
 
 ## Custom Frames
 ## Frames\Mappings.lua

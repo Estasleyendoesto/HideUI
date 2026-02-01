@@ -1,4 +1,4 @@
-
+﻿
 -- This file is only there in standalone Ace3 and provides handy dev tool stuff I guess
 -- for now only /rl to reload your UI :)
 -- note the complete overkill use of AceAddon and console, ain't it cool?

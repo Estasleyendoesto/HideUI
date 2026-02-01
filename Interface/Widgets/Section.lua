@@ -1,7 +1,6 @@
-local _, ns = ...
-
-local Section = HideUI:NewModule("Section")
-local Utils = HideUI:GetModule("Utils")
+﻿local _, ns = ...
+local Section = gUI:NewModule("Section")
+local Utils = gUI:GetModule("Utils")
 
 function Section:Create(parent, title, layout)
     local config = Utils:GetLayout(layout, {

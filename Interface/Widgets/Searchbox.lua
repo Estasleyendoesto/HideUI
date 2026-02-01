@@ -1,6 +1,6 @@
-local _, ns = ...
-local Searchbox = HideUI:NewModule("Searchbox")
-local Utils = HideUI:GetModule("Utils")
+﻿local _, ns = ...
+local Searchbox = gUI:NewModule("Searchbox")
+local Utils = gUI:GetModule("Utils")
 
 ---------------------------------------------------------------------
 -- MÉTODOS INTERNOS
@@ -78,7 +78,7 @@ local function CreateButtonsBlock(frame)
     container:SetHeight(22)
     container.customAlign = { alignment = "CENTER" }
     
-    local Button = HideUI:GetModule("Button")
+    local Button = gUI:GetModule("Button")
     frame.InsertBtn = Button:Create(container, "Insert", nil, {96, 22})
     frame.RemoveBtn = Button:Create(container, "Remove", nil, {96, 22})
 

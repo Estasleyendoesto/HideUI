@@ -1,24 +1,23 @@
-local _, ns = ...
+﻿local _, ns = ...
+local Others   = gUI:NewModule("Others", "AceEvent-3.0")
 
-local Others   = HideUI:NewModule("Others", "AceEvent-3.0")
-
-local Database = HideUI:GetModule("Database")
-local Builder  = HideUI:GetModule("Builder")
-local Utils    = HideUI:GetModule("Utils")
+local Database = gUI:GetModule("Database")
+local Builder  = gUI:GetModule("Builder")
+local Utils    = gUI:GetModule("Utils")
 
 -- Widgets
-local MainFrame   = HideUI:GetModule("MainFrame")
-local Header      = HideUI:GetModule("Header")
-local Searchbox   = HideUI:GetModule("Searchbox")
-local Collapsible = HideUI:GetModule("Collapsible")
-local Popup       = HideUI:GetModule("Popup")
+local MainFrame   = gUI:GetModule("MainFrame")
+local Header      = gUI:GetModule("Header")
+local Searchbox   = gUI:GetModule("Searchbox")
+local Collapsible = gUI:GetModule("Collapsible")
+local Popup       = gUI:GetModule("Popup")
 
 -- Panel Name
 local PANEL_NAME = "Others"
 
 function Others:OnEnable()
-    self:RegisterMessage("HIDEUI_PANEL_CHANGED", "OnEnter")
-    self:RegisterMessage("HIDEUI_FRAME_CHANGED", "OnFrameChanged")
+    self:RegisterMessage("gUI_PANEL_CHANGED", "OnEnter")
+    self:RegisterMessage("gUI_FRAME_CHANGED", "OnFrameChanged")
 end
 
 function Others:OnEnter(_, panel)

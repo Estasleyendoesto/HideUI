@@ -1,11 +1,11 @@
-local MainStatusTrackingBarContainer = HideUI:NewModule("MainStatusTrackingBarContainer")
+﻿local MainStatusTrackingBarContainer = Fade:NewModule("MainStatusTrackingBarContainer")
 
 local DELAY = 2.5
 
 function MainStatusTrackingBarContainer:Create(Initializer)
 	function Initializer:OnReady()
-        if not self.frame.HideUI_loaded then
-			self.frame.HideUI_loaded = true
+        if not self.frame.Fade_loaded then
+			self.frame.Fade_loaded = true
 			C_Timer.After(DELAY, function()
 				self:OnCreate()
 			end)

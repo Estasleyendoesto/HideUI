@@ -1,5 +1,5 @@
 <Bindings>
-    <Binding name="Toggle HideUI" category="HideUI">
-        HideUI_Enable_Keydown();
+    <Binding name="Toggle gUI" category="gUI">
+        gUI_Enable_Keydown();
     </Binding>
 </Bindings>

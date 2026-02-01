@@ -1,6 +1,6 @@
-local _, ns = ...
-local Link = HideUI:NewModule("Link")
-local Utils = HideUI:GetModule("Utils")
+﻿local _, ns = ...
+local Link = gUI:NewModule("Link")
+local Utils = gUI:GetModule("Utils")
 
 -- Scripts compartidos
 local function OnEditFocusGained(self) self:HighlightText() end

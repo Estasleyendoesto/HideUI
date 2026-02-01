@@ -1,5 +1,5 @@
-local _, ns = ...
-local Interface = HideUI:NewModule("Interface", "AceConsole-3.0", "AceEvent-3.0")
+﻿local _, ns = ...
+local Interface = gUI:NewModule("Interface", "AceConsole-3.0", "AceEvent-3.0")
 
 local PANELS = { "About", "General", "Blizzard", "Others" }
 
@@ -9,7 +9,7 @@ local PANELS = { "About", "General", "Blizzard", "Others" }
 function Interface:OnInitialize()
     self.panels = {}
     for _, name in ipairs(PANELS) do
-        local module = HideUI:GetModule(name, true)
+        local module = gUI:GetModule(name, true)
         if module then
             self.panels[name] = module
         end
@@ -18,27 +18,28 @@ end
 
 function Interface:OnEnable()
     -- Comandos de chat
-    self:RegisterChatCommand("hideui", "HandleChatCommand")
-    self:RegisterChatCommand("hui", "HandleChatCommand")
+    self:RegisterChatCommand("gUI", "HandleChatCommand")
+    self:RegisterChatCommand("gui", "HandleChatCommand")
+    self:RegisterChatCommand("ghostui", "HandleChatCommand")
 
     -- Activación de Core Modules
-    HideUI:EnableModule("MinimapButton")
-    HideUI:EnableModule("MainFrame")
+    gUI:EnableModule("MinimapButton")
+    gUI:EnableModule("MainFrame")
 
     -- Activación de Paneles
     for name in pairs(self.panels) do
-        HideUI:EnableModule(name)
+        gUI:EnableModule(name)
     end
 
     -- Escucha cambios globales para actualizar el estado de los paneles
-    self:RegisterMessage("HIDEUI_GLOBAL_CHANGED", "OnGlobalSettingChanged")
+    self:RegisterMessage("GHOSTUI_GLOBAL_CHANGED", "OnGlobalSettingChanged")
 end
 
 ---------------------------------------------------------------------
 -- COMANDOS DE CHAT
 ---------------------------------------------------------------------
 function Interface:HandleChatCommand(input)
-    HideUI:GetModule("MainFrame"):Toggle()
+    gUI:GetModule("MainFrame"):Toggle()
 end
 
 ---------------------------------------------------------------------
@@ -46,7 +47,7 @@ end
 ---------------------------------------------------------------------
 function Interface:OnGlobalSettingChanged(message, field, value)
     if field == "addonEnabled" then
-        local MainFrame = HideUI:GetModule("MainFrame")
+        local MainFrame = gUI:GetModule("MainFrame")
         
         -- Ordenamos actualizar visuales (NavBar/Header)
         MainFrame:UpdateUIVisuals(value)
@@ -60,8 +61,8 @@ end
 
 -- Determina qué panel mostrar al abrir la ventana
 function Interface:SetupInitialPanel()
-    local Database = HideUI:GetModule("Database")
-    local MainFrame = HideUI:GetModule("MainFrame")
+    local Database = gUI:GetModule("Database")
+    local MainFrame = gUI:GetModule("MainFrame")
     
     local addonEnabled = Database:GetGlobals().addonEnabled
     local target = addonEnabled and "About" or "General"

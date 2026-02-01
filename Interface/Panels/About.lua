@@ -1,15 +1,15 @@
-local _, ns = ...
-local About = HideUI:NewModule("About", "AceEvent-3.0")
+﻿local _, ns = ...
+local About = gUI:NewModule("About", "AceEvent-3.0")
 
-local MainFrame = HideUI:GetModule("MainFrame")
-local Utils     = HideUI:GetModule("Utils")
-local Text      = HideUI:GetModule("Text")
-local Link      = HideUI:GetModule("Link")
+local MainFrame = gUI:GetModule("MainFrame")
+local Utils     = gUI:GetModule("Utils")
+local Text      = gUI:GetModule("Text")
+local Link      = gUI:GetModule("Link")
 
 local PANEL_NAME = "About"
 
 function About:OnEnable()
-    self:RegisterMessage("HIDEUI_PANEL_CHANGED", "OnEnter")
+    self:RegisterMessage("gUI_PANEL_CHANGED", "OnEnter")
 end
 
 function About:OnEnter(_, panel)
@@ -26,7 +26,7 @@ function About:Draw()
     local container = MainFrame.Content
 
     -- Branding y Versión
-    Text:CreateHeadLine(container, "HideUI", "1.1.0")
+    Text:CreateHeadLine(container, "gUI", "1.1.0")
 
     -- Autoría
     local authConfig = { centered = true, suffix = "", spacing = 10, xOffset = -18 }
@@ -37,10 +37,10 @@ function About:Draw()
 
     -- Enlaces Oficiales
     local links = {
-        { "Wago.io:", "wago.io/hideui" },
-        { "CurseForge:", "curseforge.com/wow/addons/hideui" },
+        { "Wago.io:", "wago.io/gUI" },
+        { "CurseForge:", "curseforge.com/wow/addons/gUI" },
         { "WoWInterface:", "wowinterface.com/downloads/infoXXXX" },
-        { "GitHub:", "github.com/Estasleyendoesto/HideUI" }
+        { "GitHub:", "github.com/Estasleyendoesto/gUI" }
     }
     for _, l in ipairs(links) do 
         Link:Create(container, l[1], l[2]) 

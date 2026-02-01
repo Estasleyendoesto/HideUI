@@ -1,6 +1,6 @@
-local _, ns = ...
-local Separator = HideUI:NewModule("Separator")
-local Utils = HideUI:GetModule("Utils")
+﻿local _, ns = ...
+local Separator = gUI:NewModule("Separator")
+local Utils = gUI:GetModule("Utils")
 
 ---------------------------------------------------------------------
 -- CONSTRUCTOR

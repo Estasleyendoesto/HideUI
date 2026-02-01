@@ -1,6 +1,6 @@
-local _, ns = ...
-local CheckboxSlider = HideUI:NewModule("CheckboxSlider")
-local Utils = HideUI:GetModule("Utils")
+﻿local _, ns = ...
+local CheckboxSlider = gUI:NewModule("CheckboxSlider")
+local Utils = gUI:GetModule("Utils")
 
 ---------------------------------------------------------------------
 -- COMPORTAMIENTO (INTERNO)
@@ -27,8 +27,8 @@ end
 -- CONSTRUCTOR
 ---------------------------------------------------------------------
 function CheckboxSlider:Create(parent, label, onUpdate, tooltip, settings)
-    local Checkbox = HideUI:GetModule("Checkbox")
-    local Slider   = HideUI:GetModule("Slider")
+    local Checkbox = gUI:GetModule("Checkbox")
+    local Slider   = gUI:GetModule("Slider")
 
     -- Contenedor Maestro
     local root = CreateFrame("Frame", nil, parent)

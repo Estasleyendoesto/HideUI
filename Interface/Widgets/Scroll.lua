@@ -1,5 +1,5 @@
-local _, ns = ...
-local Scroll = HideUI:NewModule("Scroll")
+﻿local _, ns = ...
+local Scroll = gUI:NewModule("Scroll")
 
 ---------------------------------------------------------------------
 -- ESTÉTICA (INTERNO)

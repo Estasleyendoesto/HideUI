@@ -1,6 +1,6 @@
-local _, ns = ...
-local Checkbox = HideUI:NewModule("Checkbox")
-local Utils = HideUI:GetModule("Utils")
+﻿local _, ns = ...
+local Checkbox = gUI:NewModule("Checkbox")
+local Utils    = gUI:GetModule("Utils")
 
 ---------------------------------------------------------------------
 -- ESTÉTICA (INTERNO)

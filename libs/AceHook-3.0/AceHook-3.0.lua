@@ -1,4 +1,4 @@
---- **AceHook-3.0** offers safe Hooking/Unhooking of functions, methods and frame scripts.
+﻿--- **AceHook-3.0** offers safe Hooking/Unhooking of functions, methods and frame scripts.
 -- Using AceHook-3.0 is recommended when you need to unhook your hooks again, so the hook chain isn't broken
 -- when you manually restore the original function.
 --

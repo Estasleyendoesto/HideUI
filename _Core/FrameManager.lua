@@ -1,4 +1,4 @@
-local FrameManager = HideUI:NewModule("FrameManager", "AceEvent-3.0")
+﻿local FrameManager = Fade:NewModule("FrameManager", "AceEvent-3.0")
 local Base
 local Data
 
@@ -16,8 +16,8 @@ local EVENT_FIELDS = {
 }
 
 function FrameManager:OnInitialize()
-    Data = HideUI:GetModule("Data")
-    Base = HideUI:GetModule("Base")
+    Data = Fade:GetModule("Data")
+    Base = Fade:GetModule("Base")
 end
 
 function FrameManager:OnEnable()
@@ -43,7 +43,7 @@ function FrameManager:OnDisable()
     end
 end
 
--- HideUI Inject
+-- Fade Inject
 -------------------------------------------------------------------------------->>>
 function FrameManager:OnInstance()
     C_TIMER = C_Timer.NewTicker(FINDING_FRAMES_INTERVAL, function()
@@ -62,23 +62,23 @@ end
 -------------------------------------------------------------------------------->>>
 function FrameManager:InitializeFrame(frame, props, globals)
     -- Impide que vuelva a crearse y ejecutarse si ya ha sido creado
-    if frame and frame.HideUI then
+    if frame and frame.Fade then
         return frame
     end
 
     -- Crea si no existe
-    if frame and not frame.HideUI then
-        frame.HideUI = Base:Create(frame, props, globals)
+    if frame and not frame.Fade then
+        frame.Fade = Base:Create(frame, props, globals)
     elseif not frame and props.cluster then
         frame = {}
         frame.name = props.name
-        frame.HideUI = Base:Create(frame, props, globals)
+        frame.Fade = Base:Create(frame, props, globals)
     end
 
     -- Si ha sido creado exitosamente, ejecuta
-    if frame and frame.HideUI then
-        frame.HideUI_loaded = false -- De control, importante
-        frame.HideUI:OnReady()
+    if frame and frame.Fade then
+        frame.Fade_loaded = false -- De control, importante
+        frame.Fade:OnReady()
     end
 
     return frame
@@ -113,20 +113,20 @@ end
 
 function FrameManager:UnbindFrame(name)
     local frame = GAME_FRAMES[name]
-    if frame and frame.HideUI then
-        frame.HideUI:OnDestroy()
-        frame.HideUI_loaded = nil
-        frame.HideUI = nil
+    if frame and frame.Fade then
+        frame.Fade:OnDestroy()
+        frame.Fade_loaded = nil
+        frame.Fade = nil
     end
     GAME_FRAMES[name] = nil
 end
 
 function FrameManager:UnbindFrames()
     for _, frame in pairs(GAME_FRAMES) do
-        if frame and frame.HideUI then
-            frame.HideUI:OnDestroy()
-            frame.HideUI_loaded = nil
-            frame.HideUI = nil
+        if frame and frame.Fade then
+            frame.Fade:OnDestroy()
+            frame.Fade_loaded = nil
+            frame.Fade = nil
         end
     end
     GAME_FRAMES = {}
@@ -137,7 +137,7 @@ end
 -- From Dispatcher
 function FrameManager:GlobalSettingsUpdate(msg, field)
     for _, frame in pairs(GAME_FRAMES) do
-        if frame and frame.HideUI then
+        if frame and frame.Fade then
             self:SendSettings(frame, field)
         end
     end
@@ -146,24 +146,24 @@ end
 -- From Dispatcher
 function FrameManager:FrameSettingsUpdate(msg, frame_name, field)
     local frame = GAME_FRAMES[frame_name]
-    if frame and frame.HideUI then
+    if frame and frame.Fade then
         self:SendSettings(frame, field)
         -- Envía todos los fields, necesario filtrar en su correspondiente.
-        frame.HideUI:SetExtra(field)
+        frame.Fade:SetExtra(field)
 
         if field == "isEnabled" then
-            frame.HideUI:Refresh()
+            frame.Fade:Refresh()
         end
     end
 end
 
 function FrameManager:SendSettings(frame, field)
     if field == "alphaAmount" then
-        frame.HideUI:SetBaseAlpha()
+        frame.Fade:SetBaseAlpha()
     elseif string.find(field, "AlphaAmount") then
-        frame.HideUI:SetSelectedAlpha(field)
+        frame.Fade:SetSelectedAlpha(field)
     elseif EVENT_FIELDS[field] then
-        frame.HideUI:SetSelectedEvent(field)
+        frame.Fade:SetSelectedEvent(field)
     end
 end
 
@@ -173,8 +173,8 @@ end
 function FrameManager:EventReceiver(msg, event)
     -- Se encarga de comunicar a todos los frames todos los eventos detectados
     for _, frame in pairs(GAME_FRAMES) do
-        if frame and frame.HideUI then
-            frame.HideUI:EventListener(event)
+        if frame and frame.Fade then
+            frame.Fade:EventListener(event)
         end
     end
 end
@@ -198,8 +198,8 @@ end
 
 function FrameManager:OnLoop()
     for _, frame in pairs(GAME_FRAMES) do
-        if frame and frame.HideUI then
-            frame.HideUI:OnMouseover()
+        if frame and frame.Fade then
+            frame.Fade:OnMouseover()
         end
     end
 end

@@ -1,4 +1,4 @@
-local EventManager = HideUI:NewModule("EventManager", "AceEvent-3.0")
+﻿local EventManager = Fade:NewModule("EventManager", "AceEvent-3.0")
 
 local EVENT_LOG = {}
 local MAPPINGS = {

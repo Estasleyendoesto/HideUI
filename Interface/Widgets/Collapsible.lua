@@ -1,6 +1,6 @@
-local _, ns = ...
-local Collapsible = HideUI:NewModule("Collapsible")
-local Utils = HideUI:GetModule("Utils")
+﻿local _, ns = ...
+local Collapsible = gUI:NewModule("Collapsible")
+local Utils = gUI:GetModule("Utils")
 
 ---------------------------------------------------------------------
 -- ESTÉTICA (INTERNO)

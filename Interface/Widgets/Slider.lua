@@ -1,6 +1,6 @@
-local _, ns = ...
-local Slider = HideUI:NewModule("Slider")
-local Utils = HideUI:GetModule("Utils")
+﻿local _, ns = ...
+local Slider = gUI:NewModule("Slider")
+local Utils = gUI:GetModule("Utils")
 
 ---------------------------------------------------------------------
 -- ESTÉTICA (INTERNO)

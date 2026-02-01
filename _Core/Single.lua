@@ -1,12 +1,12 @@
-local Single = HideUI:NewModule("Single")
+﻿local Single = Fade:NewModule("Single")
 
 function Single:Create(Initializer)
     function Initializer:OnReady()
-        if not self.frame.HideUI_loaded then
+        if not self.frame.Fade_loaded then
 			local delay = 2
             local repeats = 3
             
-            self.frame.HideUI_loaded = true
+            self.frame.Fade_loaded = true
             
             UIFrameFadeRemoveFrame(self.frame)
             C_Timer.NewTicker(delay, function()
@@ -37,7 +37,7 @@ function Single:Create(Initializer)
     end
 
     -- Si el frame tiene su propio módulo, delega responsabilidad a su modulo ubicado siempre en carpeta /Frames
-    local mod = HideUI:GetModule(Initializer.name, true)
+    local mod = Fade:GetModule(Initializer.name, true)
     if mod then
         return mod:Create(Initializer)
     else

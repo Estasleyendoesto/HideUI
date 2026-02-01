@@ -1,14 +1,14 @@
-HideUI = LibStub("AceAddon-3.0"):NewAddon("HideUI")
-HideUI:SetDefaultModuleState(false)
+﻿gUI = LibStub("AceAddon-3.0"):NewAddon("GhostUI")
+gUI:SetDefaultModuleState(false)
 
-function HideUI:OnEnable()
+function gUI:OnEnable()
     self:EnableModule("Database")
     -- self:EnableModule("Dispatcher")
     self:EnableModule("Interface")
 end
 
-function HideUI:FindModule(name)
-    local module = HideUI:GetModule(name, true)
+function gUI:FindModule(name)
+    local module = gUI:GetModule(name, true)
     if module and module:IsEnabled() then
         return module
     else

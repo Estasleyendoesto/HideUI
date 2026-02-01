@@ -1,5 +1,0 @@
-<Bindings>
-    <Binding name="Toggle MinimalUI" category="ADDONS">
-        ToggleMinimalUI();
-    </Binding>
-</Bindings>

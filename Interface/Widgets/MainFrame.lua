@@ -1,17 +1,17 @@
--- Documentación de Blizzard
+﻿-- Documentación de Blizzard
 -- (12.0.1.65448; unchanged since 10.2.7.54604)
 -- https://www.townlong-yak.com/framexml/beta/Blizzard_Settings_Shared/Blizzard_SettingsPanelTemplates.xml
 
 local _, ns = ...
 
-local MainFrame = HideUI:NewModule("MainFrame", "AceEvent-3.0")
-local Utils = HideUI:GetModule("Utils")
-local Database = HideUI:GetModule("Database")
+local MainFrame = gUI:NewModule("MainFrame", "AceEvent-3.0")
+local Utils = gUI:GetModule("Utils")
+local Database = gUI:GetModule("Database")
 
 local CFG = {
     WIDTH  = 620,
     HEIGHT = 620,
-    TITLE  = "HideUI",
+    TITLE  = "gUI",
     ALPHA  = 0.02,
     TOP_OFFSET = -25,
     BORDER_COLOR = {0.5, 0.5, 0.5, 0.95}
@@ -32,7 +32,7 @@ end
 -- CONTENEDOR PRINCIPAL
 ---------------------------------------------------------------------
 function MainFrame:CreateMainFrame()
-    local f = CreateFrame("Frame", "HideUIMainFrame", UIParent)
+    local f = CreateFrame("Frame", "GhostUIMainFrame", UIParent)
     f:SetSize(CFG.WIDTH, CFG.HEIGHT)
     f:SetPoint("CENTER")
     f:SetFrameStrata("DIALOG")
@@ -92,7 +92,7 @@ function MainFrame:CreateTopPanel()
 end
 
 function MainFrame:CreateNavBar()
-    local Navbar = HideUI:GetModule("Navbar")
+    local Navbar = gUI:GetModule("Navbar")
     self.nav = Navbar:Create(self.TopPanel)
 
     local addonEnabled = Database:GetGlobals().addonEnabled
@@ -113,7 +113,7 @@ end
 -- CONTENT SCROLL
 ---------------------------------------------------------------------
 function MainFrame:CreateContentScroll()
-    local ScrollWidget = HideUI:GetModule("Scroll")
+    local ScrollWidget = gUI:GetModule("Scroll")
     local scroll, content = ScrollWidget:Create(self.frame)
     
     -- Anclaje dinámico al TopPanel
@@ -134,11 +134,11 @@ end
 function MainFrame:OpenPanel(panelName)
     self.currentPanel = panelName
     self:ClearAll()
-    self:SendMessage("HIDEUI_PANEL_CHANGED", panelName)
+    self:SendMessage("GHOSTUI_PANEL_CHANGED", panelName)
 end
 
 function MainFrame:UpdateUIVisuals(addonEnabled)
-    local Navbar = HideUI:GetModule("Navbar")
+    local Navbar = gUI:GetModule("Navbar")
     
     if self.nav then
         Navbar:SetEnabled(self.nav, addonEnabled)
@@ -159,7 +159,7 @@ end
 ---------------------------------------------------------------------
 function MainFrame:NotifyOnOpen()
     self.frame:SetScript("OnShow", function()
-        HideUI:GetModule("Interface"):SetupInitialPanel()
+        gUI:GetModule("Interface"):SetupInitialPanel()
     end)
 end
 

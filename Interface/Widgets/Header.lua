@@ -1,7 +1,7 @@
-local _, ns = ...
+﻿local _, ns = ...
 
-local Header = HideUI:NewModule("Header")
-local Utils = HideUI:GetModule("Utils")
+local Header = gUI:NewModule("Header")
+local Utils = gUI:GetModule("Utils")
 
 ---------------------------------------------------------------------
 -- CONSTRUCTOR DEL HEADER

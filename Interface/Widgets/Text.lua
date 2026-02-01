@@ -1,6 +1,6 @@
-local _, ns = ...
-local Text = HideUI:NewModule("Text")
-local Utils = HideUI:GetModule("Utils")
+﻿local _, ns = ...
+local Text = gUI:NewModule("Text")
+local Utils = gUI:GetModule("Utils")
 
 -- Helper interno para crear wrappers de texto usados en HeadLines
 local function CreateTextElement(parent, font, text, config, isTitle)

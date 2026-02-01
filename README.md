@@ -2,16 +2,15 @@
 <img src=".dist/HideUI.png">
 </p>
 
-# HideUI Addon for World of Warcraft
+# gUI - GhostUI
 HideUI is an addon designed to adjust the opacity of any frame in the game, including those created by other addons. This addon enhances frames with additional features like adaptive opacity adjustment based on certain events, such as being AFK, mounted, in combat, or inside an instance.
 
 Since the introduction of the edit mode, which allows you to adjust the positioning of UI frames, I felt that something was missing—and that was the ability to adjust their opacity. HideUI can be considered an extension of the edit mode.
 
-HideUI works seamlessly with the game's native interface, integrating smoothly to offer a more personalized and dynamic experience.
+gUI works seamlessly with the game's native interface, integrating smoothly to offer a more personalized and dynamic experience.
 
 ## Preview
-![HideUI](.dist/Portrait.jpg)
-
+![gUI](.dist/Portrait.jpg)
 
 
 ## Recursos

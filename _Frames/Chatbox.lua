@@ -1,4 +1,4 @@
-local Chatbox = HideUI:NewModule("Chatbox")
+﻿local Chatbox = Fade:NewModule("Chatbox")
 
 local FOCUS_ALPHA = 1
 local EDITBOX_FACTOR = 0.44

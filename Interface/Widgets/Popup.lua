@@ -1,7 +1,7 @@
-local _, ns = ...
-local Popup = HideUI:NewModule("Popup")
+﻿local _, ns = ...
+local Popup = gUI:NewModule("Popup")
 
-local POPUP_NAME = "HIDEUI_CONFIRM_DIALOG"
+local POPUP_NAME = "GHOSTUI_CONFIRM_DIALOG"
 
 ---------------------------------------------------------------------
 -- INICIALIZACIÓN

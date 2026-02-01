@@ -1,10 +1,10 @@
-local Dispatcher = HideUI:NewModule("Dispatcher", "AceEvent-3.0")
+﻿local Dispatcher = Fade:NewModule("Dispatcher", "AceEvent-3.0")
 local Data
 local UIManager
 
 function Dispatcher:OnInitialize()
-    Data      = HideUI:GetModule("Data")
-    UIManager = HideUI:GetModule("UIManager")
+    Data      = Fade:GetModule("Data")
+    UIManager = Fade:GetModule("UIManager")
 end
 
 function Dispatcher:OnEnable()
@@ -18,17 +18,17 @@ end
 function Dispatcher:ModulesHandler()
     local isEnabled = Data:Find("globals").isEnabled
     if isEnabled then
-        HideUI:EnableModule("FrameManager")
-        HideUI:EnableModule("EventManager")
+        Fade:EnableModule("FrameManager")
+        Fade:EnableModule("EventManager")
     else
-        HideUI:DisableModule("EventManager")
-        HideUI:DisableModule("FrameManager")
+        Fade:DisableModule("EventManager")
+        Fade:DisableModule("FrameManager")
     end
 end
 
 function Dispatcher:Refresh()
-    HideUI:DisableModule("EventManager")
-    HideUI:DisableModule("FrameManager")
+    Fade:DisableModule("EventManager")
+    Fade:DisableModule("FrameManager")
 
     C_Timer.After(0.25, function()
         self:ModulesHandler()
@@ -40,7 +40,7 @@ end
 
 -------------------------------------------------------------------------------->>>
 -- Bindings.xml
-function HideUI_Enable_Keydown()
+function Fade_Enable_Keydown()
     local isEnabled = Data:Find("globals").isEnabled
     Dispatcher:HandleEnabledChange(not isEnabled)
     UIManager:UpdateUI()
@@ -103,7 +103,7 @@ function Dispatcher:OnFrameRegister(name)
     local input
     local data = Data:Find("frames")
     local frame = _G[name]
-    local Manager = HideUI:GetModule("FrameManager")
+    local Manager = Fade:GetModule("FrameManager")
     if frame and frame.GetName and not data[name] then
         input = {
             name = name
@@ -118,7 +118,7 @@ end
 function Dispatcher:OnFrameUnregister(name)
     local data = Data:Find("frames")
     local frame = data[name]
-    local Manager = HideUI:GetModule("FrameManager")
+    local Manager = Fade:GetModule("FrameManager")
     if frame and frame.source == "community" then
         Data:UnregisterFrame(name)
         Manager:UnbindFrame(name)

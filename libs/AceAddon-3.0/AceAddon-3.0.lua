@@ -1,4 +1,4 @@
---- **AceAddon-3.0** provides a template for creating addon objects.
+﻿--- **AceAddon-3.0** provides a template for creating addon objects.
 -- It'll provide you with a set of callback functions that allow you to simplify the loading
 -- process of your addon.\\
 -- Callbacks provided are:\\

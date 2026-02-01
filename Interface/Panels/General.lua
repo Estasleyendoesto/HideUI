@@ -1,18 +1,17 @@
-local _, ns = ...
+﻿local _, ns = ...
+local General  = gUI:NewModule("General", "AceEvent-3.0")
 
-local General  = HideUI:NewModule("General", "AceEvent-3.0")
-
-local Database = HideUI:GetModule("Database")
-local Utils    = HideUI:GetModule("Utils")
+local Database = gUI:GetModule("Database")
+local Builder  = gUI:GetModule("Builder")
+local Utils    = gUI:GetModule("Utils")
 
 -- Widgets
-local MainFrame   = HideUI:GetModule("MainFrame")
-local Header      = HideUI:GetModule("Header")
-local Collapsible = HideUI:GetModule("Collapsible")
-local Builder     = HideUI:GetModule("Builder")
-local Popup       = HideUI:GetModule("Popup")
-local Button      = HideUI:GetModule("Button")
-local Section     = HideUI:GetModule("Section")
+local MainFrame   = gUI:GetModule("MainFrame")
+local Header      = gUI:GetModule("Header")
+local Collapsible = gUI:GetModule("Collapsible")
+local Popup       = gUI:GetModule("Popup")
+local Button      = gUI:GetModule("Button")
+local Section     = gUI:GetModule("Section")
 
 -- Panel Name
 local PANEL_NAME = "General"
@@ -21,7 +20,7 @@ local PANEL_NAME = "General"
 -- INICIALIZACIÓN Y EVENTOS
 ---------------------------------------------------------------------
 function General:OnEnable()
-    self:RegisterMessage("HIDEUI_PANEL_CHANGED", "OnEnter")
+    self:RegisterMessage("gUI_PANEL_CHANGED", "OnEnter")
 end
 
 function General:OnEnter(_, panelName)

@@ -1,23 +1,22 @@
-local _, ns = ...
+﻿local _, ns = ...
+local Blizzard = gUI:NewModule("Blizzard", "AceEvent-3.0")
 
-local Blizzard = HideUI:NewModule("Blizzard", "AceEvent-3.0")
-
-local Database = HideUI:GetModule("Database")
-local Builder  = HideUI:GetModule("Builder")
-local Utils    = HideUI:GetModule("Utils")
+local Database = gUI:GetModule("Database")
+local Builder  = gUI:GetModule("Builder")
+local Utils    = gUI:GetModule("Utils")
 
 -- Widgets
-local MainFrame   = HideUI:GetModule("MainFrame")
-local Collapsible = HideUI:GetModule("Collapsible")
-local Header      = HideUI:GetModule("Header")
-local Popup       = HideUI:GetModule("Popup")
+local MainFrame   = gUI:GetModule("MainFrame")
+local Collapsible = gUI:GetModule("Collapsible")
+local Header      = gUI:GetModule("Header")
+local Popup       = gUI:GetModule("Popup")
 
 -- Panel Name
 local PANEL_NAME = "Blizzard"
 
 function Blizzard:OnEnable()
-    self:RegisterMessage("HIDEUI_PANEL_CHANGED", "OnEnter")
-    self:RegisterMessage("HIDEUI_FRAME_CHANGED", "OnFrameChanged")
+    self:RegisterMessage("gUI_PANEL_CHANGED", "OnEnter")
+    self:RegisterMessage("gUI_FRAME_CHANGED", "OnFrameChanged")
 end
 
 function Blizzard:OnEnter(event, panel)
@@ -83,3 +82,4 @@ function Blizzard:DrawFrameList()
         end
     end
 end
+

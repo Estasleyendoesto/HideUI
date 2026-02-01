@@ -1,5 +1,5 @@
-local _, ns = ...
-local Button = HideUI:NewModule("Button")
+﻿local _, ns = ...
+local Button = gUI:NewModule("Button")
 
 ---------------------------------------------------------------------
 -- BOTÓN ESTÁNDAR (Blizzard Style)

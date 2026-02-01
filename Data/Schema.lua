@@ -1,4 +1,4 @@
-local _, ns = ...
+﻿local _, ns = ...
 
 -- -------------------------------------------------------------------
 -- UI_SCHEMA
@@ -31,7 +31,7 @@ ns.UI_SCHEMA = {
         addonEnabled = { 
             type = "checkbox", 
             label = "Enable Addon", 
-            tooltip = "Turns all HideUI features on or off globally." 
+            tooltip = "Turns all Fade features on or off globally." 
         },
         useCharacterProfile = { 
             type = "checkbox", 
@@ -132,7 +132,7 @@ ns.UI_SCHEMA = {
         ignoreFrame = {
             type = "checkbox", 
             label = "Ignore", 
-            tooltip = "HideUI will completely ignore this frame." 
+            tooltip = "Fade will completely ignore this frame." 
         },
         frameAlpha = { 
             type = "slider", 
