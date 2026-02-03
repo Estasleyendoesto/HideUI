@@ -1,12 +1,13 @@
 ﻿local _, ns = ...
-
 local Header = gUI:NewModule("Header")
-local Utils = gUI:GetModule("Utils")
+local Utils  = gUI:GetModule("Utils")
 
 ---------------------------------------------------------------------
--- CONSTRUCTOR DEL HEADER
+-- CONSTRUCTOR
 ---------------------------------------------------------------------
+
 function Header:Create(parent, title, onDefaults, layout)
+    -- Configuración de dimensiones y offsets
     local config = Utils:GetLayout(layout, {
         height  = 50,
         left    = 35,
@@ -21,24 +22,24 @@ function Header:Create(parent, title, onDefaults, layout)
     frame:SetPoint("TOPLEFT")
     frame:SetPoint("TOPRIGHT")
 
-    -- Título
+    -- 1. Título del Panel
     frame.Title = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightHuge")
     frame.Title:SetPoint("LEFT", config.left, 0)
     frame.Title:SetJustifyH("LEFT")
     frame.Title:SetText(title)
 
-    -- Botón "Defaults"
+    -- 2. Botón de Restaurar (Defaults)
     local btn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
     btn:SetSize(config.buttonW, config.buttonH)
     btn:SetPoint("RIGHT", config.right, 0)
-    btn:SetText(DEFAULTS or "Defaults")
+    btn:SetText("Defaults") -- Cambiado a string literal para evitar nils
     
     if onDefaults then
         btn:SetScript("OnClick", onDefaults)
     end
     frame.DefaultsButton = btn
 
-    -- Separador (Divider)
+    -- 3. Separador Horizontal (Estilo Blizzard)
     local divider = frame:CreateTexture(nil, "ARTWORK")
     divider:SetAtlas("Options_HorizontalDivider", true)
     divider:SetPoint("BOTTOMLEFT", 10, 0)
@@ -46,7 +47,7 @@ function Header:Create(parent, title, onDefaults, layout)
     divider:SetAlpha(0.4)
     frame.Divider = divider
 
-    -- API
+    -- API Pública
     function frame:SetEnabled(enabled)
         self.DefaultsButton:SetEnabled(enabled)
         self.DefaultsButton:SetAlpha(enabled and 1 or 0.5)

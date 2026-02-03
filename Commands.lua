@@ -1,5 +1,6 @@
 local _, ns = ...
 local Commands = gUI:NewModule("Commands", "AceConsole-3.0")
+Commands:SetDefaultModuleState(false)
 
 function Commands:OnEnable()
     self:RegisterChatCommand("gui", "HandleCommand")

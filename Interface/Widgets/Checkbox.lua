@@ -1,12 +1,10 @@
 ﻿local _, ns = ...
 local Checkbox = gUI:NewModule("Checkbox")
-local Utils    = gUI:GetModule("Utils")
 
 ---------------------------------------------------------------------
 -- ESTÉTICA (INTERNO)
 ---------------------------------------------------------------------
 local function ApplyStyle(cb)
-    -- Texturas Minimalistas (Settings Panel Style)
     cb:SetNormalTexture("checkbox-minimal")
     cb:GetNormalTexture():SetAtlas("checkbox-minimal")
     
@@ -51,10 +49,9 @@ end
 -- CONSTRUCTOR
 ---------------------------------------------------------------------
 function Checkbox:Create(parent, label, onUpdate, tooltip, default)
-    -- Condenedor maestro
+    -- Contenedor maestro
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetSize(280, 29)
-
 
     -- El Widget (CheckButton)
     local cb = CreateFrame("CheckButton", nil, frame, "BackdropTemplate")

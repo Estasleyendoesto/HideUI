@@ -1,5 +1,5 @@
 <Bindings>
-    <Binding name="Toggle gUI" category="gUI">
-        gUI_Enable_Keydown();
+    <Binding name="Toggle GhostUI" category="GhostUI">
+        GhostUI_Toggle();
     </Binding>
 </Bindings>

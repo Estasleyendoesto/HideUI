@@ -32,7 +32,7 @@ function Combat:UpdateCombat(force)
     if force or currentState ~= self.lastState then
         self.lastState = currentState
         -- Comunicación directa al gestor de eventos
-        gUI:GetModule("Events"):OnEvent("COMBAT", currentState, nil, force)
+        gUI:GetModule("Events"):RegisterEvent("COMBAT", currentState)
     end
 end
 

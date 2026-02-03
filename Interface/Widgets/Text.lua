@@ -2,8 +2,11 @@
 local Text = gUI:NewModule("Text")
 local Utils = gUI:GetModule("Utils")
 
--- Helper interno para crear wrappers de texto usados en HeadLines
-local function CreateTextElement(parent, font, text, config, isTitle)
+---------------------------------------------------------------------
+-- HELPERS INTERNOS
+---------------------------------------------------------------------
+
+local function CreateTextWrapper(parent, font, text, config, isTitle)
     local f = CreateFrame("Frame", nil, parent)
     local fs = f:CreateFontString(nil, "OVERLAY", font)
     local scale = isTitle and config.titleScale or config.subScale
@@ -14,7 +17,7 @@ local function CreateTextElement(parent, font, text, config, isTitle)
     
     if not isTitle then
         fs:SetAlpha(config.subAlpha)
-        fs:SetTextColor(1, 0.82, 0) -- Dorado para subtítulos
+        fs:SetTextColor(1, 0.82, 0) 
     end
 
     f:SetHeight(fs:GetStringHeight() * scale)
@@ -22,6 +25,11 @@ local function CreateTextElement(parent, font, text, config, isTitle)
     return f
 end
 
+---------------------------------------------------------------------
+-- MÉTODOS PÚBLICOS
+---------------------------------------------------------------------
+
+-- Título grande con subtítulo dorado inferior
 function Text:CreateHeadLine(parent, title, subtitle, layout)
     local config = Utils:GetLayout(layout, {
         spacing = 5,
@@ -34,9 +42,8 @@ function Text:CreateHeadLine(parent, title, subtitle, layout)
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetWidth(parent:GetWidth())
 
-    -- Wrappers para que VStack pueda posicionarlos
-    CreateTextElement(frame, "GameFontHighlightHuge", title, config, true)
-    CreateTextElement(frame, "GameFontHighlight", subtitle, config, false)
+    CreateTextWrapper(frame, "GameFontHighlightHuge", title, config, true)
+    CreateTextWrapper(frame, "GameFontHighlight", subtitle, config, false)
 
     Utils:RegisterLayout(frame, config)
     Utils:VStack(frame)
@@ -44,6 +51,7 @@ function Text:CreateHeadLine(parent, title, subtitle, layout)
     return frame
 end
 
+-- Par Etiqueta: Valor (ej. "Versión: 1.0")
 function Text:CreateDoubleLine(parent, leftText, rightText, layout)
     local config = Utils:GetLayout(layout, {
         spacing = 8,
@@ -57,13 +65,11 @@ function Text:CreateDoubleLine(parent, leftText, rightText, layout)
     local f = CreateFrame("Frame", nil, parent)
     f:SetWidth(parent:GetWidth())
 
-    -- Etiqueta (Izquierda/Amarilla)
     f.Left = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     f.Left:SetTextColor(1, 0.82, 0)
     f.Left:SetJustifyH("RIGHT")
     f.Left:SetText(leftText .. config.suffix)
 
-    -- Valor (Derecha/Blanca)
     f.Right = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     f.Right:SetJustifyH("LEFT")
     f.Right:SetText(rightText)
@@ -83,6 +89,7 @@ function Text:CreateDoubleLine(parent, leftText, rightText, layout)
     return f
 end
 
+-- Bloque de texto simple o descriptivo
 function Text:CreateSingleLine(parent, content, layout)
     local config = Utils:GetLayout(layout, {
         align = "LEFT",

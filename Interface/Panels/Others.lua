@@ -1,18 +1,17 @@
 ﻿local _, ns = ...
-local Others   = gUI:NewModule("Others", "AceEvent-3.0")
+local Others = gUI:NewModule("Others", "AceEvent-3.0")
 
 local Database = gUI:GetModule("Database")
 local Builder  = gUI:GetModule("Builder")
 local Utils    = gUI:GetModule("Utils")
 
--- Widgets
+-- Componentes de UI
 local MainFrame   = gUI:GetModule("MainFrame")
 local Header      = gUI:GetModule("Header")
 local Searchbox   = gUI:GetModule("Searchbox")
 local Collapsible = gUI:GetModule("Collapsible")
 local Popup       = gUI:GetModule("Popup")
 
--- Panel Name
 local PANEL_NAME = "Others"
 
 function Others:OnEnable()
@@ -20,25 +19,22 @@ function Others:OnEnable()
     self:RegisterMessage("GHOSTUI_FRAME_CHANGED", "OnFrameChanged")
 end
 
+-- Sincroniza el estado del collapsible si se cambia desde fuera (ej: comandos o base de datos)
+function Others:OnFrameChanged(_, frameName, field, value)
+    if field == "isEnabled" and self.collapsibles then
+        local co = self.collapsibles[frameName]
+        if co then co:SetStatus(value) end
+    end
+end
+
 function Others:OnEnter(_, panel)
     if panel == PANEL_NAME then self:Draw() end
 end
 
-function Others:OnFrameChanged(_, frameName, field, value)
-    -- Necesario obtener el cambio de estado de un frame
-    -- Para actualizar el collapsible
-    if field == "isEnabled" and self.collapsibles then
-        local co = self.collapsibles[frameName]
-        if co then
-            co:SetStatus(value)
-        end
-    end
-end
+---------------------------------------------------------------------
+-- DIBUJO DE COMPONENTES
+---------------------------------------------------------------------
 
----------------------------------------------------------------------
--- DRAWERS
----------------------------------------------------------------------
---- Cabecera con botón de Reset
 function Others:DrawHeader()
     local header = Header:Create(MainFrame.TopPanel, "Other Frames", function()
         Popup:Confirm("Are you sure you want to reset every frame's settings?", function()
@@ -53,26 +49,21 @@ end
 function Others:DrawSearchSection()
     local currentText = self.filterText or ""
     
-    -- 1. Recuperamos el diseño original (alignment, width, padding)
     self.sb = Searchbox:Create(MainFrame.Content, function(action, value)
-        if value == "" then 
+        if not value or value == "" then 
             return self.sb:SetFeedback("Enter a frame name", true) 
         end
         
         value = value:trim()
 
+        -- Gestión de alta/baja de frames personalizados
         if action == ns.ACTION.ADD then
             local success, err = Database:RegisterFrame({ 
                 name = value, alias = value, source = ns.SOURCE.OTHER 
             })
-            
-            if success then
-                self.filterText = "" -- Limpiamos búsqueda
-                self.pendingFeedback = { msg = "Added!", isError = false }
-            else
-                self.pendingFeedback = { msg = err, isError = true }
-            end
-            self:Draw() -- Redibuja todo el panel
+            self.filterText = success and "" or self.filterText
+            self.pendingFeedback = { msg = success and "Added!" or err, isError = not success }
+            self:Draw()
 
         elseif action == ns.ACTION.REMOVE then
             Database:UnregisterFrame(value)
@@ -80,19 +71,15 @@ function Others:DrawSearchSection()
             self:Draw()
         end
     end, nil, "Setup any frame", {
-        alignment = "CENTER",
-        x = 5,
-        width = 325,
-        padding = { top = 0, bottom = 35 }
+        alignment = "CENTER", x = 5, width = 325, padding = { top = 0, bottom = 35 }
     })
 
-    -- 2. Aplicamos feedback pendiente (si existe después del Draw)
+    -- Restaurar feedback y texto tras el redibujado
     if self.pendingFeedback then
         self.sb:SetFeedback(self.pendingFeedback.msg, self.pendingFeedback.isError)
         self.pendingFeedback = nil
     end
 
-    -- 3. Restaurar texto y lógica de filtrado
     self.sb.EditBox:SetText(currentText)
     self.sb.EditBox:SetScript("OnTextChanged", function(eb)
         SearchBoxTemplate_OnTextChanged(eb)
@@ -102,15 +89,12 @@ function Others:DrawSearchSection()
 end
 
 function Others:DrawFrameList()
-    self.collapsibles = {}
-    self.orderedList = {}
-    
+    self.collapsibles, self.orderedList = {}, {}
     local allFrames = Database:GetFrames()
 
     for frameName, data in pairs(allFrames) do
         if data.source == ns.SOURCE.OTHER then
             local co = Collapsible:Create(MainFrame.Content, data.alias or frameName, {
-                -- Layout de cada collapsible
                 margin  = { left = 70, right = 40 },
                 padding = { x = 10, top = 10, bottom = 20 },
             }, function()
@@ -126,23 +110,20 @@ function Others:DrawFrameList()
             self.collapsibles[frameName] = co
             table.insert(self.orderedList, co)
 
-            Builder:RenderSettings(co.Content, "frames", frameName, {
-                -- Layout de cada section dentro del collapsible
-            })
+            Builder:RenderSettings(co.Content, "frames", frameName, {})
             co:Refresh(false)
         end
     end
 end
 
 ---------------------------------------------------------------------
--- MÉTODOS PÚBLICOS
+-- MÉTODOS DE CONTROL
 ---------------------------------------------------------------------
+
 function Others:Draw()
     MainFrame:ClearAll()
 
     Utils:RegisterLayout(MainFrame.Content, { 
-        -- Layout del MainFrame.Content
-        -- Padre del searchbox y los collapsibles
         padding = { x = 68, top = 18, bottom = 52 }, 
         spacing = 8 
     })
@@ -151,6 +132,7 @@ function Others:Draw()
     self:DrawSearchSection()
     self:DrawFrameList()
 
+    -- Aplicar filtro si existe, si no, apilar normalmente
     if self.filterText and self.filterText ~= "" then
         self:UpdateList()
     else
@@ -158,6 +140,7 @@ function Others:Draw()
     end
 end
 
+-- Filtra los collapsibles en tiempo real según el texto de búsqueda
 function Others:UpdateList()
     local filter = self.filterText or ""
 

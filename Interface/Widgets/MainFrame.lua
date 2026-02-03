@@ -1,9 +1,4 @@
-﻿-- Documentación de Blizzard
--- (12.0.1.65448; unchanged since 10.2.7.54604)
--- https://www.townlong-yak.com/framexml/beta/Blizzard_Settings_Shared/Blizzard_SettingsPanelTemplates.xml
-
-local _, ns = ...
-
+﻿local _, ns = ...
 local MainFrame = gUI:NewModule("MainFrame", "AceEvent-3.0")
 local Utils = gUI:GetModule("Utils")
 local Database = gUI:GetModule("Database")
@@ -21,9 +16,8 @@ function MainFrame:OnEnable()
     self:CreateMainFrame()      -- 1. Contenedor base
     self:StylizeMainFrame()     -- 2. Estética (Blizzard Look)
     self:CreateTopPanel()       -- 3. Panel superior
-    self:CreateNavBar()         -- 4. Botones de navegación
-    self:CreateContentScroll()  -- 5. Área de scroll
-    self:NotifyOnOpen()         -- 6. Hooks de eventos
+    self:CreateContentScroll()  -- 4. Área de scroll
+    self:NotifyOnOpen()         -- 5. Hooks de eventos
 
     self.frame:Hide()
 end
@@ -31,6 +25,7 @@ end
 ---------------------------------------------------------------------
 -- CONTENEDOR PRINCIPAL
 ---------------------------------------------------------------------
+
 function MainFrame:CreateMainFrame()
     local f = CreateFrame("Frame", "GhostUIMainFrame", UIParent)
     f:SetSize(CFG.WIDTH, CFG.HEIGHT)
@@ -48,12 +43,13 @@ function MainFrame:CreateMainFrame()
 end
 
 ---------------------------------------------------------------------
--- ESTÉTICA (Fondo, Bordes y Título)
+-- ESTÉTICA (Fondo y Bordes)
 ---------------------------------------------------------------------
+
 function MainFrame:StylizeMainFrame()
     local f = self.frame
 
-    -- Fondo oscuro con template de Blizzard
+    -- Fondo oscuro
     f.Bg = CreateFrame("Frame", nil, f, "FlatPanelBackgroundTemplate")
     f.Bg:SetFrameLevel(0)
     f.Bg:SetPoint("TOPLEFT", 7, -18)
@@ -63,7 +59,7 @@ function MainFrame:StylizeMainFrame()
     f.Bg.Darkener:SetAllPoints()
     f.Bg.Darkener:SetColorTexture(0, 0, 0, CFG.ALPHA)
 
-    -- Bordes modernos (NineSlice)
+    -- Bordes modernos de Blizzard (NineSlice)
     f.NineSlice = CreateFrame("Frame", nil, f, "NineSlicePanelTemplate")
     f.NineSlice:SetAllPoints(f)
     Mixin(f.NineSlice, NineSlicePanelMixin)
@@ -71,24 +67,29 @@ function MainFrame:StylizeMainFrame()
     f.NineSlice:OnLoad()
     f.NineSlice:SetVertexColor(unpack(CFG.BORDER_COLOR))
 
-    -- Título y Botón cerrar
+    -- Título
     f.Title = f.NineSlice:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     f.Title:SetPoint("TOP", 0, -5)
     f.Title:SetText(CFG.TITLE)
 
+    -- Botón cerrar
     f.CloseButton = CreateFrame("Button", nil, f, "UIPanelCloseButtonDefaultAnchors")
     f.CloseButton:SetScript("OnClick", function() f:Hide() end)
 end
 
 ---------------------------------------------------------------------
--- TOP PANEL
+-- NAVEGACIÓN Y PANELES
 ---------------------------------------------------------------------
+
 function MainFrame:CreateTopPanel()
     self.TopPanel = CreateFrame("Frame", nil, self.frame)
     self.TopPanel:SetPoint("TOPLEFT", 0, CFG.TOP_OFFSET)
     self.TopPanel:SetPoint("TOPRIGHT", 0, CFG.TOP_OFFSET)
     
-    Utils:RegisterLayout(self.TopPanel, { padding = {top = 3, bottom = 5, left = 28, right = 28}, spacing = 10 })
+    Utils:RegisterLayout(self.TopPanel, { 
+        padding = {top = 3, bottom = 5, left = 28, right = 28}, 
+        spacing = 10 
+    })
 end
 
 function MainFrame:CreateNavBar()
@@ -110,13 +111,14 @@ function MainFrame:CreateNavBar()
 end
 
 ---------------------------------------------------------------------
--- CONTENT SCROLL
+-- ÁREA DE CONTENIDO
 ---------------------------------------------------------------------
+
 function MainFrame:CreateContentScroll()
     local ScrollWidget = gUI:GetModule("Scroll")
     local scroll, content = ScrollWidget:Create(self.frame)
     
-    -- Anclaje dinámico al TopPanel
+    -- Anclaje dinámico
     scroll:SetPoint("TOPLEFT", self.TopPanel, "BOTTOMLEFT", 0, -10)
     scroll:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -30, 15)
     
@@ -125,8 +127,9 @@ function MainFrame:CreateContentScroll()
 end
 
 ---------------------------------------------------------------------
--- API
+-- API PÚBLICA
 ---------------------------------------------------------------------
+
 function MainFrame:Toggle()
     self.frame:SetShown(not self.frame:IsShown())
 end
@@ -137,6 +140,7 @@ function MainFrame:OpenPanel(panelName)
     self:SendMessage("GHOSTUI_PANEL_CHANGED", panelName)
 end
 
+-- Actualiza la UI cuando el addon se activa/desactiva globalmente
 function MainFrame:UpdateUIVisuals(addonEnabled)
     local Navbar = gUI:GetModule("Navbar")
     
@@ -148,6 +152,7 @@ function MainFrame:UpdateUIVisuals(addonEnabled)
     end
 end
 
+-- Permite a los módulos registrar su cabecera para controlarla globalmente
 function MainFrame:RegisterHeader(headerFrame)
     self.currentHeader = headerFrame
     local addonEnabled = Database:GetGlobals().addonEnabled
@@ -155,17 +160,21 @@ function MainFrame:RegisterHeader(headerFrame)
 end
 
 ---------------------------------------------------------------------
--- INTERNAL
+-- LÓGICA INTERNA
 ---------------------------------------------------------------------
+
 function MainFrame:NotifyOnOpen()
     self.frame:SetScript("OnShow", function()
+        -- Al abrir, cargamos el panel por defecto (definido en el módulo Interface)
         gUI:GetModule("Interface"):SetupInitialPanel()
     end)
 end
 
 function MainFrame:ClearAll()
+    -- Usamos el Utils:Clear que definimos para ocultar y liberar hijos
     Utils:Clear(self.TopPanel)
     Utils:Clear(self.Content)
+    
     self.currentHeader = nil
-    self:CreateNavBar()
+    self:CreateNavBar() -- Re-creamos la navegación en el TopPanel limpio
 end

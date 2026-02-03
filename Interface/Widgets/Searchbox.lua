@@ -9,18 +9,23 @@ local Utils = gUI:GetModule("Utils")
 local function ShowFeedback(frame, text, isError)
     local label = frame.FeedbackText
     label:SetText(text)
-    label:SetTextColor(isError and 1 or 0, isError and 0 or 1, 0)
+    
+    -- Rojo para error, Verde para éxito
+    if isError then label:SetTextColor(1, 0, 0) else label:SetTextColor(0, 1, 0) end
     label:Show()
 
+    -- Reiniciar temporizador si ya existe uno activo
     if frame.feedbackTimer then frame.feedbackTimer:Cancel() end
     frame.feedbackTimer = C_Timer.NewTimer(3, function() label:Hide() end)
 end
 
 local function BindEvents(frame, onAction, tooltip)
     local eb = frame.EditBox
+
     frame.InsertBtn:SetScript("OnClick", function()
         if onAction then onAction(ns.ACTION.ADD, eb:GetText(), frame) end
     end)
+
     frame.RemoveBtn:SetScript("OnClick", function()
         if onAction then onAction(ns.ACTION.REMOVE, eb:GetText(), frame) end
     end)
@@ -37,12 +42,11 @@ local function BindEvents(frame, onAction, tooltip)
 end
 
 ---------------------------------------------------------------------
--- CONSTRUCTORES DE BLOQUES (PARA VSTACK)
+-- CONSTRUCTORES DE BLOQUES
 ---------------------------------------------------------------------
 
--- Título
 local function CreateTitleBlock(frame, text)
-    if not text then return nil end
+    if not text then return end
     local block = CreateFrame("Frame", nil, frame)
     block:SetSize(1, 15)
     
@@ -55,13 +59,11 @@ local function CreateTitleBlock(frame, text)
     return block
 end
 
--- Input (EditBox + Feedback)
 local function CreateInputBlock(frame, width)
     local eb = CreateFrame("EditBox", nil, frame, "SearchBoxTemplate")
     eb:SetSize(width - 40, 25)
     eb.customAlign = { alignment = "CENTER" }
     
-    -- Texto de Feedback
     local fs = eb:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     fs:SetPoint("LEFT", eb, "RIGHT", 10, 0)
     fs:SetJustifyH("LEFT")
@@ -72,7 +74,6 @@ local function CreateInputBlock(frame, width)
     return eb
 end
 
--- Botones
 local function CreateButtonsBlock(frame)
     local container = CreateFrame("Frame", nil, frame)
     container:SetHeight(22)
@@ -93,7 +94,6 @@ end
 ---------------------------------------------------------------------
 
 function Searchbox:Create(parent, onAction, tooltip, title, layout)
-    -- Configuración de Layout
     local config = Utils:GetLayout(layout, {
         width = 400,
         alignment = "LEFT",
@@ -101,23 +101,23 @@ function Searchbox:Create(parent, onAction, tooltip, title, layout)
         padding = 5
     })
 
-    -- Contenedor Base
     local frame = CreateFrame("Frame", nil, parent)
     frame:SetWidth(config.width)
     frame.customAlign = config
 
-    -- Crear los hijos
+    -- Construcción jerárquica
     CreateTitleBlock(frame, title)
-    local eb = CreateInputBlock(frame, config.width)
+    CreateInputBlock(frame, config.width)
     CreateButtonsBlock(frame)
 
-    -- Aplicar VStack interno
+    -- Apilado automático de los bloques internos
     Utils:VStack(frame, config.spacing, config.padding)
 
-    -- Finalizar
     BindEvents(frame, onAction, tooltip)
     
+    -- API Pública
     function frame:SetFeedback(text, isError) ShowFeedback(self, text, isError) end
+
     function frame:SetButtonState(enabled)
         self:SetAlpha(enabled and 1 or 0.4)
         self.EditBox:SetEnabled(enabled)

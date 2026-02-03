@@ -25,7 +25,7 @@ function Events:OnDisable()
             self:CancelTimer(self[key .. "_Timer"])
             self[key .. "_Timer"] = nil
         end
-        gUI:EnableModule(moduleName, false)
+        gUI:DisableModule(moduleName)
     end
     ns.States = {}
 end
@@ -37,15 +37,14 @@ function Events:RefreshAllDetectors()
 end
 
 -- Entrada principal: invocada directamente por los detectores para evitar lag de AceEvent
-function Events:OnEvent(event, state, extra, noDelay)
+function Events:RegisterEvent(event, state, extra)
     if self[event .. "_Timer"] then
         self:CancelTimer(self[event .. "_Timer"])
         self[event .. "_Timer"] = nil
     end
 
-    -- Retardo para transiciones a 'false' (ej. salir de combate)
     local delayKey = DELAY_CONFIG[event]
-    if not noDelay and delayKey and not state then
+    if delayKey and state == false then
         local delay = gUI:GetModule("Database"):GetGlobals()[delayKey] or 0
         if delay > 0 then
             self[event .. "_Timer"] = self:ScheduleTimer("PublishState", delay, event, state, extra)

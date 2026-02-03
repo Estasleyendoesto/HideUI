@@ -28,7 +28,7 @@ function Mount:UpdateMount(force)
     if force or currentState ~= self.lastState then
         self.lastState = currentState
         -- Llamada directa para evitar el overhead de AceEvent
-        gUI:GetModule("Events"):OnEvent("MOUNT", currentState, nil, force)
+        gUI:GetModule("Events"):RegisterEvent("MOUNT", currentState)
     end
 end
 

@@ -5,7 +5,7 @@ local Utils = gUI:GetModule("Utils")
 ---------------------------------------------------------------------
 -- ESTÉTICA (INTERNO)
 ---------------------------------------------------------------------
--- Configura las texturas y fuentes del botón (Header)
+
 local function ApplyHeaderStyles(header, title, config)
     local offL, offR = config.headerLeft, config.headerRight
 
@@ -30,33 +30,37 @@ local function ApplyHeaderStyles(header, title, config)
 end
 
 local function SetEnabledVisual(header, isEnabled)
-    local r, g, b = isEnabled and 0 or 1, 1, isEnabled and 0 or 1
-    header.Left:SetVertexColor(r, g, b)
-    header.Mid:SetVertexColor(r, g, b)
-    header.Right:SetVertexColor(r, g, b)
+    -- Verde si está activo, Blanco si está suspendido
+    local r = isEnabled and 0 or 1
+    local b = isEnabled and 0 or 1
+    header.Left:SetVertexColor(r, 1, b)
+    header.Mid:SetVertexColor(r, 1, b)
+    header.Right:SetVertexColor(r, 1, b)
 end
 
 ---------------------------------------------------------------------
 -- LÓGICA DE ESTADO (INTERNO)
 ---------------------------------------------------------------------
+
 local function UpdateCollapsibleState(container, forceState)
     local header  = container.Header
     local content = container.Content
     
-    -- Determinar si expandir o contraer
+    -- Determinamos el estado de forma explícita para evitar errores con valores 'false'
     local isExpanded
     if forceState ~= nil then
         isExpanded = forceState
     else
         isExpanded = not content:IsShown()
     end
+
     content:SetShown(isExpanded)
 
     -- Icono de expansión
     local atlas = isExpanded and "Options_ListExpand_Right_Expanded" or "Options_ListExpand_Right"
     header.Right:SetAtlas(atlas, true)
     
-    -- CALCULO DE ALTURA DINÁMICA
+    -- Cálculo de altura dinámica
     local height = header:GetHeight()
     if isExpanded then
         height = height + content:GetHeight()
@@ -64,6 +68,7 @@ local function UpdateCollapsibleState(container, forceState)
 
     container:SetHeight(height)
     
+    -- Notificar al padre (MainFrame.Content) para que re-apile el resto de elementos
     if container.parent then
         Utils:VStack(container.parent)
     end
@@ -75,26 +80,16 @@ local function CreateDeleteButton(header, onDelete, config)
     btn:SetPoint("RIGHT", header, "RIGHT", config.headerRight - 30, 0)
     btn:SetFrameLevel(header:GetFrameLevel() + 10)
 
-    local text = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    text:SetPoint("CENTER")
-    text:SetText("del")
-    text:SetTextColor(1, 1, 1, 0.5) 
-    btn.Text = text
+    btn.Text = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    btn.Text:SetPoint("CENTER")
+    btn.Text:SetText("del")
+    btn.Text:SetTextColor(1, 1, 1, 0.5) 
 
-    btn:SetScript("OnEnter", function(self) 
-        self.Text:SetTextColor(1, 1, 1, 1)
-    end)
-    
-    btn:SetScript("OnLeave", function(self) 
-        self.Text:SetTextColor(1, 1, 1, 0.5) 
-    end)
-
+    btn:SetScript("OnEnter", function(self) self.Text:SetTextColor(1, 1, 1, 1) end)
+    btn:SetScript("OnLeave", function(self) self.Text:SetTextColor(1, 1, 1, 0.5) end)
     btn:SetScript("OnMouseDown", function(self) self.Text:SetPoint("CENTER", 1, -1) end)
     btn:SetScript("OnMouseUp", function(self) self.Text:SetPoint("CENTER", 0, 0) end)
-
-    btn:SetScript("OnClick", function()
-        onDelete()
-    end)
+    btn:SetScript("OnClick", onDelete)
 
     header.DeleteBtn = btn
 end
@@ -102,6 +97,7 @@ end
 ---------------------------------------------------------------------
 -- CONSTRUCTOR
 ---------------------------------------------------------------------
+
 function Collapsible:Create(parent, title, layout, onDelete)
     local config = Utils:GetLayout(layout, {
         margin = { left = 0, right = 0 },
@@ -109,29 +105,27 @@ function Collapsible:Create(parent, title, layout, onDelete)
         spacing = 10, 
         headerLeft = 30,
         headerRight = -12, 
-        headerHeight  = 25,
+        headerHeight = 25,
     })
 
-    -- Contenedor Principal
     local container = CreateFrame("Frame", nil, parent)
     container:SetWidth(parent:GetWidth())
     container.parent = parent
     container.layoutConfig = config
 
-    -- Header (button)
     local header = CreateFrame("Button", nil, container)
     header:SetPoint("TOPLEFT")
     header:SetPoint("TOPRIGHT")
     ApplyHeaderStyles(header, title, config)
     if onDelete then CreateDeleteButton(header, onDelete, config) end
     
-    -- Contenido (Frame contenedor de widgets)
     local content = CreateFrame("Frame", nil, container)
     content:SetPoint("TOPLEFT", header, "BOTTOMLEFT", config.margin.left, 0)
     content:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", -config.margin.right, 0)
+    
+    -- Importante: El contenido nace oculto
     content:Hide()
 
-    -- Referencias internas
     container.Header  = header
     container.Content = content
     container.Content.layoutConfig = config
@@ -146,10 +140,7 @@ function Collapsible:Create(parent, title, layout, onDelete)
         UpdateCollapsibleState(self, forceState)
     end
 
-    -- Eventos
-    header:SetScript("OnClick", function() 
-        container:Refresh() 
-    end)
+    header:SetScript("OnClick", function() container:Refresh() end)
 
     return container
 end

@@ -20,6 +20,7 @@ Libs\AceTimer-3.0\AceTimer-3.0.xml
 
 ## Core
 Core.lua
+Bindings.lua
 Commands.lua
 Data\Defaults.lua
 Data\Database.lua

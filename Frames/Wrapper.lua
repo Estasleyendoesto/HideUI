@@ -6,9 +6,12 @@ Wrapper.__index = Wrapper
 ---------------------------------------------------------------------
 -- Configuración y Estados
 ---------------------------------------------------------------------
+
 function Wrapper:UpdateConfig(frameConfig, globalConfig)
     self.config, self.globals = frameConfig, globalConfig
-    self:Refresh(true)
+    -- Eliminamos el 'true' para que los cambios de configuración 
+    -- se apliquen con una transición suave.
+    self:Refresh()
 end
 
 function Wrapper:UpdateState(event, state)
@@ -37,10 +40,10 @@ function Wrapper:GetTargetAlpha()
 
     local data = self.config.isEnabled and self.config or self.globals
 
-    -- 1. Mouseover (Prioridad Máxima)
+    -- 1. Prioridad: Mouseover
     if self.isMouseOver and data.useMouseover then return 1.0 end
 
-    -- 2. Estados dinámicos (COMBAT, AFK, etc.)
+    -- 2. Prioridad: Estados (COMBAT, AFK, etc.)
     local state = self:GetNextState(data) 
     if state then return data[state .. "Alpha"] or 0 end
 
@@ -51,6 +54,7 @@ end
 ---------------------------------------------------------------------
 -- Motor de Actualización (Ticker-ready)
 ---------------------------------------------------------------------
+
 function Wrapper:OnUpdate()
     if not self.frame or not self.config or self.config.ignoreFrame then return end
 
@@ -61,7 +65,7 @@ function Wrapper:OnUpdate()
         self:Refresh()
     end
 
-    -- Corrección de Alpha externo (evita que otros addons o Blizzard lo pisen)
+    -- Corrección de Alpha externo
     if not self.frame.fadeInfo then
         local target = self:GetTargetAlpha()
         if math.abs(self.frame:GetAlpha() - target) > 0.01 then
@@ -84,6 +88,8 @@ function Wrapper:Refresh(instant)
     
     self.targetAlpha = target
 
+    -- Si el frame está oculto, el alpha se pone al instante para que 
+    -- al mostrarse (OnShow) ya tenga el valor base o inicie el fade desde ahí.
     if instant or self.forceAlpha or not self.frame:IsVisible() then
         self:SetAlpha(target)
     else
@@ -94,6 +100,7 @@ end
 ---------------------------------------------------------------------
 -- Control Visual
 ---------------------------------------------------------------------
+
 function Wrapper:Fade(targetAlpha)
     local currentAlpha = self.frame:GetAlpha()
     if currentAlpha == targetAlpha then return end
@@ -101,7 +108,14 @@ function Wrapper:Fade(targetAlpha)
     self:StopFade()
 
     local data = self.config.isEnabled and self.config or self.globals
-    local duration = self.isMouseOver and (data.mouseoverFadeInDuration or 0.3) or (data.mouseoverFadeOutDuration or 0.4)
+    
+    -- Definimos duración según el contexto (Mouseover > Fade Out > Default)
+    local duration = 0.3
+    if self.isMouseOver then
+        duration = data.mouseoverFadeInDuration or 0.3
+    elseif targetAlpha < currentAlpha then 
+        duration = data.mouseoverFadeOutDuration or 0.4
+    end
 
     UIFrameFade(self.frame, {
         mode = (targetAlpha > currentAlpha) and "IN" or "OUT",
@@ -127,6 +141,7 @@ end
 ---------------------------------------------------------------------
 -- Ciclo de Vida
 ---------------------------------------------------------------------
+
 function Wrapper:Create(name, isVirtual)
     local realFrame = _G[name]
     if not isVirtual and not realFrame then return nil end
@@ -142,11 +157,13 @@ function Wrapper:Create(name, isVirtual)
         end
     end
 
+    -- Hook al OnShow: permite que el frame haga fade-in cada vez que aparece
     if not isVirtual and obj.frame then
         obj:SecureHookScript(obj.frame, "OnShow", "Refresh")
     end
     
-    obj:Refresh(true)
+    -- Quitamos el 'true' para permitir que el frame entre con suavidad al cargar
+    obj:Refresh()
     return obj
 end
 

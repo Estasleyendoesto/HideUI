@@ -1,18 +1,18 @@
 ﻿local _, ns = ...
 local Slider = gUI:NewModule("Slider")
-local Utils = gUI:GetModule("Utils")
 
 ---------------------------------------------------------------------
 -- ESTÉTICA (INTERNO)
 ---------------------------------------------------------------------
+
 local function ApplyStyle(frame)
-    -- Botón Atrás
+    -- Botón Atrás (Alineación y Textura)
     frame.Back:SetSize(11, 18)
     frame.Back.tex = frame.Back:CreateTexture(nil, "BACKGROUND")
     frame.Back.tex:SetAtlas("Minimal_SliderBar_Button_Left", true)
     frame.Back.tex:SetAllPoints()
 
-    -- Botón Adelante
+    -- Botón Adelante (Alineación y Textura)
     frame.Forward:SetSize(9, 18)
     frame.Forward.tex = frame.Forward:CreateTexture(nil, "BACKGROUND")
     frame.Forward.tex:SetAtlas("Minimal_SliderBar_Button_Right", true)
@@ -20,11 +20,13 @@ local function ApplyStyle(frame)
 end
 
 ---------------------------------------------------------------------
--- FORMATEO DE TEXTO (INTERNO)
+-- FORMATEO Y EVENTOS (INTERNO)
 ---------------------------------------------------------------------
+
 local function UpdateValueText(frame, value, unit)
     local text = ""
     if unit == "%" then
+        -- Cálculo de porcentaje: value * 100
         text = string.format("%.0f%%", value * 100)
     else
         text = string.format("%.1f%s", value, unit or "")
@@ -32,25 +34,22 @@ local function UpdateValueText(frame, value, unit)
     frame.ValueText:SetText(text)
 end
 
----------------------------------------------------------------------
--- EVENTOS (INTERNO)
----------------------------------------------------------------------
 local function BindEvents(frame, onUpdate, tooltip, label, settings)
     local s = frame.Widget
     local step = settings.step or 0.1
 
-    -- Cambio de valor
+    -- Manejo del cambio de valor (con redondeo a 2 decimales para evitar imprecisiones)
     s:SetScript("OnValueChanged", function(self, value)
         local rounded = tonumber(string.format("%.2f", value))
         UpdateValueText(frame, rounded, settings.unit)
         if onUpdate then onUpdate(self, rounded) end
     end)
 
-    -- Botones de paso fino
+    -- Botones de ajuste fino
     frame.Back:SetScript("OnClick", function() s:SetValue(s:GetValue() - step) end)
     frame.Forward:SetScript("OnClick", function() s:SetValue(s:GetValue() + step) end)
 
-    -- Tooltip
+    -- Gestión del Tooltip
     if tooltip then
         frame:SetScript("OnEnter", function(self)
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -65,19 +64,21 @@ end
 ---------------------------------------------------------------------
 -- CONSTRUCTOR
 ---------------------------------------------------------------------
+
 function Slider:Create(parent, label, onUpdate, tooltip, settings)
+    -- Valores por defecto si no se pasan en la tabla settings
     settings = settings or { min = 0, max = 1, step = 0.1, default = 0.5, unit = "" }
 
-    -- Contenedor maestro
+    -- Contenedor principal
     local frame = CreateFrame("Frame", nil, parent)
-    frame:SetSize(280, 42) -- Un poco más alto para que respire el texto
+    frame:SetSize(280, 42) 
 
-    -- Label Superior
+    -- Título del Slider
     frame.Label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     frame.Label:SetPoint("TOPLEFT", 5, 0)
     frame.Label:SetText(label)
 
-    -- Slider (Widget)
+    -- El Widget Slider (Usando la plantilla de Blizzard)
     local s = CreateFrame("Slider", nil, frame, "MinimalSliderTemplate")
     s:SetPoint("TOPLEFT", 20, -18)
     s:SetPoint("TOPRIGHT", -45, -18)
@@ -87,29 +88,28 @@ function Slider:Create(parent, label, onUpdate, tooltip, settings)
     s:SetValue(settings.default)
     frame.Widget = s
 
-    -- Botones y Texto de Valor
+    -- Botones laterales
     frame.Back = CreateFrame("Button", nil, frame)
     frame.Back:SetPoint("RIGHT", s, "LEFT", -5, 0)
 
     frame.Forward = CreateFrame("Button", nil, frame)
     frame.Forward:SetPoint("LEFT", s, "RIGHT", 5, 0)
 
+    -- Texto indicador del valor actual
     frame.ValueText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     frame.ValueText:SetPoint("LEFT", frame.Forward, "RIGHT", 5, 0)
     
-    -- Inicializar
+    -- Inicialización visual y lógica
     ApplyStyle(frame)
     BindEvents(frame, onUpdate, tooltip, label, settings)
     UpdateValueText(frame, settings.default, settings.unit)
 
-    -- API Pública
+    -- API Pública de control
     function frame:SetEnabled(enabled)
         self:SetAlpha(enabled and 1 or 0.4)
-
         self.Widget:SetEnabled(enabled)
         self.Back:SetEnabled(enabled)
         self.Forward:SetEnabled(enabled)
-
         self:EnableMouse(enabled)
     end
 

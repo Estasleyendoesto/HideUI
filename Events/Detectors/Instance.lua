@@ -23,7 +23,7 @@ function Instance:UpdateInstance(force)
         self.lastState = currentState
         
         -- Enviamos iType como 'extra' para gestión de prioridades en Events.lua
-        gUI:GetModule("Events"):OnEvent("INSTANCE", currentState, iType, force)
+        gUI:GetModule("Events"):RegisterEvent("INSTANCE", currentState, iType)
     end
 end
 

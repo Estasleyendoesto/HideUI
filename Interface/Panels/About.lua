@@ -17,40 +17,43 @@ function About:OnEnter(_, panel)
 end
 
 function About:Draw()
-    -- Ocultamos el scrollbar
-    -- Si la lista de traductores crece o se redimensiona el MainFrame
-    -- Eliminar o comentar esta linea
+    -- 1. Preparar el contenedor
+    -- Ocultamos el scrollbar porque el contenido es corto y queda mejor visualmente
     MainFrame.ScrollFrame.ScrollBar:Hide()
-
     MainFrame:ClearAll()
+    
     local container = MainFrame.Content
 
-    -- Branding y Versión
+    -- 2. Branding y Versión
     Text:CreateHeadLine(container, "GhostUI", "gUI - 1.1.0")
 
-    -- Autoría
-    local authConfig = { centered = true, suffix = "", spacing = 10, xOffset = -18 }
-    Text:CreateDoubleLine(container, "Author", "Aeioux", authConfig)
-    Text:CreateDoubleLine(container, "Reign", "Sanguino (EU)", authConfig)
+    -- 3. Autoría (Configuración centrada)
+    local authCfg = { centered = true, suffix = "", spacing = 10, xOffset = -18 }
+    Text:CreateDoubleLine(container, "Author", "Aeioux", authCfg)
+    Text:CreateDoubleLine(container, "Reign", "Sanguino (EU)", authCfg)
 
-    CreateFrame("Frame", nil, container):SetHeight(25)
+    -- Espaciador manual
+    local spacer = CreateFrame("Frame", nil, container)
+    spacer:SetHeight(25)
 
-    -- Enlaces Oficiales
+    -- 4. Enlaces Oficiales
     local links = {
         { "Wago.io:", "wago.io/gUI" },
         { "CurseForge:", "curseforge.com/wow/addons/gUI" },
         { "WoWInterface:", "wowinterface.com/downloads/infoXXXX" },
         { "GitHub:", "github.com/Estasleyendoesto/gUI" }
     }
+    
     for _, l in ipairs(links) do 
         Link:Create(container, l[1], l[2]) 
     end
 
-    CreateFrame("Frame", nil, container):SetHeight(35)
-
-    -- Traductores (Ahora no hay ninguna)
+    -- 5. Traductores (Sección escalable)
+    -- Para activarla, descomenta el bloque y ajusta el padding.top a 8 en el Layout final.
     --[[
     local sharedOffset = 18
+    CreateFrame("Frame", nil, container):SetHeight(35)
+    
     Text:CreateSingleLine(container, "SPECIAL THANKS TO OUR TRANSLATORS", {
         align = "LEFT", 
         xOffset = sharedOffset, 
@@ -74,10 +77,12 @@ function About:Draw()
     end
     --]]
 
-    -- Configuración Final del Layout
+    -- 6. Configuración Final del Layout
+    -- Si activas los traductores, cambia top a 8 para que todo quepa sin scroll.
     Utils:RegisterLayout(container, {
-        padding = {left = 110, right = 90, top = 48, bottom = 60}, -- top = 8, si se descomenta los traductores
+        padding = { left = 110, right = 90, top = 48, bottom = 60 },
         spacing = 8
     })
+    
     Utils:VStack(container)
 end

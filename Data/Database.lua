@@ -3,6 +3,7 @@
 
 local _, ns = ...
 local Database = gUI:NewModule("Database", "AceEvent-3.0")
+Database:SetDefaultModuleState(false)
 
 -- Constantes internas
 local DEFAULT_PROFILE = "Default"

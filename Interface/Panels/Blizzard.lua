@@ -5,13 +5,12 @@ local Database = gUI:GetModule("Database")
 local Builder  = gUI:GetModule("Builder")
 local Utils    = gUI:GetModule("Utils")
 
--- Widgets
+-- Componentes de UI
 local MainFrame   = gUI:GetModule("MainFrame")
 local Collapsible = gUI:GetModule("Collapsible")
 local Header      = gUI:GetModule("Header")
 local Popup       = gUI:GetModule("Popup")
 
--- Panel Name
 local PANEL_NAME = "Blizzard"
 
 function Blizzard:OnEnable()
@@ -19,33 +18,21 @@ function Blizzard:OnEnable()
     self:RegisterMessage("GHOSTUI_FRAME_CHANGED", "OnFrameChanged")
 end
 
-function Blizzard:OnEnter(event, panel)
-    if panel == PANEL_NAME then self:Draw() end
-end
-
-function Blizzard:OnFrameChanged(event, frameName, field, value)
-    -- Necesario obtener el cambio de estado de un frame
-    -- Para actualizar el estado del collapsible
-    if field == "isEnabled" then
-        local co = self.collapsibles and self.collapsibles[frameName]
-        if co then
-            co:SetStatus(value)
-        end
+-- Actualiza visualmente el check del collapsible si el estado cambia externamente
+function Blizzard:OnFrameChanged(_, frameName, field, value)
+    if field == "isEnabled" and self.collapsibles then
+        local co = self.collapsibles[frameName]
+        if co then co:SetStatus(value) end
     end
 end
 
-function Blizzard:Draw()
-    MainFrame:ClearAll()
-
-    self:DrawHeader()
-    self:DrawFrameList()
-
-    Utils:RegisterLayout(MainFrame.Content, { 
-        -- El contenedor de los collapsibles
-        padding = {x = 68, top = 18, bottom = 52} 
-    })
-    Utils:VStack(MainFrame.Content)
+function Blizzard:OnEnter(_, panel)
+    if panel == PANEL_NAME then self:Draw() end
 end
+
+---------------------------------------------------------------------
+-- DIBUJO DE COMPONENTES
+---------------------------------------------------------------------
 
 function Blizzard:DrawHeader()
     Header:Create(MainFrame.TopPanel, "Blizzard Frames", function()
@@ -59,27 +46,41 @@ end
 
 function Blizzard:DrawFrameList()
     self.collapsibles = {}
-    local order = ns.FRAME_REGISTRY
+    local registry = ns.FRAME_REGISTRY
 
-    for _, entry in ipairs(order) do
+    for _, entry in ipairs(registry) do
         local isRegistered, frame = Database:IsFrameRegistered(entry.name)
         
+        -- Solo dibujamos si está en la DB y su origen es Blizzard
         if isRegistered and frame.source == ns.SOURCE.BLIZZARD then
             local co = Collapsible:Create(MainFrame.Content, entry.alias, {
-                -- Layout de cada collapsible
                 margin  = { left = 70, right = 40 },
                 padding = { x = 10, top = 10, bottom = 20 },
             })
 
-            -- Estado inicial del collapsible
             co:SetStatus(frame.isEnabled)
             self.collapsibles[entry.name] = co
 
-            Builder:RenderSettings(co.Content, "frames", entry.name, {
-                -- Layout de cada section dentro del collapsible
-            })
+            -- Renderizado dinámico de las opciones del frame
+            Builder:RenderSettings(co.Content, "frames", entry.name, {})
             co:Refresh(false)
         end
     end
 end
 
+---------------------------------------------------------------------
+-- RENDERIZADO PRINCIPAL
+---------------------------------------------------------------------
+
+function Blizzard:Draw()
+    MainFrame:ClearAll()
+
+    self:DrawHeader()
+    self:DrawFrameList()
+
+    -- Aplicamos el layout al contenedor principal de contenido
+    Utils:RegisterLayout(MainFrame.Content, { 
+        padding = { x = 68, top = 18, bottom = 52 } 
+    })
+    Utils:VStack(MainFrame.Content)
+end

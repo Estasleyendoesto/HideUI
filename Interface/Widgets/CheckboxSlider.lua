@@ -1,22 +1,21 @@
 ﻿local _, ns = ...
 local CheckboxSlider = gUI:NewModule("CheckboxSlider")
-local Utils = gUI:GetModule("Utils")
 
 ---------------------------------------------------------------------
 -- COMPORTAMIENTO (INTERNO)
 ---------------------------------------------------------------------
+
 local function BindComboEvents(cbControl, sliderControl, onUpdate)
-    -- Referencia al CheckButton real
     local cb = cbControl.Checkbox
 
-    -- Hook al OnClick del checkbox
+    -- Vinculamos el estado del slider al valor del checkbox
     cb:HookScript("OnClick", function(self)
         local isChecked = self:GetChecked()
         
-        -- El slider se habilita/deshabilita según el checkbox
+        -- El slider se habilita/deshabilita dinámicamente
         sliderControl:SetEnabled(isChecked)
         
-        -- Callback general: (checked, sliderValue)
+        -- Ejecutamos el callback pasando ambos valores
         if onUpdate then 
             onUpdate(isChecked, sliderControl.Widget:GetValue()) 
         end
@@ -26,6 +25,7 @@ end
 ---------------------------------------------------------------------
 -- CONSTRUCTOR
 ---------------------------------------------------------------------
+
 function CheckboxSlider:Create(parent, label, onUpdate, tooltip, settings)
     local Checkbox = gUI:GetModule("Checkbox")
     local Slider   = gUI:GetModule("Slider")
@@ -34,11 +34,11 @@ function CheckboxSlider:Create(parent, label, onUpdate, tooltip, settings)
     local root = CreateFrame("Frame", nil, parent)
     root:SetSize(280, 55)
 
-    -- Checkbox
+    -- 1. Checkbox (Elemento Maestro)
     local cb = Checkbox:Create(root, label, nil, tooltip, settings.cbDefault)
     cb:SetPoint("TOPLEFT", 0, 0)
 
-    -- Slider
+    -- 2. Configuración del Slider (Elemento Esclavo)
     local sliderSettings = {
         min     = settings.min or 0,
         max     = settings.max or 1,
@@ -47,20 +47,21 @@ function CheckboxSlider:Create(parent, label, onUpdate, tooltip, settings)
         unit    = settings.unit or ""
     }
     
-    -- Creamos el slider como hijo del root
-    local slider = Slider:Create(root, "", function(self, value)
+    -- El callback del slider también debe informar del estado del checkbox
+    local slider = Slider:Create(root, "", function(_, value)
         if onUpdate then onUpdate(cb.Checkbox:GetChecked(), value) end
     end, nil, sliderSettings)
     
-    -- Posicionamiento del slider
+    -- Posicionamiento relativo al Checkbox
+    -- Ocultamos su label para usar el del Checkbox y ahorrar espacio
     slider:SetPoint("TOPLEFT", cb, "BOTTOMLEFT", 38, 18)
     slider:SetPoint("TOPRIGHT", 0, 18)
     slider.Label:Hide()
 
-    -- Unión de piezas
+    -- 3. Unión de piezas y lógica de dependencia
     BindComboEvents(cb, slider, onUpdate)
 
-    -- Inicialización de estado visual
+    -- Estado inicial: el slider nace según esté el checkbox
     slider:SetEnabled(settings.cbDefault)
 
     -- API Pública
@@ -71,6 +72,7 @@ function CheckboxSlider:Create(parent, label, onUpdate, tooltip, settings)
         self:SetAlpha(enabled and 1 or 0.4)
         self.Checkbox:SetEnabled(enabled)
 
+        -- Lógica de cascada: el slider solo se activa si el root Y el checkbox lo permiten
         local shouldEnableSlider = enabled and self.Checkbox.Checkbox:GetChecked()
         self.Slider:SetEnabled(shouldEnableSlider)
 

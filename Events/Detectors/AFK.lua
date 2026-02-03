@@ -20,7 +20,7 @@ function AFK:UpdateAFK(force)
         self.lastState = currentState
         
         -- Invocación directa para evitar la latencia y fallos de registro de AceEvent
-        gUI:GetModule("Events"):OnEvent("AFK", currentState, nil, force)
+        gUI:GetModule("Events"):RegisterEvent("AFK", currentState)
     end
 end
 
