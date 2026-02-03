@@ -30,7 +30,7 @@ function About:Draw()
 
     -- Autoría
     local authConfig = { centered = true, suffix = "", spacing = 10, xOffset = -18 }
-    Text:CreateDoubleLine(container, "Author", "Astroboy", authConfig)
+    Text:CreateDoubleLine(container, "Author", "Aeioux", authConfig)
     Text:CreateDoubleLine(container, "Reign", "Sanguino (EU)", authConfig)
 
     CreateFrame("Frame", nil, container):SetHeight(25)

@@ -19,9 +19,17 @@ ns.ACTION = {
     REMOVE = "remove",
 }
 
+ns.PRIORITIES = {
+    COMBAT   = 100,
+    INSTANCE = 80,
+    AFK      = 50,
+    MOUNT    = 10,
+}
+
 ns.FRAME_REGISTRY = {
     -- Chatbox
-    {name = "Chatbox",                             alias = "Chat", isGroup = true, useTextMode = false},
+    {name = "Chatbox",                             alias = "Chat", isVirtual = true, useTextMode = false},
+    {name = "QuickJoinToastButton",                alias = "Quick Join"},
     -- Frames
     {name = "PlayerFrame",                         alias = "Player"},
     {name = "TargetFrame",                         alias = "Target"},
@@ -41,7 +49,7 @@ ns.FRAME_REGISTRY = {
     {name = "StanceBar",                           alias = "Stance Bar"},
     {name = "PartyFrame",                          alias = "Party Frame"},
     -- Spell Bars
-    {name = "MainMenuBar",                         alias = "Action Bar 1"},
+    {name = "MainActionBar",                         alias = "Action Bar 1"},
     {name = "MultiBarBottomLeft",                  alias = "Action Bar 2"},
     {name = "MultiBarBottomRight",                 alias = "Action Bar 3"},
     {name = "MultiBarRight",                       alias = "Action Bar 4"},
@@ -77,7 +85,7 @@ ns.DEFAULT_FRAME_SETTINGS = {
     useMount = true,
     useInstance = true,
     --Group of frames as one
-    isGroup = false,
+    isVirtual = false,
 }
 
 ns.DEFAULT_GLOBAL_SETTINGS = {

@@ -16,6 +16,7 @@ Libs\AceHook-3.0\AceHook-3.0.lua
 Libs\AceDB-3.0\AceDB-3.0.lua
 Libs\AceConsole-3.0\AceConsole-3.0.xml
 Libs\AceLocale-3.0\AceLocale-3.0.xml
+Libs\AceTimer-3.0\AceTimer-3.0.xml
 
 ## Main loader
 main.lua
@@ -27,7 +28,6 @@ Data\Schema.lua
 
 ## Interface
 Interface\Utils.lua
-
 Interface\Widgets\Button.lua
 Interface\Widgets\Scroll.lua
 Interface\Widgets\Navbar.lua
@@ -44,18 +44,27 @@ Interface\Widgets\Popup.lua
 Interface\Widgets\Searchbox.lua
 Interface\Widgets\Link.lua
 Interface\Widgets\Text.lua
-
 Interface\Interface.lua
 Interface\Builder.lua
-
-
 Interface\Panels\About.lua
 Interface\Panels\General.lua
 Interface\Panels\Blizzard.lua
 Interface\Panels\Others.lua
 
+## Events
+Events\Detectors\AFK.lua
+Events\Detectors\Combat.lua
+Events\Detectors\Instance.lua
+Events\Detectors\Mount.lua
+Events\Events.lua
 
-
+## Frames
+Frames\Wrapper.lua
+Frames\Manager.lua
+Frames\Custom\Chatbox.lua
+Frames\Blizzard\StatusTrackingBars.lua
+Frames\Blizzard\MainStatusTrackingBarContainer.lua
+Frames\Blizzard\SecondaryStatusTrackingBarContainer.lua
 
 
 
