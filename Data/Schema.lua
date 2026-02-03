@@ -98,7 +98,7 @@ ns.UI_SCHEMA = {
         combatEndDelay = { 
             type = "slider", 
             label = "Combat End Delay", 
-            min = 0, max = 2, step = 0.1, unit = "s",
+            min = 0, max = 5, step = 0.1, unit = "s",
             tooltip = "Time before the default opacity is restored after leaving combat." 
         },
     },

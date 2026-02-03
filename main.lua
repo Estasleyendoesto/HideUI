@@ -1,4 +1,5 @@
-﻿gUI = LibStub("AceAddon-3.0"):NewAddon("GhostUI", "AceEvent-3.0")
+﻿local _, ns = ...
+gUI = LibStub("AceAddon-3.0"):NewAddon("GhostUI", "AceEvent-3.0")
 gUI:SetDefaultModuleState(false)
 
 function gUI:OnEnable()
@@ -6,20 +7,25 @@ function gUI:OnEnable()
     self:EnableModule("Interface")
 
     local db = self:GetModule("Database")
-    self:OnGlobalChange(nil, "addonEnabled", db:GetGlobals().addonEnabled)
+    local enabled = db:GetGlobals().addonEnabled
 
+    self:ToggleModules(enabled)
     self:RegisterMessage("GHOSTUI_GLOBAL_CHANGED", "OnGlobalChange")
 end
 
 function gUI:OnGlobalChange(_, field, value)
     if field == "addonEnabled" then
-        if value then
-            self:EnableModule("FrameManager")
-            self:EnableModule("Events")
-        else
-            self:DisableModule("Events")
-            self:DisableModule("FrameManager")
-        end
+        self:ToggleModules(value)
+    end
+end
+
+function gUI:ToggleModules(enabled)
+    if enabled then
+        self:EnableModule("FrameManager")
+        self:EnableModule("Events")
+    else
+        self:DisableModule("Events")
+        self:DisableModule("FrameManager")
     end
 end
 

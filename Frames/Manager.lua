@@ -3,7 +3,8 @@ local Manager = gUI:NewModule("FrameManager", "AceEvent-3.0", "AceTimer-3.0")
 Manager:SetDefaultModuleState(false)
 
 local Database, Wrapper
-local SCAN = { interval = 2.0, tries = 5 }
+local SCAN  = { interval = 2.0, tries = 5 }
+local TIMER = { interval = 0.1 }
 
 ---------------------------------------------------------------------
 -- Ciclo de Vida
@@ -17,9 +18,13 @@ function Manager:OnEnable()
     self:RegisterMessage("GHOSTUI_FRAME_CHANGED", "OnFrameChange")
     
     self:RegisterFrames()
+    self.mainTicker = self:ScheduleRepeatingTimer("UpdateAllFrames", TIMER.interval)
 end
 
 function Manager:OnDisable()
+    if self.mainTicker then 
+        self:CancelTimer(self.mainTicker) 
+    end
     self:UnregisterFrames()
 end
 
@@ -27,25 +32,22 @@ end
 -- Manejadores de Eventos
 ---------------------------------------------------------------------
 function Manager:OnEvent(_, event, state)
+    if not ns.Frames then return end
     for _, wrapper in pairs(ns.Frames) do
         wrapper:UpdateState(event, state)
     end
 end
 
-function Manager:OnGlobalChange(_, field, value)
-    print("|cff00ff00gUI:|r Global ->", field, "=", value)
-    -- Si cambia algo global, todos los wrappers deben enterarse
+function Manager:OnGlobalChange()
     local glb = Database:GetGlobals()
     for _, wrapper in pairs(ns.Frames) do
         wrapper:UpdateConfig(wrapper.config, glb)
     end
 end
 
-function Manager:OnFrameChange(_, name, field, value)
-    print("|cff00ff00gUI:|r Frame ->", name, ":", field, "=", value)
+function Manager:OnFrameChange(_, name)
     local wrapper = ns.Frames[name]
     if wrapper then
-        -- Refrescamos la configuración del wrapper específico
         wrapper:UpdateConfig(Database:GetFrameData(name), Database:GetGlobals())
     end
 end
@@ -83,7 +85,6 @@ function Manager:RegisterFrame(name)
     local data = Database:GetFrameData(name)
     local isVirtual = data and data.isVirtual
     
-    -- Factoría: busca módulo especializado o usa el genérico
     local module = gUI:GetModule(name, true) or Wrapper
     local wrapper = module:Create(name, isVirtual)
 
@@ -97,7 +98,7 @@ function Manager:RegisterFrame(name)
 end
 
 ---------------------------------------------------------------------
--- Escáner de Frames Faltantes
+-- Scanner y Ticker
 ---------------------------------------------------------------------
 function Manager:StartScanner(framesList)
     local count = 0
@@ -114,7 +115,7 @@ function Manager:StartScanner(framesList)
         if pending == 0 or count >= SCAN.tries then
             self:StopScanner()
             if pending > 0 then
-                print("|cffff0000gUI:|r Scanner detenido. Faltan:", pending)
+                print("|cffff0000gUI:|r Scanner detenido. Frames perdidos:", pending)
             end
         end
     end, SCAN.interval)
@@ -124,5 +125,12 @@ function Manager:StopScanner()
     if self.scanTimer then
         self:CancelTimer(self.scanTimer)
         self.scanTimer = nil
+    end
+end
+
+function Manager:UpdateAllFrames()
+    if not ns.Frames then return end
+    for _, wrapper in pairs(ns.Frames) do
+        wrapper:OnUpdate()
     end
 end
