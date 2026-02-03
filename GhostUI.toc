@@ -18,10 +18,9 @@ Libs\AceConsole-3.0\AceConsole-3.0.xml
 Libs\AceLocale-3.0\AceLocale-3.0.xml
 Libs\AceTimer-3.0\AceTimer-3.0.xml
 
-## Main loader
-main.lua
-
-## Data
+## Core
+Core.lua
+Commands.lua
 Data\Defaults.lua
 Data\Database.lua
 Data\Schema.lua
@@ -51,38 +50,17 @@ Interface\Panels\General.lua
 Interface\Panels\Blizzard.lua
 Interface\Panels\Others.lua
 
-## Events
+## Events & Wrapper
+Frames\Wrapper.lua
+Events\Events.lua
 Events\Detectors\AFK.lua
 Events\Detectors\Combat.lua
 Events\Detectors\Instance.lua
 Events\Detectors\Mount.lua
-Events\Events.lua
 
-## Frames
-Frames\Wrapper.lua
+## Execution
 Frames\Manager.lua
 Frames\Custom\Chatbox.lua
 Frames\Blizzard\StatusTrackingBars.lua
 Frames\Blizzard\MainStatusTrackingBarContainer.lua
 Frames\Blizzard\SecondaryStatusTrackingBarContainer.lua
-
-
-
-
-
-
-
-## Core
-## Core\Data.lua
-## Core\Dispatcher.lua
-## Core\EventManager.lua
-## Core\Base.lua
-## Core\Single.lua
-## Core\Cluster.lua
-## Core\FrameManager.lua
-
-## Custom Frames
-## Frames\Mappings.lua
-## Frames\Chatbox.lua
-## Frames\MainStatusTrackingBarContainer.lua
-## Frames\SecondaryStatusTrackingBarContainer.lua

@@ -1,71 +1,52 @@
 local _, ns = ...
-local Events = gUI:NewModule("Events", "AceEvent-3.0", "AceTimer-3.0")
+local Events = gUI:NewModule("Events", "AceTimer-3.0", "AceEvent-3.0")
 Events:SetDefaultModuleState(false)
 
-local DETECTORS = {
-    "AFKDetector",
-    "CombatDetector",
-    "MountDetector",
-    "InstanceDetector",
-}
+local DETECTORS = { "AFKDetector", "CombatDetector", "MountDetector", "InstanceDetector" }
+local DELAY_CONFIG = { COMBAT = "combatEndDelay" }
 
-local DELAY_CONFIG = {
-    COMBAT = "combatEndDelay",
-    -- MOUNT = "mountEndDelay", -- Para otros delays
-}
-
----------------------------------------------------------------------
--- Ciclo de Vida
----------------------------------------------------------------------
 function Events:OnEnable()
     ns.States = {}
-    
-    for _, module in ipairs(DETECTORS) do
-        local key = module:gsub("Detector", ""):upper()
-        ns.States[key] = { 
-            state = false, 
-            priority = ns.PRIORITIES[key] or 0 
-        }
+
+    for _, moduleName in ipairs(DETECTORS) do
+        local key = moduleName:gsub("Detector", ""):upper()
+        ns.States[key] = { state = false, priority = ns.PRIORITIES[key] or 0 }
+        
+        gUI:EnableModule(moduleName)
     end
 
-    self:RegisterMessage("GHOSTUI_EVENT", "OnEvent")
-
-    for _, module in ipairs(DETECTORS) do
-        gUI:EnableModule(module)
-    end
+    self:RefreshAllDetectors()
 end
 
 function Events:OnDisable()
-    self:UnregisterMessage("GHOSTUI_EVENT")
-
-    for _, module in ipairs(DETECTORS) do
-        local key = module:gsub("Detector", ""):upper()
+    for _, moduleName in ipairs(DETECTORS) do
+        local key = moduleName:gsub("Detector", ""):upper()
         if self[key .. "_Timer"] then
             self:CancelTimer(self[key .. "_Timer"])
             self[key .. "_Timer"] = nil
         end
-        gUI:DisableModule(module)
+        gUI:EnableModule(moduleName, false)
     end
-
     ns.States = {}
 end
 
----------------------------------------------------------------------
--- Procesador de Estados
----------------------------------------------------------------------
-function Events:OnEvent(_, event, state, extra)
-    -- Cancelamos cualquier retardo previo para este evento
+function Events:RefreshAllDetectors()
+    for _, mod in ipairs(DETECTORS) do
+        gUI:GetModule(mod):Refresh()
+    end
+end
+
+-- Entrada principal: invocada directamente por los detectores para evitar lag de AceEvent
+function Events:OnEvent(event, state, extra, noDelay)
     if self[event .. "_Timer"] then
         self:CancelTimer(self[event .. "_Timer"])
         self[event .. "_Timer"] = nil
     end
 
-    -- Gestionamos el retardo si el evento pasa a false
+    -- Retardo para transiciones a 'false' (ej. salir de combate)
     local delayKey = DELAY_CONFIG[event]
-    if delayKey and state == false then
-        local db = gUI:GetModule("Database"):GetGlobals()
-        local delay = db[delayKey] or 0
-
+    if not noDelay and delayKey and not state then
+        local delay = gUI:GetModule("Database"):GetGlobals()[delayKey] or 0
         if delay > 0 then
             self[event .. "_Timer"] = self:ScheduleTimer("PublishState", delay, event, state, extra)
             return
@@ -78,12 +59,13 @@ end
 function Events:PublishState(event, state, extra)
     self[event .. "_Timer"] = nil
 
-    if not ns.States[event] then
-        ns.States[event] = { priority = ns.PRIORITIES[event] or 0 }
+    if not ns.States[event] then 
+        ns.States[event] = { priority = ns.PRIORITIES[event] or 0 } 
     end
 
     ns.States[event].state = state
     ns.States[event].extra = extra
 
+    -- Notifica al resto de la UI que el estado global ha cambiado
     self:SendMessage("GHOSTUI_EVENT_READY", event, state, extra)
 end

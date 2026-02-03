@@ -5,7 +5,6 @@ AFK:SetDefaultModuleState(false)
 function AFK:OnEnable()
     self.lastState = false
     self:RegisterEvent("PLAYER_FLAGS_CHANGED", "UpdateAFK")
-    self:UpdateAFK()
 end
 
 function AFK:OnDisable()
@@ -13,10 +12,18 @@ function AFK:OnDisable()
     self.lastState = false
 end
 
-function AFK:UpdateAFK()
-    local currentState = UnitIsAFK("player")
-    if currentState ~= self.lastState then
+-- Procesa el estado AFK y lo comunica directamente al gestor de eventos
+function AFK:UpdateAFK(force)
+    local currentState = UnitIsAFK("player") or false
+    
+    if force or currentState ~= self.lastState then
         self.lastState = currentState
-        self:SendMessage("GHOSTUI_EVENT", "AFK", currentState)
+        
+        -- Invocación directa para evitar la latencia y fallos de registro de AceEvent
+        gUI:GetModule("Events"):OnEvent("AFK", currentState, nil, force)
     end
+end
+
+function AFK:Refresh()
+    self:UpdateAFK(true)
 end

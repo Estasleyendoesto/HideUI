@@ -5,6 +5,7 @@ gUI:SetDefaultModuleState(false)
 function gUI:OnEnable()
     self:EnableModule("Database")
     self:EnableModule("Interface")
+    self:EnableModule("Commands")
 
     local db = self:GetModule("Database")
     local enabled = db:GetGlobals().addonEnabled
@@ -21,8 +22,8 @@ end
 
 function gUI:ToggleModules(enabled)
     if enabled then
-        self:EnableModule("FrameManager")
         self:EnableModule("Events")
+        self:EnableModule("FrameManager")
     else
         self:DisableModule("Events")
         self:DisableModule("FrameManager")

@@ -13,18 +13,26 @@ function Manager:OnEnable()
     Database = gUI:GetModule("Database")
     Wrapper  = gUI:GetModule("FrameWrapper")
 
+    -- Mensajes internos del Addon
     self:RegisterMessage("GHOSTUI_EVENT_READY", "OnEvent")
     self:RegisterMessage("GHOSTUI_GLOBAL_CHANGED", "OnGlobalChange")
     self:RegisterMessage("GHOSTUI_FRAME_CHANGED", "OnFrameChange")
     
     self:RegisterFrames()
+
+    -- Sincronización forzada si se activa manualmente desde Commands
+    -- Parece que no será necesario
+    -- if ns.forceSync then
+    --     for _, wrapper in pairs(ns.Frames) do wrapper:Refresh(true) end
+    --     ns.forceSync = nil
+    -- end
+
+    -- Ticker principal para animaciones de alpha
     self.mainTicker = self:ScheduleRepeatingTimer("UpdateAllFrames", TIMER.interval)
 end
 
 function Manager:OnDisable()
-    if self.mainTicker then 
-        self:CancelTimer(self.mainTicker) 
-    end
+    if self.mainTicker then self:CancelTimer(self.mainTicker) end
     self:UnregisterFrames()
 end
 
@@ -39,6 +47,7 @@ function Manager:OnEvent(_, event, state)
 end
 
 function Manager:OnGlobalChange()
+    if not ns.Frames then return end
     local glb = Database:GetGlobals()
     for _, wrapper in pairs(ns.Frames) do
         wrapper:UpdateConfig(wrapper.config, glb)
@@ -63,9 +72,7 @@ function Manager:RegisterFrames()
     local hasMissing = false
 
     for name in pairs(framesToRegister) do
-        if not self:RegisterFrame(name) then 
-            hasMissing = true 
-        end
+        if not self:RegisterFrame(name) then hasMissing = true end
     end
 
     if hasMissing then self:StartScanner(framesToRegister) end
@@ -73,9 +80,7 @@ end
 
 function Manager:UnregisterFrames()
     self:StopScanner()
-    for _, wrapper in pairs(ns.Frames) do
-        wrapper:Destroy()
-    end
+    for _, wrapper in pairs(ns.Frames) do wrapper:Destroy() end
     wipe(ns.Frames)
 end
 
@@ -85,15 +90,15 @@ function Manager:RegisterFrame(name)
     local data = Database:GetFrameData(name)
     local isVirtual = data and data.isVirtual
     
+    -- Intenta usar un módulo específico o el Wrapper genérico
     local module = gUI:GetModule(name, true) or Wrapper
     local wrapper = module:Create(name, isVirtual)
 
     if wrapper then
         ns.Frames[name] = wrapper
-        wrapper:UpdateConfig(Database:GetFrameData(name), Database:GetGlobals())
+        wrapper:UpdateConfig(data, Database:GetGlobals())
         return true
     end
-
     return false
 end
 
@@ -112,12 +117,7 @@ function Manager:StartScanner(framesList)
             end
         end
 
-        if pending == 0 or count >= SCAN.tries then
-            self:StopScanner()
-            if pending > 0 then
-                print("|cffff0000gUI:|r Scanner detenido. Frames perdidos:", pending)
-            end
-        end
+        if pending == 0 or count >= SCAN.tries then self:StopScanner() end
     end, SCAN.interval)
 end
 
