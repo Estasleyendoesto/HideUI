@@ -6,6 +6,12 @@ Wrapper.__index = Wrapper
 ---------------------------------------------------------------------
 -- Lógica de Estados
 ---------------------------------------------------------------------
+function Wrapper:UpdateConfig(frameConfig, globalConfig)
+    self.config = frameConfig
+    self.globals = globalConfig
+    self:Refresh()
+end
+
 function Wrapper:GetNextState()
     if not self.states then return end
 
@@ -33,22 +39,48 @@ function Wrapper:UpdateState(event, state)
 end
 
 function Wrapper:Refresh()
-    if not self.frame then return end
+    if not self.frame or not self.config then return end
 
-    local nextState = self:GetNextState()
-    if nextState == self.activeState then return end
-    
-    self.activeState = nextState
-    local targetAlpha = nextState and 0.2 or 1.0
-
-    -- DEBUG: Solo para testeo de frames principales
-    local fName = self.frame:GetName() or self.name
-    if fName == "PlayerFrame" or fName == "MainMenuBar" then
-        local color = nextState and "|cff00ff00" or "|cffffff00"
-        print(string.format("|cff00ff00gUI:|r %s%s|r -> %.1f (%s)", color, fName, targetAlpha, nextState or "VISIBLE"))
+    -- Si ignoreFrame está activo, nos aseguramos de limpiar cualquier rastro del addon
+    if self.config.ignoreFrame then
+        self:SetAlpha(1.0)
+        self.activeState = "IGNORED"
+        return
     end
 
+    local targetAlpha = self:GetTargetAlpha()
+
+    -- Filtro de cambio para no ejecutar animaciones idénticas
+    if targetAlpha == self.currentAlpha then return end
+    self.currentAlpha = targetAlpha
+
+    -- DEBUG (Opcional)
+    -- print(string.format("|cff00ff00gUI:|r %s -> Target: %.1f", self.name, targetAlpha))
+
     self:Fade(targetAlpha)
+end
+
+function Wrapper:GetTargetAlpha()
+    local cfg, glb = self.config, self.globals
+    if cfg.ignoreFrame then return 1.0 end
+
+    -- Determinamos qué fuente de datos usar
+    local data = cfg.isEnabled and cfg or glb
+    local state = self:GetNextState() -- Devuelve "COMBAT", "AFK", etc.
+
+    -- Si hay un estado activo (ej: "AFK")
+    if state then
+        local useKey   = "use" .. state   -- "useAFK"
+        local alphaKey = state .. "Alpha" -- "AFKAlpha"
+
+        -- Si el evento está activado en la config, usamos su alpha
+        if data[useKey] then
+            return data[alphaKey] or 0
+        end
+    end
+
+    -- Si no hay estado o el evento está desactivado, usamos el alpha base
+    return cfg.isEnabled and cfg.frameAlpha or glb.globalAlpha
 end
 
 ---------------------------------------------------------------------

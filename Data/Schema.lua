@@ -66,8 +66,8 @@ ns.UI_SCHEMA = {
         combatGroup = {
             type = "checkboxslider",
             label = "In Combat",
-            cbKey = "useCombat",
-            sliderKey = "combatAlpha",
+            cbKey = "useCOMBAT",
+            sliderKey = "COMBATAlpha",
             min = 0, max = 1, step = 0.05, unit = "%",
             tooltip = "Adjusts frame opacity while your character is in combat."
         },
@@ -75,23 +75,23 @@ ns.UI_SCHEMA = {
             type = "checkboxslider",
             label = "When AFK",
             cbKey = "useAFK",
-            sliderKey = "afkAlpha",
+            sliderKey = "AFKAlpha",
             min = 0, max = 1, step = 0.05, unit = "%",
             tooltip = "Controls frame opacity when your character is marked as AFK."
         },
         mountGroup = {
             type = "checkboxslider",
             label = "On Mount",
-            cbKey = "useMount",
-            sliderKey = "mountAlpha",
+            cbKey = "useMOUNT",
+            sliderKey = "MOUNTAlpha",
             min = 0, max = 1, step = 0.05, unit = "%",
             tooltip = "Changes frame opacity while your character is mounted."
         },
         instanceGroup = {
             type = "checkboxslider",
             label = "In Instance",
-            cbKey = "useInstance",
-            sliderKey = "instanceAlpha",
+            cbKey = "useINSTANCE",
+            sliderKey = "INSTANCEAlpha",
             min = 0, max = 1, step = 0.05, unit = "%",
             tooltip = "Adjusts frame opacity inside dungeons, raids, or other instances."
         },
@@ -162,8 +162,8 @@ ns.UI_SCHEMA = {
         combatGroup = {
             type = "checkboxslider",
             label = "In Combat",
-            cbKey = "useCombat",
-            sliderKey = "combatAlpha",
+            cbKey = "useCOMBAT",
+            sliderKey = "COMBATAlpha",
             min = 0, max = 1, step = 0.05, unit = "%",
             tooltip = "Adjusts the frame`s visibility while your character is in combat."
         },
@@ -171,23 +171,23 @@ ns.UI_SCHEMA = {
             type = "checkboxslider",
             label = "When AFK",
             cbKey = "useAFK",
-            sliderKey = "afkAlpha",
+            sliderKey = "AFKAlpha",
             min = 0, max = 1, step = 0.05, unit = "%",
             tooltip = "Controls the frame`s visibility when your character is marked as AFK."
         },
         mountGroup = {
             type = "checkboxslider",
             label = "On Mount",
-            cbKey = "useMount",
-            sliderKey = "mountAlpha",
+            cbKey = "useMOUNT",
+            sliderKey = "MOUNTAlpha",
             min = 0, max = 1, step = 0.05, unit = "%",
             tooltip = "Changes the frame`s visibility while your character is mounted."
         },
         instanceGroup = {
             type = "checkboxslider",
             label = "In Instance",
-            cbKey = "useInstance",
-            sliderKey = "instanceAlpha",
+            cbKey = "useINSTANCE",
+            sliderKey = "INSTANCEAlpha",
             min = 0, max = 1, step = 0.05, unit = "%",
             tooltip = "Adjusts the frame`s visibility when inside dungeons, raids, or other instances."
         },

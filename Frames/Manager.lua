@@ -34,10 +34,20 @@ end
 
 function Manager:OnGlobalChange(_, field, value)
     print("|cff00ff00gUI:|r Global ->", field, "=", value)
+    -- Si cambia algo global, todos los wrappers deben enterarse
+    local glb = Database:GetGlobals()
+    for _, wrapper in pairs(ns.Frames) do
+        wrapper:UpdateConfig(wrapper.config, glb)
+    end
 end
 
 function Manager:OnFrameChange(_, name, field, value)
     print("|cff00ff00gUI:|r Frame ->", name, ":", field, "=", value)
+    local wrapper = ns.Frames[name]
+    if wrapper then
+        -- Refrescamos la configuración del wrapper específico
+        wrapper:UpdateConfig(Database:GetFrameData(name), Database:GetGlobals())
+    end
 end
 
 ---------------------------------------------------------------------
@@ -79,6 +89,7 @@ function Manager:RegisterFrame(name)
 
     if wrapper then
         ns.Frames[name] = wrapper
+        wrapper:UpdateConfig(Database:GetFrameData(name), Database:GetGlobals())
         return true
     end
 

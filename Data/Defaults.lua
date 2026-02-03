@@ -75,15 +75,15 @@ ns.DEFAULT_FRAME_SETTINGS = {
     mouseoverFadeOutDuration = 0.4,
     --Alpha amount
     frameAlpha = 0.5,
-    combatAlpha = 1,
-    afkAlpha = 0,
-    mountAlpha = 0,
-    instanceAlpha = 1,
+    COMBATAlpha   = 1,
+    AFKAlpha      = 0,
+    MOUNTAlpha    = 0,
+    INSTANCEAlpha = 1,
     --Events
-    useCombat = true,
-    useAFK = true,
-    useMount = true,
-    useInstance = true,
+    useCOMBAT   = true,
+    useAFK      = true,
+    useMOUNT    = true,
+    useINSTANCE = true,
     --Group of frames as one
     isVirtual = false,
 }
@@ -96,15 +96,15 @@ ns.DEFAULT_GLOBAL_SETTINGS = {
     mouseoverFadeOutDuration = 0.4,
     --Alpha amount
     globalAlpha = 0.5,
-    combatAlpha = 1,
-    afkAlpha = 0,
-    mountAlpha = 0,
-    instanceAlpha = 1,
+    COMBATAlpha   = 1,
+    AFKAlpha      = 0,
+    MOUNTAlpha    = 0,
+    INSTANCEAlpha = 1,
     --Events
-    useCombat = true,
-    useAFK = true,
-    useMount = true,
-    useInstance = true,
+    useCOMBAT   = true,
+    useAFK      = true,
+    useMOUNT    = true,
+    useINSTANCE = true,
     -- Combat
     combatEndDelay = 1,
     -- Minimap button angle
