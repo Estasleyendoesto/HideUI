@@ -68,7 +68,7 @@ function Wrapper:OnUpdate()
     -- Corrección de Alpha externo
     if not self.frame.fadeInfo then
         local target = self:GetTargetAlpha()
-        if math.abs(self.frame:GetAlpha() - target) > 0.01 then
+        if math.abs(self.frame:GetAlpha() - target) > 0.01 then -- epsilon
             if self.forceAlpha then self:SetAlpha(target) else self:Refresh() end
         end
     end
