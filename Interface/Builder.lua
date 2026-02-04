@@ -98,11 +98,26 @@ function Builder:RenderSettings(container, category, id, layout)
     
     if not dbData or not schema or not order then return end
 
+    --- Extensión del Schema
+    local finalOrder = {}
+    for _, v in ipairs(order) do table.insert(finalOrder, v) end
+
+    local extraSchema = ns.UI_EXTENSIONS.schemas[id]
+    local extraOrder = ns.UI_EXTENSIONS.orders[id]
+
+    if extraOrder and extraSchema then
+        table.insert(finalOrder, { isSection = true, label = "Module Specific" })
+        for _, fieldName in ipairs(extraOrder) do
+            table.insert(finalOrder, fieldName)
+        end
+    end
+    ---
+
     container.childWidgets = {}
     local activeSection
     local Section = gUI:GetModule("Section")
 
-    for _, entry in ipairs(order) do
+    for _, entry in ipairs(finalOrder) do
         -- Manejo de secciones
         if type(entry) == "table" and entry.isSection then
             if activeSection then activeSection:Refresh() end
@@ -110,7 +125,7 @@ function Builder:RenderSettings(container, category, id, layout)
         
         -- Manejo de widgets dentro de secciones
         elseif activeSection then
-            local info = schema[entry]
+            local info = (extraSchema and extraSchema[entry]) or schema[entry]
             if info then
                 self:CreateWidget(activeSection.Content, category, id, entry, info, dbData, container)
             end
@@ -119,4 +134,9 @@ function Builder:RenderSettings(container, category, id, layout)
 
     if activeSection then activeSection:Refresh() end
     UpdateContainerStates(container, dbData, category)
+end
+
+function Builder:RegisterExtension(id, schema, order)
+    ns.UI_EXTENSIONS.schemas[id] = schema
+    ns.UI_EXTENSIONS.orders[id] = order
 end

@@ -26,6 +26,11 @@ ns.PRIORITIES = {
     MOUNT    = 10,
 }
 
+ns.UI_EXTENSIONS = {
+    schemas = {},
+    orders = {}
+}
+
 ns.FRAME_REGISTRY = {
     -- Chatbox
     {name = "Chatbox",                             alias = "Chat", isVirtual = true, useTextMode = false},

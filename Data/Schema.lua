@@ -132,7 +132,7 @@ ns.UI_SCHEMA = {
         ignoreFrame = {
             type = "checkbox", 
             label = "Ignore", 
-            tooltip = "Fade will completely ignore this frame." 
+            tooltip = "gUI will completely ignore this frame." 
         },
         frameAlpha = { 
             type = "slider", 
